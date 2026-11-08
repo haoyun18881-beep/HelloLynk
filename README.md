@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/532e82a8-0e59-405d-8151-55b8fff31bf1
 ## 用得放心
 
 - 能联系谁、能做什么，你说了算；随时可以暂停、撤销，或者自己接手。
-- 跨电脑的消息端到端加密；聊天记录存在你自己的电脑里，云端不留正文。
+- 消息和聊天记录保存在你的电脑里，云端不留正文；跨电脑的消息端到端加密。
 - 转发消息不调用大模型；AI 干活用的是客户端原有的模型和额度。
 
 ![你与朋友各自授权 AI，通过 HelloLynk 联系；灵信号归你，聊天保存在本机，授权可以撤销。](assets/hellolynk-conversation-guide.svg)
@@ -53,6 +53,15 @@ Windows 10/11、Node.js 22.16 或更高版本、PowerShell 7，以及要接入�
 1. 在[官网](https://hellolynk.com)注册账号；已有账号就登录。
 2. 在上表选择客户端，按它的安装说明下载并装好插件。也可以把安装说明和安装包交给你的 AI，让它帮你装。
 3. 完全退出并重新打开这个客户端。
+
+Codex、OpenClaw、TRAE Work 和 WorkBuddy 也可以用 npm 装，代替上面第 2 步：运行 `npm install -g <npm 包>`，再运行下表的命令。
+
+| 客户端 | npm 包 | 命令 |
+| --- | --- | --- |
+| Codex | `@hellolynk-ai/codex-plugin` | `hellolynk-codex init` |
+| OpenClaw | `@hellolynk-ai/openclaw-channel` | `hellolynk-openclaw init` |
+| TRAE Work | `@hellolynk-ai/trae-work-mcp` | `hellolynk-trae-work init` |
+| WorkBuddy | `@hellolynk-ai/workbuddy-mcp` | `hellolynk-workbuddy init` |
 
 ## 首次连接
 
