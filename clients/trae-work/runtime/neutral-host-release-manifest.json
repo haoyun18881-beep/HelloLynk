@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "release/integrations/trae-work/package.json",
-      "sha256": "359d30887c1930cbda3e7cf1aafb4bf56f81782715fffe940b3a8f052ce0d6d3"
+      "sha256": "4f9d556bc759b8fb8b121627f0b564449bad1f013bee6e22f3d286561106edaf"
     },
     {
       "path": "connect-activate.mjs",
@@ -56,7 +56,7 @@
     },
     {
       "path": "core/hellolynk-release-retention.mjs",
-      "sha256": "f5488a756dc9063fe5b44e0ea45dcdcc1903be3909717c7a8674b15e4952bfac"
+      "sha256": "679bd875f8952a5070455d7219926cf95117c7589b8abdf1d79eabf6917b5530"
     },
     {
       "path": "core/hellolynk-contact-request-e2ee.mjs",
@@ -192,7 +192,7 @@
     },
     {
       "path": "core/hellolynk-neutral-host-process.mjs",
-      "sha256": "42cc6be6d187755bb80479892b4107901ea712f75bdf01d1a4b9517a2a7b64a2"
+      "sha256": "75076c91d2240ed749969997b6fc8f0f252e938ab33412904031c9298ee831f7"
     },
     {
       "path": "core/hellolynk-neutral-host-store-adapters.mjs",

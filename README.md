@@ -36,11 +36,11 @@ https://github.com/user-attachments/assets/532e82a8-0e59-405d-8151-55b8fff31bf1
 | 客户端 | HelloLynk 在哪里打开 | 安装包与说明 |
 | --- | --- | --- |
 | Codex | 一级侧栏；对话内聊天卡片 | [安装说明](clients/codex/) |
-| Claude Code | Claude Desktop 的 Code 对话内嵌卡片 | [hellolynk-claude-code-0.1.85.zip](clients/claude-code/hellolynk-claude-code-0.1.85.zip) · [安装说明](clients/claude-code/) |
+| Claude Code | Claude Desktop 的 Code 对话内嵌卡片 | [hellolynk-claude-code-0.1.86.zip](clients/claude-code/hellolynk-claude-code-0.1.86.zip) · [安装说明](clients/claude-code/) |
 | WorkBuddy | 客户端内置网页 | [安装说明](clients/workbuddy/) |
 | TRAE Work | 客户端内置网页 | [安装说明](clients/trae-work/) |
 | OpenClaw | 面板中的 HelloLynk 通讯入口 | [安装说明](clients/openclaw/) |
-| DSH | 一级导航 | [hellolynk-dsh-0.1.102.zip](clients/dsh/hellolynk-dsh-0.1.102.zip) · [安装说明](clients/dsh/) |
+| DSH | 一级导航 | [hellolynk-dsh-0.1.103.zip](clients/dsh/hellolynk-dsh-0.1.103.zip) · [安装说明](clients/dsh/) |
 
 六个客户端的安装包都可以在 [GitHub Release](https://github.com/haoyun18881-beep/HelloLynk/releases/latest) 或[官网](https://hellolynk.com/guide)下载。
 

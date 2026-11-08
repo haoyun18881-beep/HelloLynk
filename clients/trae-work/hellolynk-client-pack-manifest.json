@@ -2,7 +2,7 @@
   "contract": "hellolynk-client-npm-pack-manifest-v1",
   "client": "trae-work",
   "packageName": "@hellolynk-ai/trae-work-mcp",
-  "version": "0.4.94",
+  "version": "0.4.95",
   "workbench": {
     "path": "runtime/workbench/hellolynk-workbench-build.json",
     "contract": "hellolynk-shared-workbench-build-v1",
@@ -23,7 +23,7 @@
     {
       "path": "integrations/trae-work/package.json",
       "bytes": 495,
-      "sha256": "359d30887c1930cbda3e7cf1aafb4bf56f81782715fffe940b3a8f052ce0d6d3"
+      "sha256": "4f9d556bc759b8fb8b121627f0b564449bad1f013bee6e22f3d286561106edaf"
     },
     {
       "path": "integrations/trae-work/runtime/neutral-host-bootstrap.mjs",
@@ -103,12 +103,12 @@
     {
       "path": "package.json",
       "bytes": 1850,
-      "sha256": "48ffbc1f77b7ae426c0b0d5c79ae6062e1d441e4fc298a16ef8ba953fb6fe504"
+      "sha256": "58750524f10af577fbb44bd7215076d6abedef8373c80c74d89bcbb78ee858ba"
     },
     {
       "path": "README.md",
-      "bytes": 3903,
-      "sha256": "ad1b703df524036be184a0059bf7055c51781eb87a02d4e873357115d784f8a3"
+      "bytes": 4534,
+      "sha256": "a63a4510934cfb5f12f1c1e5bf64a2fda79bde08643d36480b643798c699f052"
     },
     {
       "path": "runtime/bootstrap/core/hellolynk-client-account.mjs",
@@ -368,7 +368,7 @@
     {
       "path": "runtime/core/hellolynk-neutral-host-process.mjs",
       "bytes": 229535,
-      "sha256": "42cc6be6d187755bb80479892b4107901ea712f75bdf01d1a4b9517a2a7b64a2"
+      "sha256": "75076c91d2240ed749969997b6fc8f0f252e938ab33412904031c9298ee831f7"
     },
     {
       "path": "runtime/core/hellolynk-neutral-host-store-adapters.mjs",
@@ -392,8 +392,8 @@
     },
     {
       "path": "runtime/core/hellolynk-release-retention.mjs",
-      "bytes": 10707,
-      "sha256": "f5488a756dc9063fe5b44e0ea45dcdcc1903be3909717c7a8674b15e4952bfac"
+      "bytes": 19099,
+      "sha256": "679bd875f8952a5070455d7219926cf95117c7589b8abdf1d79eabf6917b5530"
     },
     {
       "path": "runtime/core/hellolynk-runtime-safety.cjs",
@@ -428,12 +428,12 @@
     {
       "path": "runtime/neutral-host-release-manifest.json",
       "bytes": 15032,
-      "sha256": "8742e8b110db9ecf4ab5e0edb47a70d4a28ddb61d8e548bf9be900b9ba5cd3c7"
+      "sha256": "f4a0daf89063f23b216bf89060a4c7209a8c43629919fde3adf0af941e3caa3d"
     },
     {
       "path": "runtime/neutral-host-release-pin.json",
       "bytes": 146,
-      "sha256": "e1539034213286dbc3327452df1694d925b73e4061917809fd86c7aa81fc9025"
+      "sha256": "fd8eea0d8e105d29cb5e68549399da053327a950663c3b5646010faa0b940354"
     },
     {
       "path": "runtime/platform/windows/configure-agent.ps1",

@@ -44,15 +44,26 @@ Windows 10/11、Node.js 22.16 或更高版本、PowerShell 7，以及打开过�
 ## 安装
 
 1. 打开 [HelloLynk 官网（Official site）](https://hellolynk.com)。新用户注册账号；已有账号登录后，查看自己的公开灵信号。
-2. 在官网或 [GitHub Release](https://github.com/haoyun18881-beep/HelloLynk/releases) 下载 OpenClaw 安装包，完整解压，在包含 `package` 文件夹的目录打开 PowerShell，运行：
+2. 两种装法任选一种。
+
+   用安装包，在官网或 [GitHub Release](https://github.com/haoyun18881-beep/HelloLynk/releases) 下载 OpenClaw 安装包，完整解压，在包含 `package` 文件夹的目录打开 PowerShell，运行：
 
    ```powershell
    node .\package\bin\hellolynk-client-setup.mjs init
    ```
 
+   用 npm，在 PowerShell 运行：
+
+   ```powershell
+   npm install -g @hellolynk-ai/openclaw-channel
+   hellolynk-openclaw init
+   ```
+
 3. 完全退出并重新打开 OpenClaw。
 
-可以把本说明和解压目录交给你的本地 AI，请它帮你安装。
+可以把本说明交给你的本地 AI，请它帮你安装；用安装包时，把解压目录也告诉它。
+
+下文命令按安装包写法给出。用 npm 装的，把 `node .\package\bin\hellolynk-client-setup.mjs` 换成 `hellolynk-openclaw`，在任意目录运行。
 
 ## 首次连接
 
@@ -76,9 +87,13 @@ node .\package\bin\hellolynk-client-setup.mjs connect --hellolynk-id hellolynk:i
 node .\package\bin\hellolynk-client-setup.mjs setup
 ```
 
+用 npm 装的，先运行 `npm install -g @hellolynk-ai/openclaw-channel` 装上新版，再运行 `hellolynk-openclaw setup`。
+
 ## 卸载
 
 在包含 `package` 文件夹的目录运行 `node .\package\bin\hellolynk-client-setup.mjs uninstall`。账号、联系人和聊天记录留在这台电脑上，重新安装后不用重新连接。
+
+用 npm 装的，运行 `hellolynk-openclaw uninstall`，再运行 `npm uninstall -g @hellolynk-ai/openclaw-channel`。
 
 ## 求助
 
