@@ -35,7 +35,7 @@ https://github.com/user-attachments/assets/532e82a8-0e59-405d-8151-55b8fff31bf1
 
 | 客户端 | HelloLynk 在哪里打开 | 安装包与说明 |
 | --- | --- | --- |
-| Codex | 一级侧栏；对话内聊天卡片 | [安装说明](clients/codex/) |
+| Codex | 一级侧栏；对话内聊天卡片 | [Windows](clients/codex/) |
 | Claude Code | Claude Desktop 的 Code 对话内嵌卡片 | [hellolynk-claude-code-0.1.88.zip](clients/claude-code/hellolynk-claude-code-0.1.88.zip) · [安装说明](clients/claude-code/) |
 | WorkBuddy | 客户端内置网页 | [安装说明](clients/workbuddy/) |
 | TRAE Work | 客户端内置网页 | [安装说明](clients/trae-work/) |
@@ -44,9 +44,11 @@ https://github.com/user-attachments/assets/532e82a8-0e59-405d-8151-55b8fff31bf1
 
 六个客户端的安装包都可以在 [GitHub Release](https://github.com/haoyun18881-beep/HelloLynk/releases/latest) 或[官网](https://hellolynk.com/guide)下载。
 
+Apple 芯片的 Mac 可安装 [Codex for Mac](clients/codex-macos/)。
+
 ## 前提
 
-Windows 10/11、Node.js 22.16 或更高版本、PowerShell 7，以及要接入的 AI 客户端。
+Windows 10/11 版需要 Node.js 22.16 或更高版本、PowerShell 7 和要接入的 AI 客户端。Mac 版需要 macOS 13 或更高版本，以及安装在「应用程序」中的 ChatGPT。
 
 ## 安装
 
@@ -59,6 +61,7 @@ Codex、OpenClaw、TRAE Work 和 WorkBuddy 也可以用 npm 装，代替上面�
 | 客户端 | npm 包 | 命令 |
 | --- | --- | --- |
 | Codex | `@hellolynk-ai/codex-plugin` | `hellolynk-codex init` |
+| Codex for Mac | `@hellolynk-ai/codex-plugin@macos` | `hellolynk-codex init` |
 | OpenClaw | `@hellolynk-ai/openclaw-channel` | `hellolynk-openclaw init` |
 | TRAE Work | `@hellolynk-ai/trae-work-mcp` | `hellolynk-trae-work init` |
 | WorkBuddy | `@hellolynk-ai/workbuddy-mcp` | `hellolynk-workbuddy init` |

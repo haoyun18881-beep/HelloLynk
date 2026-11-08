@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "hellolynk-codex": {
+      "command": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "args": [
+        "./server/mcp-proxy.mjs"
+      ],
+      "cwd": ".",
+      "env": {
+        "HELLOLYNK_HOST_MODE": "neutral",
+        "TMPDIR": "/tmp"
+      },
+      "env_vars": [
+        "HELLOLYNK_NEUTRAL_STORE_ROOT",
+        "CODEX_APP_TOOLS_PIPE_PATH",
+        "CODEX_THREAD_ID"
+      ]
+    }
+  }
+}
