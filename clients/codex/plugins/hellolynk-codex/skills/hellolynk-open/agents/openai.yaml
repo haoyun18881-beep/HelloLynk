@@ -1,0 +1,4 @@
+interface:
+  display_name: "HelloLynk 通讯"
+  short_description: "在 Codex 中打开 HelloLynk 通讯"
+  default_prompt: "使用 $hellolynk-open 打开 HelloLynk。"

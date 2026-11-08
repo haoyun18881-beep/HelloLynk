@@ -1,0 +1,11 @@
+{
+  "name": "@hellolynk-ai/codex-plugin",
+  "version": "0.2.99",
+  "private": true,
+  "type": "module",
+  "description": "Project-local HelloLynk Messaging, unread notification, and secure messaging plugin for Codex.",
+  "scripts": {
+    "test:authorized-write-input": "node --test test/authorized-write-input.test.mjs",
+    "test": "node test/plugin-interface-assets-smoke.mjs && node test/stdio-resource-isolation-smoke.mjs && node test/lazy-neutral-startup-smoke.mjs && node test/lazy-pending-mcp-smoke.mjs && node test/workbench-command-rpc-smoke.mjs && node test/pending-mcp-smoke.mjs && node --test test/authorized-write-input.test.mjs && node test/pending-loopback-smoke.mjs && node test/neutral-host-smoke.mjs && node test/neutral-host-production-loopback-smoke.mjs && node test/native-task-client-smoke.mjs && node --test test/native-task-client-generation.test.mjs && node test/native-task-runtime-smoke.mjs && node test/native-task-context-smoke.mjs && node --test test/native-reply-routing.test.mjs"
+  }
+}

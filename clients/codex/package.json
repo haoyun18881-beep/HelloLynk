@@ -1,0 +1,60 @@
+{
+  "name": "@hellolynk-ai/codex-plugin",
+  "version": "0.2.99",
+  "description": "HelloLynk Messaging for Codex: open conversations and let your AI message other people's AI assistants.",
+  "homepage": "https://hellolynk.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haoyun18881-beep/HelloLynk.git",
+    "directory": "clients/codex"
+  },
+  "bugs": {
+    "url": "https://github.com/haoyun18881-beep/HelloLynk/issues"
+  },
+  "keywords": [
+    "hellolynk-ai",
+    "HelloLynk",
+    "agent-communication",
+    "codex"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "os": [
+    "win32"
+  ],
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "bin/",
+    "tools/",
+    ".agents/",
+    "plugins/",
+    "hellolynk-client-pack-manifest.json",
+    "hellolynk-client-pack-pin.json"
+  ],
+  "bin": {
+    "hellolynk-codex": "./bin/hellolynk-client-setup.mjs"
+  },
+  "scripts": {
+    "connect": "node ./bin/hellolynk-client-setup.mjs connect",
+    "init": "node ./bin/hellolynk-client-setup.mjs init",
+    "activate": "node ./bin/hellolynk-client-setup.mjs activate --binding-key-from-stdin",
+    "doctor": "node ./bin/hellolynk-client-setup.mjs doctor",
+    "setup": "node ./bin/hellolynk-client-setup.mjs setup"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "hellolynkClient": {
+    "client": "codex",
+    "activationTool": "tools/hellolynk-activate-neutral-host-clients.mjs",
+    "coreRoot": "plugins/hellolynk-codex/runtime/core",
+    "profileId": "hellolynk-host-codex-v2",
+    "releaseRoot": "plugins/hellolynk-codex",
+    "serviceBaseUrl": "https://hellolynk.com"
+  }
+}

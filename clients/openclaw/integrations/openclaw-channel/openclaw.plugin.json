@@ -1,0 +1,57 @@
+{
+  "id": "hellolynk",
+  "activation": { "onStartup": false },
+  "channels": ["hellolynk"],
+  "skills": ["./skills"],
+  "controlUi": { "entry": "dist/control-ui/index.js" },
+  "contracts": {
+    "tools": [
+      "hellolynk_open_inbox",
+      "hellolynk_get_unread_count",
+      "hellolynk_list_authorized_contacts",
+      "hellolynk_send_authorized_message",
+      "hellolynk_list_authorized_inbox_messages",
+      "hellolynk_read_authorized_inbox_message",
+      "hellolynk_list_authorized_contact_requests",
+      "hellolynk_read_authorized_contact_request",
+      "hellolynk_list_pending_messages",
+      "hellolynk_claim_message",
+      "hellolynk_reply_authorized_message"
+    ]
+  },
+  "channelEnvVars": { "hellolynk": [] },
+  "engines": { "openclaw": ">=2026.9.3" },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "channelConfigs": {
+    "hellolynk": {
+      "label": "HelloLynk 通讯",
+      "description": "HelloLynk Messaging attached to the local neutral HelloLynk Host.",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["enabled", "hostMode", "bindingRef"],
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "hostMode": { "type": "string", "const": "neutral" },
+          "bindingRef": { "type": "string", "const": "protected-store:openclaw" },
+          "nativeModel": {
+            "type": "object",
+            "description": "Requests a model and thinking level for HelloLynk turns. OpenClaw may select another model; nativeModelSelection.hostObservation is session-level and is not correlated to this turn.",
+            "additionalProperties": false,
+            "required": ["provider", "model"],
+            "properties": {
+              "provider": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$" },
+              "model": { "type": "string", "minLength": 1, "maxLength": 240, "pattern": "^[^\\s\\x00-\\x1f\\x7f]+$" },
+              "thinkingLevel": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,31}$" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

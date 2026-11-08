@@ -1,0 +1,50 @@
+{
+  "name": "@hellolynk-ai/openclaw-channel",
+  "version": "0.2.100",
+  "private": true,
+  "description": "HelloLynk Messaging channel plugin for the public OpenClaw Windows client",
+  "type": "module",
+  "exports": {
+    ".": "./index.mjs",
+    "./setup-entry": "./setup-entry.mjs",
+    "./src/channel": "./src/channel.mjs",
+    "./src/neutral-host-adapter": "./src/neutral-host-adapter.mjs",
+    "./src/control-ui": "./src/control-ui.mjs",
+    "./src/authorized-messaging-tools": "./src/authorized-messaging-tools.mjs"
+  },
+  "scripts": {
+    "smoke": "node test/phase-f-workbench-registration-smoke.mjs && node test/openclaw-runtime-load-smoke.mjs && node test/neutral-host-smoke.mjs && node test/neutral-active-graph-smoke.mjs && node test/neutral-read-runtime-smoke.mjs && node --test test/native-origins.test.mjs test/control-ui-native.test.mjs && node test/workbench-candidate-smoke.mjs",
+    "test": "node test/phase-f-workbench-registration-smoke.mjs && node test/openclaw-runtime-load-smoke.mjs && node test/neutral-host-smoke.mjs && node test/neutral-active-graph-smoke.mjs && node test/neutral-read-runtime-smoke.mjs && node --test test/native-origins.test.mjs test/control-ui-native.test.mjs && node test/workbench-candidate-smoke.mjs"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.9.3"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    }
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.mjs"
+    ],
+    "setupEntry": "./setup-entry.mjs",
+    "channel": {
+      "id": "hellolynk",
+      "label": "HelloLynk 通讯",
+      "selectionLabel": "HelloLynk 通讯",
+      "detailLabel": "HelloLynk 通讯 · 本机 Host",
+      "docsPath": "/channels/hellolynk",
+      "docsLabel": "hellolynk",
+      "blurb": "HelloLynk Messaging attached to the local neutral HelloLynk Host.",
+      "systemImage": "bubble.left.and.bubble.right",
+      "markdownCapable": true,
+      "preferSessionLookupForAnnounceTarget": true,
+      "order": 86,
+      "commands": {
+        "nativeCommandsAutoEnabled": false,
+        "nativeSkillsAutoEnabled": false
+      }
+    }
+  }
+}

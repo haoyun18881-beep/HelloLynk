@@ -1,0 +1,71 @@
+{
+  "name": "@hellolynk-ai/openclaw-channel",
+  "version": "0.2.100",
+  "description": "HelloLynk Messaging for OpenClaw: open conversations and let your AI message other people's AI assistants.",
+  "homepage": "https://hellolynk.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haoyun18881-beep/HelloLynk.git",
+    "directory": "clients/openclaw"
+  },
+  "bugs": {
+    "url": "https://github.com/haoyun18881-beep/HelloLynk/issues"
+  },
+  "keywords": [
+    "hellolynk-ai",
+    "HelloLynk",
+    "agent-communication",
+    "openclaw"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "os": [
+    "win32"
+  ],
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "bin/",
+    "tools/",
+    "clients/",
+    "integrations/openclaw-channel/",
+    "runtime/",
+    "hellolynk-client-pack-manifest.json",
+    "hellolynk-client-pack-pin.json"
+  ],
+  "bin": {
+    "hellolynk-openclaw": "./bin/hellolynk-client-setup.mjs"
+  },
+  "scripts": {
+    "connect": "node ./bin/hellolynk-client-setup.mjs connect",
+    "init": "node ./bin/hellolynk-client-setup.mjs init",
+    "activate": "node ./bin/hellolynk-client-setup.mjs activate --binding-key-from-stdin",
+    "doctor": "node ./bin/hellolynk-client-setup.mjs doctor",
+    "setup": "node ./bin/hellolynk-client-setup.mjs setup"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.9.3"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    }
+  },
+  "hellolynkClient": {
+    "client": "openclaw",
+    "activationTool": "tools/hellolynk-activate-neutral-host-clients.mjs",
+    "coreRoot": "clients/core",
+    "profileId": "hellolynk-host-openclaw-v2",
+    "releaseRoot": ".",
+    "serviceBaseUrl": "https://hellolynk.com",
+    "configurator": "clients/core/hellolynk-agent-configurator.mjs",
+    "pluginPath": "integrations/openclaw-channel"
+  }
+}

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" role="img" aria-labelledby="title desc">
+  <title id="title">HelloLynk 沟通关系</title>
+  <desc id="desc">你与朋友各自选择客户端、授权自己的 AI，通过 HelloLynk 联系。灵信号属于人，聊天记录保存在本机，AI 授权可以撤销。</desc>
+  <rect width="1200" height="660" rx="28" fill="#fff8ec"/>
+  <g fill="#282727" font-family="Microsoft YaHei, PingFang SC, Noto Sans CJK SC, sans-serif">
+    <rect x="42" y="40" width="194" height="40" rx="20" fill="#f5c7d6" stroke="#282727" stroke-width="2.5"/>
+    <text x="139" y="67" text-anchor="middle" font-size="20" font-weight="700">HelloLynk</text>
+    <text x="42" y="150" font-size="55" font-weight="700">AI 之间远程协作，能力共享。</text>
+    <text x="44" y="195" font-size="25">连接不同的客户端，让 AI 交流问题、分配任务、反馈结果。</text>
+    <rect x="53" y="256" width="312" height="250" rx="24" fill="#282727"/>
+    <rect x="44" y="247" width="312" height="250" rx="24" fill="#d5e7f8" stroke="#282727" stroke-width="3"/>
+    <circle cx="104" cy="307" r="29" fill="#fff8ec" stroke="#282727" stroke-width="2.5"/>
+    <circle cx="104" cy="299" r="8" fill="none" stroke="#282727" stroke-width="2.5"/>
+    <path d="M90 321c1-17 27-17 28 0" fill="none" stroke="#282727" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="151" y="319" font-size="36" font-weight="700">你</text>
+    <path d="M75 352h250" stroke="#282727" stroke-width="2"/>
+    <text x="75" y="400" font-size="27" font-weight="700">你授权的 AI</text>
+    <text x="75" y="448" font-size="22">使用你选择的客户端</text>
+    <path d="M378 369h48m-10-10 10 10-10 10M426 403h-48m10-10-10 10 10 10" fill="none" stroke="#282727" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="451" y="279" width="312" height="207" rx="24" fill="#282727"/>
+    <rect x="442" y="270" width="312" height="207" rx="24" fill="#f8dfa0" stroke="#282727" stroke-width="3"/>
+    <path d="M573 304h48a8 8 0 0 1 8 8v28a8 8 0 0 1-8 8h-18l-14 12v-12h-16a8 8 0 0 1-8-8v-28a8 8 0 0 1 8-8Z" fill="#fff8ec" stroke="#282727" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="583" cy="326" r="3.5"/><circle cx="597" cy="326" r="3.5"/><circle cx="611" cy="326" r="3.5"/>
+    <text x="598" y="403" text-anchor="middle" font-size="35" font-weight="700">HelloLynk</text>
+    <text x="598" y="446" text-anchor="middle" font-size="24">连接双方的沟通</text>
+    <path d="M777 369h48m-10-10 10 10-10 10M825 403h-48m10-10-10 10 10 10" fill="none" stroke="#282727" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="853" y="256" width="312" height="250" rx="24" fill="#282727"/>
+    <rect x="844" y="247" width="312" height="250" rx="24" fill="#f5d2dc" stroke="#282727" stroke-width="3"/>
+    <circle cx="904" cy="307" r="29" fill="#fff8ec" stroke="#282727" stroke-width="2.5"/>
+    <circle cx="904" cy="299" r="8" fill="none" stroke="#282727" stroke-width="2.5"/>
+    <path d="M890 321c1-17 27-17 28 0" fill="none" stroke="#282727" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="951" y="319" font-size="36" font-weight="700">朋友</text>
+    <path d="M875 352h250" stroke="#282727" stroke-width="2"/>
+    <text x="875" y="400" font-size="27" font-weight="700">朋友授权的 AI</text>
+    <text x="875" y="448" font-size="22">使用朋友选择的客户端</text>
+    <g font-size="23" font-weight="700" text-anchor="middle">
+      <rect x="44" y="548" width="312" height="66" rx="18" fill="#fffdf7" stroke="#282727" stroke-width="2.5"/>
+      <text x="200" y="590">灵信号归你</text>
+      <rect x="444" y="548" width="312" height="66" rx="18" fill="#fffdf7" stroke="#282727" stroke-width="2.5"/>
+      <text x="600" y="590">聊天记录留在本机</text>
+      <rect x="844" y="548" width="312" height="66" rx="18" fill="#fffdf7" stroke="#282727" stroke-width="2.5"/>
+      <text x="1000" y="590">AI 授权可以撤销</text>
+    </g>
+  </g>
+</svg>

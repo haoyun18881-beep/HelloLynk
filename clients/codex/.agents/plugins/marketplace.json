@@ -1,0 +1,20 @@
+{
+  "name": "hellolynk-npm-codex",
+  "interface": {
+    "displayName": "HelloLynk NPM"
+  },
+  "plugins": [
+    {
+      "name": "hellolynk-codex",
+      "source": {
+        "source": "local",
+        "path": "./plugins/hellolynk-codex"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

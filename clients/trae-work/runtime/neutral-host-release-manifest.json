@@ -1,0 +1,394 @@
+{
+  "contract": "hellolynk-neutral-host-release-manifest-v1",
+  "entry": "neutral-host-release-entry.mjs",
+  "files": [
+    {
+      "path": "release/integrations/trae-work/package.json",
+      "sha256": "359d30887c1930cbda3e7cf1aafb4bf56f81782715fffe940b3a8f052ce0d6d3"
+    },
+    {
+      "path": "connect-activate.mjs",
+      "sha256": "50ec8b0a58ac5b099a653722b0946acb23d0a29a054bfb3856dc963db6f84bee"
+    },
+    {
+      "path": "neutral-host-bootstrap.mjs",
+      "sha256": "8a1676de41060a46f44826b6db84046c9f4a2b42cd5f5c52df8a3b25a6426145"
+    },
+    {
+      "path": "neutral-host-release-loader.mjs",
+      "sha256": "70bacded7cd42bef424e927d4002b6171aa613b0609f62ea02ebe8344359bfd6"
+    },
+    {
+      "path": "neutral-host-release-entry.mjs",
+      "sha256": "480281983e8d6ec6287def780d7bde50c1034143cf6888e09002180f28263f29"
+    },
+    {
+      "path": "trae-work-bootstrap.mjs",
+      "sha256": "00af92054453b3725b8b72b021480c96ed2d07d8a7683048c500678818291299"
+    },
+    {
+      "path": "core/hellolynk-agent-configurator.mjs",
+      "sha256": "53d284d18c3f898e9d5932b5cafc4f8caa5323b4701e7e765730537c4977ac99"
+    },
+    {
+      "path": "core/hellolynk-client-account.mjs",
+      "sha256": "a22f14f494c1a44a9272ca95e160f8cb1df612a1ceb8b54e32596b13f90c3740"
+    },
+    {
+      "path": "core/hellolynk-client-core.mjs",
+      "sha256": "af7c9cb7a996fdb194c51dbcc745c48b616ff1686d79a1451104690d882df1b8"
+    },
+    {
+      "path": "core/hellolynk-client-profile.mjs",
+      "sha256": "81d4f64c11c8dbccec04a05435cc42b53823db2649f2c88739647299b3c97fd2"
+    },
+    {
+      "path": "core/hellolynk-client-update-entry.mjs",
+      "sha256": "dc62228a7351c721514b5ca7921d485dc6aa05475aaa2e3881b78d7de0e1a134"
+    },
+    {
+      "path": "core/hellolynk-client-update-runtime.mjs",
+      "sha256": "0a76f2bdcf338c544e493ca7d0b7168f03ffa32ed223e3537eccafc1cbaafba0"
+    },
+    {
+      "path": "core/hellolynk-client-update.mjs",
+      "sha256": "a4104a67dd72cb7a1950585c92aa8424b9387c1eda4f191e0df3f901c4f16a8f"
+    },
+    {
+      "path": "core/hellolynk-release-retention.mjs",
+      "sha256": "f5488a756dc9063fe5b44e0ea45dcdcc1903be3909717c7a8674b15e4952bfac"
+    },
+    {
+      "path": "core/hellolynk-contact-request-e2ee.mjs",
+      "sha256": "18526628b354d18bcbe5e621360ecfcd5dfa4cb4d91397fb87d0c20e1f332a5d"
+    },
+    {
+      "path": "core/hellolynk-device-enrollment.mjs",
+      "sha256": "18f9decb843a5a82ef8dfc3e866904e0b04bbc48d700eac55a8ae54c5729c2aa"
+    },
+    {
+      "path": "core/hellolynk-direct-text-e2ee-client.mjs",
+      "sha256": "dd5dfa410a664e21e14b3c253ca496dd303e36aa5a2e1370b78cc51ec1fba973"
+    },
+    {
+      "path": "core/hellolynk-direct-text-e2ee.mjs",
+      "sha256": "3fee00210896b81cf40d25c634a6a758adee18704ef4a74fbc00b699a58d53e5"
+    },
+    {
+      "path": "core/hellolynk-host-auth.mjs",
+      "sha256": "49baa0b82ab078ad74a892a179189bdbd303a791d580ba4d6eac457564fad535"
+    },
+    {
+      "path": "core/hellolynk-host-protected-store.mjs",
+      "sha256": "0cefa22574df9dd99073d73bb688e9cae3faf6da862af013c1dfe9c87efef32e"
+    },
+    {
+      "path": "core/hellolynk-host-transport-client.mjs",
+      "sha256": "0c97425346496a5d5e1f2b3d092d5d227179051b63e8097bab225dffe576008a"
+    },
+    {
+      "path": "core/hellolynk-host.mjs",
+      "sha256": "ed88f2285b4c5eb8618a2f3f3c2a7a65d798465933b91b109121bb90b45f5880"
+    },
+    {
+      "path": "core/hellolynk-model-notices.cjs",
+      "sha256": "1b1c6e190b89f7305d05e1dddddaa6d50b7289b90aeab4599073eaaae27396f1"
+    },
+    {
+      "path": "core/hellolynk-model-inbox.mjs",
+      "sha256": "e112cbbb1caff5aa6f4a71bdfcb2d1c38260a96e3e4ab076b5f95c55e1da645e"
+    },
+    {
+      "path": "core/hellolynk-native-inbox-runtime.mjs",
+      "sha256": "bee3a5789420cc25cbc153cc8291f144b3a10ae50e96269823b7890cb603789d"
+    },
+    {
+      "path": "core/hellolynk-native-reply-routes.mjs",
+      "sha256": "65af258205a7eb9d2c599e0f400dbd9ea198c38a26f491e06f27c5c46101fc9b"
+    },
+    {
+      "path": "core/hellolynk-native-worker-lease.mjs",
+      "sha256": "41eb3103c216a09b80159522700b7bb78f3b082a644501fd19fa51ce1bf6bab7"
+    },
+    {
+      "path": "core/hellolynk-human-confirmation-ledger.mjs",
+      "sha256": "265ae39e93112416588841a14eb0351905d60b2552cf04c8cf8bd057acd64586"
+    },
+    {
+      "path": "core/hellolynk-human-relationship-controller.mjs",
+      "sha256": "01589c3eeb1c35f26cb50a14ce4e603c7bffe71e0b11863aed97c85f356e3c97"
+    },
+    {
+      "path": "core/hellolynk-indexed-message-store.mjs",
+      "sha256": "101f928dc5fab8064132e8755f74e157d35f921b5fe7d52fc80c0e46dc131428"
+    },
+    {
+      "path": "core/hellolynk-inbox-read-state.mjs",
+      "sha256": "3c354aaa7038446f8f554f9520db287cc06559e6cb22cb69f0121a179ff2cb01"
+    },
+    {
+      "path": "core/hellolynk-instance-conversation.mjs",
+      "sha256": "2e4a23917d4a86216b653ed04ec46216b9400fa94c13c0a00f1afc7877e284cb"
+    },
+    {
+      "path": "core/hellolynk-local-contact-requests.mjs",
+      "sha256": "3cbf0a0c6adeff17ceb310d202138c2dde7e23d0e8309f2584c161aae4c36acd"
+    },
+    {
+      "path": "core/hellolynk-local-contacts.mjs",
+      "sha256": "93d923702bdb5cbcbd47faf01f2c2e30bfe612fc450ef35ee98477412b2bbc6e"
+    },
+    {
+      "path": "core/hellolynk-local-data-migration.mjs",
+      "sha256": "72046a992b14f43167d6a671ec1094d34041cf43ba16d9d507583228045c7aa2"
+    },
+    {
+      "path": "core/hellolynk-local-data-protection.mjs",
+      "sha256": "798f42e9bd45a00565b628282233a55abfdc4d7102423cb0558a7e01fab76810"
+    },
+    {
+      "path": "core/hellolynk-local-identity-trust.mjs",
+      "sha256": "658fb5264d587341497e7d869408e51c1850f750856585ec7368a13c26f76a07"
+    },
+    {
+      "path": "core/hellolynk-local-messaging.mjs",
+      "sha256": "76b4348eb6eff34dec41c90666ac8ee14554018c5729c39b5b78bac30f0eaf80"
+    },
+    {
+      "path": "core/hellolynk-local-peer-transport.mjs",
+      "sha256": "4b8f01002b03fa19a9eea9dd72c7a41c4c951d6ef201f06dd1a89086a0a872cd"
+    },
+    {
+      "path": "core/hellolynk-local-process-lock.mjs",
+      "sha256": "5dd9b21f4e4509b148daaf2b495036e336e56be320d2bf7a3fac08b8a567d3bf"
+    },
+    {
+      "path": "core/hellolynk-native-conversations.mjs",
+      "sha256": "38116a956c2c96dbac6b5355e2097385475879ab5e9965ae3552912739379630"
+    },
+    {
+      "path": "core/hellolynk-native-notice.mjs",
+      "sha256": "d0c96a6dd9fed10a1e394dd2bf8c9b02af69ec5d97cd416d50f36b461324b0f9"
+    },
+    {
+      "path": "core/hellolynk-native-addressing-tools.cjs",
+      "sha256": "e583c769b72d8cf52523c19b3320c982c2550f002041770f5953f16951690162"
+    },
+    {
+      "path": "core/hellolynk-native-human-confirmation-broker.mjs",
+      "sha256": "755fd03a4ee3b97cdfdb1efc491fb4cf602e25173819380ea8a715c04c82ea5a"
+    },
+    {
+      "path": "core/hellolynk-neutral-host-assembly.mjs",
+      "sha256": "98b2b669183cda15272b182d5c04d3ae77511b8b657cd3179cbf2fa5d5f27920"
+    },
+    {
+      "path": "core/hellolynk-neutral-host-installation-store.mjs",
+      "sha256": "9ff399639d320e5527e51cd0ddbf049e7e0e8d3cc225cdc30f0d4637356a1590"
+    },
+    {
+      "path": "core/hellolynk-neutral-host-launcher.mjs",
+      "sha256": "490f8010bd84fc7c92a00ec4d4a996c27dd398b2e3584ded8bcebb74c598c18d"
+    },
+    {
+      "path": "core/hellolynk-neutral-host-process.mjs",
+      "sha256": "42cc6be6d187755bb80479892b4107901ea712f75bdf01d1a4b9517a2a7b64a2"
+    },
+    {
+      "path": "core/hellolynk-neutral-host-store-adapters.mjs",
+      "sha256": "b033d5cdedc54847bf1a9fd4d5b70af6d0e1ed8094e74feebbb592c242a0cde9"
+    },
+    {
+      "path": "core/hellolynk-neutral-host-workbench-read-model.mjs",
+      "sha256": "6767b4aaf5c7304587d7126f203535f02d1f1bfd692741105ad644686ecb1612"
+    },
+    {
+      "path": "core/hellolynk-platform-credential-store.mjs",
+      "sha256": "0558aca043ff586f10d7b82e1b2fe9b537ff661913dce76fc92feaf9bd7e5546"
+    },
+    {
+      "path": "core/hellolynk-relay-client-cli.mjs",
+      "sha256": "e3134f37ff8c327b3148a4c417ee14c6c8bfbc3be9680e25c1ea29d215dff1d7"
+    },
+    {
+      "path": "core/hellolynk-runtime-safety.cjs",
+      "sha256": "1518d9904b329f05a92092f0f2d4014675014597573ba85f33e3e06c25ecea16"
+    },
+    {
+      "path": "core/hellolynk-workbench-action-grants.mjs",
+      "sha256": "7247f4bce07e6fafce6559604ef9c7a8f7a033b922c212344462411be55ea9ac"
+    },
+    {
+      "path": "core/hellolynk-workbench-connection.mjs",
+      "sha256": "198fb21c3db2c91b85ca38d334c0ffe56ef28f2f052b6b62a8d2ed5c166fcd82"
+    },
+    {
+      "path": "workbench/candidate-bootstrap.mjs",
+      "sha256": "891b02f750693e5b4836e716922c2d632f6736b2a5b3b7417f161499459f3f56"
+    },
+    {
+      "path": "workbench/contract.mjs",
+      "sha256": "20648c3ed8e20b984b698010855414f8d4acaf0e2ade53b997b5582a85d90a08"
+    },
+    {
+      "path": "workbench/host-capabilities.mjs",
+      "sha256": "4e1a82e6cb46dd775ba39e2d34ff21eb1c293523883d18e607084ca91cfffb87"
+    },
+    {
+      "path": "workbench/i18n.mjs",
+      "sha256": "272917746c06cabc1b87b94341f2deca5591f0bea2d7a0e07b2d959d8e1f8c74"
+    },
+    {
+      "path": "workbench/loopback-surface.mjs",
+      "sha256": "6a550034c5dd558dfd22f9cb589fd76df40a99e976538e3b5d01371d212c9aa6"
+    },
+    {
+      "path": "workbench/mcp-app-bundle.mjs",
+      "sha256": "48fb8224cbaa7f78a386a79b2dba761f4de6c4b83b16032f7f96bd9783e172e4"
+    },
+    {
+      "path": "workbench/service.mjs",
+      "sha256": "3bf82a0076e9fe3b62105c626fe0d622092224f28d3905c62eafd65bf5385dcc"
+    },
+    {
+      "path": "workbench/state.mjs",
+      "sha256": "770d10f3bf76236772c87e86f5da346c013da387fb40c08360f895a7052cf7b5"
+    },
+    {
+      "path": "workbench/transports.mjs",
+      "sha256": "0c9f42ca9c9a4b4cc29b1bdcc0a0488d16a9ad06c235c642dff9cd4fc6f0d528"
+    },
+    {
+      "path": "workbench/ui/app.mjs",
+      "sha256": "643a5ac8d303f936ee87dd7c0c851aa1988e99ea9a9a45c6c89da28bdc76e799"
+    },
+    {
+      "path": "workbench/ui/connection-form.mjs",
+      "sha256": "700ca793f5eddca1dfea5f220c73732efc51ea4e1f8b8fc36da2bb67136240f0"
+    },
+    {
+      "path": "workbench/ui/http-transport.mjs",
+      "sha256": "b2fedbc2c34bcf065e0fc23c8c5fb37d358c03daa2c82ba46530b8dfb8fdc571"
+    },
+    {
+      "path": "workbench/ui/loopback-entry.mjs",
+      "sha256": "0e5e5d259ab6e2d8408c6d2e089551e6f279dcb1267e9db19f9d9dded0956fd4"
+    },
+    {
+      "path": "workbench/ui/mcp-app-client.mjs",
+      "sha256": "91b1e6e84a12434c2be7614845febfa44afa341d5d7f580bc1bfc106ed37f8f8"
+    },
+    {
+      "path": "workbench/ui/mcp-app-entry.mjs",
+      "sha256": "ba82ac55c4efcf7701bda33b6c6e0df4d59da542b1d6c33c96ba7f2391c4773a"
+    },
+    {
+      "path": "platform/windows/configure-agent.ps1",
+      "sha256": "d214863a02551befbca898b978efeb2a093d80933a577fad17795f50fb9f07aa"
+    },
+    {
+      "path": "platform/windows/credential-store.ps1",
+      "sha256": "7ec7362eba2c442d9417035ff14c1108c7a58558b6f09ac36a2275828370debb"
+    },
+    {
+      "path": "platform/windows/hellolynk-host-protected-store.ps1",
+      "sha256": "84ac61c3762b7f944bf3e2c895f9a6427985ce697052afd9bc610474c921adad"
+    },
+    {
+      "path": "platform/windows/hellolynk-human-confirmation-ledger.ps1",
+      "sha256": "317409f270f2cbd8017b61384292cf9caf4bd0fce6ef7a9894c1ec4c173b240c"
+    },
+    {
+      "path": "platform/windows/hellolynk-local-data-key.ps1",
+      "sha256": "3143122114c9756370e2ff3f56eba4a03e4a1657888aab1c6d4387427081d937"
+    },
+    {
+      "path": "platform/windows/hellolynk-native-human-confirmation-broker.ps1",
+      "sha256": "d63e02b34eb43d1a81d771f0e23f0b8d38e34c8f96663156d0c7b79985802936"
+    },
+    {
+      "path": "bootstrap/core/hellolynk-client-account.mjs",
+      "sha256": "a22f14f494c1a44a9272ca95e160f8cb1df612a1ceb8b54e32596b13f90c3740"
+    },
+    {
+      "path": "bootstrap/core/hellolynk-client-core.mjs",
+      "sha256": "af7c9cb7a996fdb194c51dbcc745c48b616ff1686d79a1451104690d882df1b8"
+    },
+    {
+      "path": "bootstrap/core/hellolynk-client-profile.mjs",
+      "sha256": "81d4f64c11c8dbccec04a05435cc42b53823db2649f2c88739647299b3c97fd2"
+    },
+    {
+      "path": "bootstrap/core/hellolynk-host-auth.mjs",
+      "sha256": "49baa0b82ab078ad74a892a179189bdbd303a791d580ba4d6eac457564fad535"
+    },
+    {
+      "path": "bootstrap/core/hellolynk-host-protected-store.mjs",
+      "sha256": "0cefa22574df9dd99073d73bb688e9cae3faf6da862af013c1dfe9c87efef32e"
+    },
+    {
+      "path": "bootstrap/core/hellolynk-local-process-lock.mjs",
+      "sha256": "5dd9b21f4e4509b148daaf2b495036e336e56be320d2bf7a3fac08b8a567d3bf"
+    },
+    {
+      "path": "bootstrap/core/hellolynk-neutral-host-installation-store.mjs",
+      "sha256": "9ff399639d320e5527e51cd0ddbf049e7e0e8d3cc225cdc30f0d4637356a1590"
+    },
+    {
+      "path": "bootstrap/core/hellolynk-platform-credential-store.mjs",
+      "sha256": "0558aca043ff586f10d7b82e1b2fe9b537ff661913dce76fc92feaf9bd7e5546"
+    },
+    {
+      "path": "bootstrap/core/hellolynk-runtime-safety.cjs",
+      "sha256": "1518d9904b329f05a92092f0f2d4014675014597573ba85f33e3e06c25ecea16"
+    },
+    {
+      "path": "bootstrap/platform/windows/hellolynk-host-protected-store.ps1",
+      "sha256": "84ac61c3762b7f944bf3e2c895f9a6427985ce697052afd9bc610474c921adad"
+    },
+    {
+      "path": "release/integrations/trae-work/server/dynamic-ui-contract.mjs",
+      "sha256": "574c6049de1965feffb3d5fce31eb5a97f0b82bcae6cfef1064538bafe04572c"
+    },
+    {
+      "path": "release/integrations/trae-work/server/host-lifecycle.mjs",
+      "sha256": "8db8af3a61a6095ded68eb9763c4b3e6a74e0ea3291105c83cd84565bc3abff2"
+    },
+    {
+      "path": "release/integrations/trae-work/server/mcp-proxy.mjs",
+      "sha256": "e53eb7ab1261d6e2f84f397bcae11486a60e619a2586e8616a69a8647e1661dc"
+    },
+    {
+      "path": "release/integrations/trae-work/server/mcp-server.mjs",
+      "sha256": "a2b01d8a1a127a1c8bdcffe96ae53d3e0319727e2fb26f2a1cedc755527e319e"
+    },
+    {
+      "path": "release/integrations/trae-work/server/neutral-host-adapter.mjs",
+      "sha256": "81bf4fd9bec2cb051b15cdedf13606d58fc358e098eec24216fce4fcb2758ca7"
+    },
+    {
+      "path": "release/integrations/trae-work/server/native-task-cdp.mjs",
+      "sha256": "587703b7d98dad6c320e4c2f98bf50d4f78d29483ccc01ac1ca27af026f3c5a4"
+    },
+    {
+      "path": "release/integrations/trae-work/server/native-task-worker.mjs",
+      "sha256": "8c12e71943265dfb971fe64aadb4617522d0cf334ebc7721f34d18f870374a07"
+    },
+    {
+      "path": "release/integrations/trae-work/server/trae-neutral-production.mjs",
+      "sha256": "76971d9933bcf1861c16eb62b9d220346b3b9c6aeac35672cc04f5658ec6baee"
+    },
+    {
+      "path": "release/integrations/trae-work/server/trae-ui-launch.mjs",
+      "sha256": "653c0d1849f44c556d13a97f1e50419b9c34d5a69f3d9f37bdc3eb39ae7ffb9f"
+    },
+    {
+      "path": "release/integrations/trae-work/server/ui-action-gate.mjs",
+      "sha256": "e7f7cf0d0ff20ebe38884f8fbbf04c722e262177dd37818284c6a2b2473be0ad"
+    },
+    {
+      "path": "release/integrations/trae-work/skills/hellolynk-inbox/SKILL.md",
+      "sha256": "15e46b225a25ee192ff01f0f674bb8d0792c54eae3c99c5d236a613b2bff29b4"
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "contract": "hellolynk-shared-workbench-build-v1",
+  "version": "1.3.43",
+  "sourceRoot": "clients/workbench",
+  "contracts": {
+    "snapshotSchemaVersion": 12,
+    "commandSchemaVersion": 6,
+    "snapshot": "hellolynk-workbench-snapshot-v12",
+    "readRequest": "hellolynk-workbench-read-request-v1",
+    "command": "hellolynk-workbench-command-v6",
+    "result": "hellolynk-workbench-command-result-v6"
+  },
+  "languageCatalog": {
+    "source": "clients/workbench/i18n.mjs",
+    "locales": [
+      {
+        "locale": "zh-CN",
+        "keyCount": 540,
+        "keySetSha256": "7e7e69845670c6411bf5384b0cfdb4bdfb462184c513964090d24b4280da41f8",
+        "catalogSha256": "5242cfca9b64d796903b59f15ddd850da850c722e7204f6bdc5b1041ee12b216"
+      },
+      {
+        "locale": "en",
+        "keyCount": 540,
+        "keySetSha256": "7e7e69845670c6411bf5384b0cfdb4bdfb462184c513964090d24b4280da41f8",
+        "catalogSha256": "5dfa91cdbd985202bdca0e4ea62aa74ebf5979a1a5d4ed5b1a884670c209c16f"
+      }
+    ]
+  },
+  "designResources": [
+    "ui/index.html",
+    "ui/styles.css",
+    "ui/hellolynk-mark.png",
+    "ui/icons/arrow-left.svg",
+    "ui/icons/close.svg",
+    "ui/icons/contacts.svg",
+    "ui/icons/inbox.svg",
+    "ui/icons/refresh.svg",
+    "ui/icons/search.svg",
+    "ui/icons/security.svg",
+    "ui/icons/settings.svg"
+  ],
+  "excludedProductionSources": [
+    {
+      "path": "synthetic-fixture.mjs",
+      "reason": "synthetic-preview-only"
+    },
+    {
+      "path": "ui/public-site.css",
+      "reason": "public-demo-only"
+    },
+    {
+      "path": "ui/synthetic-preview-entry.mjs",
+      "reason": "synthetic-preview-only"
+    }
+  ],
+  "files": [
+    {
+      "path": "candidate-bootstrap.mjs",
+      "sourcePath": "clients/workbench/candidate-bootstrap.mjs",
+      "bytes": 2384,
+      "sha256": "891b02f750693e5b4836e716922c2d632f6736b2a5b3b7417f161499459f3f56"
+    },
+    {
+      "path": "contract.mjs",
+      "sourcePath": "clients/workbench/contract.mjs",
+      "bytes": 68501,
+      "sha256": "20648c3ed8e20b984b698010855414f8d4acaf0e2ade53b997b5582a85d90a08"
+    },
+    {
+      "path": "host-capabilities.mjs",
+      "sourcePath": "clients/workbench/host-capabilities.mjs",
+      "bytes": 2432,
+      "sha256": "4e1a82e6cb46dd775ba39e2d34ff21eb1c293523883d18e607084ca91cfffb87"
+    },
+    {
+      "path": "i18n.mjs",
+      "sourcePath": "clients/workbench/i18n.mjs",
+      "bytes": 74648,
+      "sha256": "272917746c06cabc1b87b94341f2deca5591f0bea2d7a0e07b2d959d8e1f8c74"
+    },
+    {
+      "path": "loopback-surface.mjs",
+      "sourcePath": "clients/workbench/loopback-surface.mjs",
+      "bytes": 34375,
+      "sha256": "6a550034c5dd558dfd22f9cb589fd76df40a99e976538e3b5d01371d212c9aa6"
+    },
+    {
+      "path": "mcp-app-bundle.mjs",
+      "sourcePath": "clients/workbench/mcp-app-bundle.mjs",
+      "bytes": 4976,
+      "sha256": "48fb8224cbaa7f78a386a79b2dba761f4de6c4b83b16032f7f96bd9783e172e4"
+    },
+    {
+      "path": "service.mjs",
+      "sourcePath": "clients/workbench/service.mjs",
+      "bytes": 20319,
+      "sha256": "3bf82a0076e9fe3b62105c626fe0d622092224f28d3905c62eafd65bf5385dcc"
+    },
+    {
+      "path": "state.mjs",
+      "sourcePath": "clients/workbench/state.mjs",
+      "bytes": 13585,
+      "sha256": "770d10f3bf76236772c87e86f5da346c013da387fb40c08360f895a7052cf7b5"
+    },
+    {
+      "path": "transports.mjs",
+      "sourcePath": "clients/workbench/transports.mjs",
+      "bytes": 5997,
+      "sha256": "0c9f42ca9c9a4b4cc29b1bdcc0a0488d16a9ad06c235c642dff9cd4fc6f0d528"
+    },
+    {
+      "path": "ui/app.mjs",
+      "sourcePath": "clients/workbench/ui/app.mjs",
+      "bytes": 336483,
+      "sha256": "643a5ac8d303f936ee87dd7c0c851aa1988e99ea9a9a45c6c89da28bdc76e799"
+    },
+    {
+      "path": "ui/connection-form.mjs",
+      "sourcePath": "clients/workbench/ui/connection-form.mjs",
+      "bytes": 9510,
+      "sha256": "700ca793f5eddca1dfea5f220c73732efc51ea4e1f8b8fc36da2bb67136240f0"
+    },
+    {
+      "path": "ui/http-transport.mjs",
+      "sourcePath": "clients/workbench/ui/http-transport.mjs",
+      "bytes": 10750,
+      "sha256": "b2fedbc2c34bcf065e0fc23c8c5fb37d358c03daa2c82ba46530b8dfb8fdc571"
+    },
+    {
+      "path": "ui/hellolynk-mark.png",
+      "sourcePath": "clients/workbench/ui/hellolynk-mark.png",
+      "bytes": 14571,
+      "sha256": "108e5c90e1717a87169d317c15f8de33859ed487b06654888047c729d9ab5982"
+    },
+    {
+      "path": "ui/icons/arrow-left.svg",
+      "sourcePath": "clients/workbench/ui/icons/arrow-left.svg",
+      "bytes": 216,
+      "sha256": "1c527dd347b5fba0312cdcd66cf7514a261855672f7585d1c8b1882f602442a6"
+    },
+    {
+      "path": "ui/icons/close.svg",
+      "sourcePath": "clients/workbench/ui/icons/close.svg",
+      "bytes": 177,
+      "sha256": "22f5c4fb0660601a817ead151c37e82e93d39b2ef4ce1192d66f9099a3c59b36"
+    },
+    {
+      "path": "ui/icons/contacts.svg",
+      "sourcePath": "clients/workbench/ui/icons/contacts.svg",
+      "bytes": 324,
+      "sha256": "de0add3c43bca68d8cae7736bc3ea8145ca0abb7f32c25127542c6f5a27b3f45"
+    },
+    {
+      "path": "ui/icons/inbox.svg",
+      "sourcePath": "clients/workbench/ui/icons/inbox.svg",
+      "bytes": 271,
+      "sha256": "e1938770f085e6794a2e22aa3f8e890e083ac341a3c3faa13098a8243dc8306b"
+    },
+    {
+      "path": "ui/icons/refresh.svg",
+      "sourcePath": "clients/workbench/ui/icons/refresh.svg",
+      "bytes": 226,
+      "sha256": "a7b91e87c1a25d117b1352d2ec131bf6e3fe67df2020af87e0d3575c06d86f29"
+    },
+    {
+      "path": "ui/icons/search.svg",
+      "sourcePath": "clients/workbench/ui/icons/search.svg",
+      "bytes": 212,
+      "sha256": "135df34e348445114a1b88757fe7ef79a6718ffa4cc761c30f8026044552b699"
+    },
+    {
+      "path": "ui/icons/security.svg",
+      "sourcePath": "clients/workbench/ui/icons/security.svg",
+      "bytes": 268,
+      "sha256": "9b6c502b2ce2795530f2e7018e2c24aaaf1cf49472f040868bad148d3321071e"
+    },
+    {
+      "path": "ui/icons/settings.svg",
+      "sourcePath": "clients/workbench/ui/icons/settings.svg",
+      "bytes": 536,
+      "sha256": "17b528a15b8187aecd80c4974c7432ec6e58e6a12e062104fae70bf63c46caa2"
+    },
+    {
+      "path": "ui/index.html",
+      "sourcePath": "clients/workbench/ui/index.html",
+      "bytes": 8245,
+      "sha256": "b24cd1f768d5132539722ac7ade3acfe5aa86a47ee16a2adacf3bbf18b70c989"
+    },
+    {
+      "path": "ui/loopback-entry.mjs",
+      "sourcePath": "clients/workbench/ui/loopback-entry.mjs",
+      "bytes": 1355,
+      "sha256": "0e5e5d259ab6e2d8408c6d2e089551e6f279dcb1267e9db19f9d9dded0956fd4"
+    },
+    {
+      "path": "ui/mcp-app-client.mjs",
+      "sourcePath": "clients/workbench/ui/mcp-app-client.mjs",
+      "bytes": 5381,
+      "sha256": "91b1e6e84a12434c2be7614845febfa44afa341d5d7f580bc1bfc106ed37f8f8"
+    },
+    {
+      "path": "ui/mcp-app-entry.mjs",
+      "sourcePath": "clients/workbench/ui/mcp-app-entry.mjs",
+      "bytes": 22843,
+      "sha256": "ba82ac55c4efcf7701bda33b6c6e0df4d59da542b1d6c33c96ba7f2391c4773a"
+    },
+    {
+      "path": "ui/styles.css",
+      "sourcePath": "clients/workbench/ui/styles.css",
+      "bytes": 53189,
+      "sha256": "34d24d3d35800a796905049eb5f785f402cf1e82118c66efd4893bd003adbe31"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "@hellolynk-ai/workbuddy-mcp",
+  "version": "0.3.96",
+  "description": "HelloLynk Messaging for WorkBuddy: open conversations and let your AI message other people's AI assistants.",
+  "homepage": "https://hellolynk.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haoyun18881-beep/HelloLynk.git",
+    "directory": "clients/workbuddy"
+  },
+  "bugs": {
+    "url": "https://github.com/haoyun18881-beep/HelloLynk/issues"
+  },
+  "keywords": [
+    "hellolynk-ai",
+    "HelloLynk",
+    "agent-communication",
+    "workbuddy"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "os": [
+    "win32"
+  ],
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "bin/",
+    "tools/",
+    "clients/",
+    "integrations/workbuddy/",
+    "runtime/",
+    "workbuddy-package-manifest.json",
+    "workbuddy-package-pin.json",
+    "hellolynk-client-pack-manifest.json",
+    "hellolynk-client-pack-pin.json"
+  ],
+  "bin": {
+    "hellolynk-workbuddy": "./bin/hellolynk-client-setup.mjs"
+  },
+  "scripts": {
+    "connect": "node ./bin/hellolynk-client-setup.mjs connect",
+    "init": "node ./bin/hellolynk-client-setup.mjs init",
+    "activate": "node ./bin/hellolynk-client-setup.mjs activate --binding-key-from-stdin",
+    "doctor": "node ./bin/hellolynk-client-setup.mjs doctor",
+    "setup": "node ./bin/hellolynk-client-setup.mjs setup"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "hellolynkClient": {
+    "client": "workbuddy",
+    "activationTool": "tools/hellolynk-activate-neutral-host-clients.mjs",
+    "coreRoot": "runtime/core",
+    "profileId": "hellolynk-host-workbuddy-v2",
+    "releaseRoot": ".",
+    "serviceBaseUrl": "https://hellolynk.com",
+    "configurator": "runtime/core/hellolynk-agent-configurator.mjs",
+    "entry": "integrations/workbuddy/server/package-bootstrap.mjs",
+    "outerManifestPin": "workbuddy-package-pin.json",
+    "skillTarget": "workbuddy"
+  }
+}

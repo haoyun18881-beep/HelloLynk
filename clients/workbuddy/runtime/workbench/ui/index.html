@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>HelloLynk</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <div id="synthetic-banner" class="synthetic-banner" hidden role="status"></div>
+  <main id="workbench" class="workbench" aria-busy="true">
+    <nav id="app-rail" class="product-bar" aria-label="HelloLynk">
+      <a class="brand" href="#/messages" aria-label="HelloLynk">
+        <img class="brand-mark" src="/assets/hellolynk-mark.png" alt="" aria-hidden="true">
+        <span>HelloLynk</span>
+      </a>
+      <div class="primary-navigation" aria-label="主要功能">
+        <a class="rail-link is-active" href="#/messages" data-section="inbox">消息</a>
+        <a class="rail-link" href="#/contacts" data-section="contacts"><span id="contacts-nav-label">联系人</span><span id="contacts-nav-badge" class="nav-badge" hidden aria-hidden="true"></span></a>
+      </div>
+      <div class="portal-navigation" aria-label="官网入口">
+        <button id="account-link-devices" class="portal-link" type="button" data-portal-target="devices">设备与撤销</button>
+        <button id="account-disconnect" class="portal-link" type="button" hidden>解除连接</button>
+        <button id="locale-toggle" class="portal-link" type="button">EN</button>
+      </div>
+      <div class="product-actions">
+        <div class="refresh-control">
+          <span id="refresh-hint" class="refresh-hint">没看到新消息？点刷新</span>
+          <button id="global-refresh" class="icon-button refresh-button" type="button" aria-label="刷新消息" title="刷新消息">
+            <img src="/assets/icons/refresh.svg" alt="" aria-hidden="true">
+            <span id="refresh-label" class="sr-only">刷新消息</span>
+          </button>
+        </div>
+        <div class="connection-status" role="status" aria-live="polite">
+          <span class="host-dot" aria-hidden="true"></span>
+          <span id="host-status">正在打开</span>
+        </div>
+      </div>
+    </nav>
+
+    <aside id="list-pane" class="list-pane">
+      <header id="list-header" class="list-header" hidden>
+        <div id="list-heading">
+          <span id="space-label" class="eyebrow">个人空间</span>
+          <h1 id="section-title">会话</h1>
+        </div>
+        <a id="contact-request-link" class="contact-request-link" href="#/contacts/requests" aria-label="联系申请" hidden>
+          <span id="contact-request-label">联系申请</span>
+          <span id="contact-request-badge" class="nav-badge" hidden aria-hidden="true"></span>
+        </a>
+        <button id="list-primary-action" class="compact-action" type="button" hidden></button>
+      </header>
+      <div id="thread-filters" class="thread-filters" role="group" aria-label="会话筛选">
+        <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true"><span id="filter-all-label">全部</span></button>
+        <button class="filter-button" type="button" data-filter="unread" aria-pressed="false"><span id="filter-unread-label">未读</span><b id="unread-count">0</b></button>
+        <button id="history-manage" class="filter-button" type="button" aria-expanded="false" aria-controls="history-management" hidden>管理</button>
+      </div>
+      <div id="search-region" class="search-region">
+        <label for="search-input" id="search-label" class="sr-only">搜索会话和消息</label>
+        <img src="/assets/icons/search.svg" alt="" aria-hidden="true">
+        <input id="search-input" type="search" maxlength="120" autocomplete="off" placeholder="搜索聊天或消息">
+      </div>
+      <div id="history-management" class="history-management" hidden></div>
+      <div id="inbox-read-actions" class="inbox-read-actions" hidden></div>
+      <div id="list-content" class="list-content" aria-live="polite"></div>
+    </aside>
+
+    <section id="content-pane" class="content-pane" tabindex="-1">
+      <p id="connection-result-note" class="connection-result-note" role="status" hidden></p>
+      <div id="state-layer" class="state-layer" role="status">
+        <div class="state-content">
+        <div id="connection-welcome" class="connection-welcome" hidden>
+          <img src="/assets/hellolynk-mark.png" alt="" aria-hidden="true">
+          <span id="connection-eyebrow"></span>
+        </div>
+        <span class="spinner" aria-hidden="true"></span>
+        <h2 id="state-title">正在打开 HelloLynk</h2>
+        <p id="state-message">正在读取这台电脑上的消息。</p>
+        <button id="state-retry" class="primary-button" type="button" hidden>重试</button>
+        <div id="connection-guide" class="connection-guide" hidden>
+          <p id="connection-hint"></p>
+          <button id="connection-start" class="primary-button" type="button" hidden></button>
+          <p id="connection-help" class="connection-help"></p>
+          <button id="connection-key-link" class="portal-link" type="button" data-portal-target="keys" hidden></button>
+        </div>
+        </div>
+      </div>
+      <div id="content-view" class="content-view" hidden></div>
+    </section>
+  </main>
+  <div id="account-disconnect-layer" class="global-compose-layer" hidden>
+    <section class="global-compose-dialog" role="dialog" aria-modal="true" aria-labelledby="account-disconnect-title">
+      <h2 id="account-disconnect-title">解除当前客户端的账号连接？</h2>
+      <p id="account-disconnect-copy">旧账号的历史记录保留，解除后可以重新连接账号。</p>
+      <p id="account-disconnect-status" role="status"></p>
+      <div class="form-actions">
+        <button id="account-disconnect-cancel" class="secondary-button" type="button">取消</button>
+        <button id="account-disconnect-confirm" class="primary-button" type="button">解除连接</button>
+      </div>
+    </section>
+  </div>
+  <div id="global-compose-layer" class="global-compose-layer" hidden>
+    <section class="global-compose-dialog" role="dialog" aria-modal="true" aria-labelledby="global-compose-title">
+      <h2 id="global-compose-title">新消息</h2>
+      <label for="global-contact-select" id="global-contact-label">联系人</label>
+      <select id="global-contact-select"></select>
+      <p id="global-local-ai"></p>
+      <label for="global-instance-select" id="global-instance-label">对方 AI</label>
+      <select id="global-instance-select"></select>
+      <label for="global-message-draft" id="global-message-label">消息</label>
+      <textarea id="global-message-draft" maxlength="20480" rows="5"></textarea>
+      <div id="global-message-preview" hidden></div>
+      <p id="global-compose-status" class="composer-status" role="status" aria-live="polite"></p>
+      <div class="global-compose-actions">
+        <button id="global-compose-cancel" class="secondary-button" type="button">取消</button>
+        <button id="global-compose-submit" class="primary-button" type="button">发送</button>
+      </div>
+    </section>
+  </div>
+  <div id="local-history-layer" class="global-compose-layer" hidden>
+    <section class="global-compose-dialog" role="alertdialog" aria-modal="true" aria-labelledby="local-history-title" aria-describedby="local-history-copy">
+      <h2 id="local-history-title"></h2>
+      <p id="local-history-copy"></p>
+      <label id="local-history-range-label" for="local-history-range" hidden></label>
+      <select id="local-history-range" hidden></select>
+      <label id="local-history-date-label" for="local-history-date" hidden></label>
+      <input id="local-history-date" type="date" hidden>
+      <p id="local-history-estimate" aria-live="polite"></p>
+      <div id="local-history-status" role="status" aria-live="polite"></div>
+      <div class="form-actions">
+        <button id="local-history-cancel" class="secondary-button" type="button">取消</button>
+        <button id="local-history-confirm" class="secondary-button danger-button" type="button">清空本机记录</button>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="/assets/loopback-entry.mjs"></script>
+</body>
+</html>
