@@ -1,6 +1,6 @@
 {
   "name": "@hellolynk-ai/codex-plugin",
-  "version": "0.2.100",
+  "version": "0.2.101",
   "private": true,
   "type": "module",
   "description": "Project-local HelloLynk Messaging, unread notification, and secure messaging plugin for Codex.",

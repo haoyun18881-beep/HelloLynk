@@ -18,7 +18,7 @@ const conversationGuidance = "HelloLynk 是本人授权的 AI 通讯。接着已
 // What every client shows for the shared tools; nativeTool applies it.
 const toolText = Object.freeze({
   hellolynk_reply_authorized_message: { title: "回复来信", description: "接着当前对话的一封来信发送；不接手其他对话。" },
-  hellolynk_send_authorized_message: { title: "发起通信", description: "向本人授权的联系人发起新通信。contact 填对方名字；本人点名了对话时，targetConversationTitle 填完整标题。接着已有来往用 hellolynk_reply_authorized_message。" },
+  hellolynk_send_authorized_message: { title: "发起通信", description: "向本人授权的联系人发起新通信。contact 填对方名字；本人点名了对话时，targetConversationTitle 填完整标题。未指定对话的新通信默认送到对方的 HelloLynk 独立会话；要继续已有来往，用 hellolynk_reply_authorized_message 回复原信。" },
   hellolynk_list_authorized_contacts: { title: "查找联系人", description: queryDescription },
   hellolynk_claim_message: { title: "读取来信", description: "按自动提醒里的 batchId 一次读取整批来信（合计不超过 2 万字）；手动读单条传 localMessageId 和 conversationKey。" },
   hellolynk_list_pending_messages: { title: "待处理来信", description: "列出当前对话等待 AI 处理的来信，不含正文。" },

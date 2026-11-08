@@ -2,7 +2,7 @@
   "contract": "hellolynk-client-npm-pack-manifest-v1",
   "client": "openclaw",
   "packageName": "@hellolynk-ai/openclaw-channel",
-  "version": "0.2.101",
+  "version": "0.2.102",
   "workbench": {
     "path": "runtime/workbench/hellolynk-workbench-build.json",
     "contract": "hellolynk-shared-workbench-build-v1",
@@ -12,8 +12,8 @@
   "files": [
     {
       "path": "bin/hellolynk-client-setup.mjs",
-      "bytes": 141259,
-      "sha256": "ab6ce9491d9b88856fdc0207b0df3230ed27642d9d206f52341a4f9791622a4e"
+      "bytes": 141769,
+      "sha256": "0bb0706c06bd193cfa37007dd95e3107b52aacb0a7ebaec2249b153ff7dd772b"
     },
     {
       "path": "bin/hellolynk-mcp-config-shape.mjs",
@@ -172,8 +172,8 @@
     },
     {
       "path": "clients/core/hellolynk-native-addressing-tools.cjs",
-      "bytes": 19350,
-      "sha256": "252251de855c3fe9c5ebdd54a97ba976a8009f4ac57ec44f492bed8c7fb903de"
+      "bytes": 19443,
+      "sha256": "f4bd81b3d03277e28955a62409383a0c4072c6212567f71425df4e18ece75d63"
     },
     {
       "path": "clients/core/hellolynk-native-conversations.mjs",
@@ -223,7 +223,7 @@
     {
       "path": "clients/core/hellolynk-neutral-host-process.mjs",
       "bytes": 225161,
-      "sha256": "48f9bd6451adafdf3b43591a3b1469e36174c30fe04214cd2a84fb0aeebea023"
+      "sha256": "af6cb6585baae477f87ee880bd044dffb4c7f71667bfa78bcbf0d4d20e7483af"
     },
     {
       "path": "clients/core/hellolynk-neutral-host-store-adapters.mjs",
@@ -247,8 +247,8 @@
     },
     {
       "path": "clients/core/hellolynk-release-retention.mjs",
-      "bytes": 18822,
-      "sha256": "4ba5607e92f98a9a33b9ffd9ad166e559bc3197fcb1a6d54cef96b2b91ddc38e"
+      "bytes": 20624,
+      "sha256": "9b02a42a510fa5ef4a251b6e675f9ccc60f20b718d17c1617027cd048c5634dd"
     },
     {
       "path": "clients/core/hellolynk-runtime-safety.cjs",
@@ -323,7 +323,7 @@
     {
       "path": "integrations/openclaw-channel/package.json",
       "bytes": 2158,
-      "sha256": "1a50d1d959845547ee2a86c0f68028b45e10225041e96b1651c10d80ef955078"
+      "sha256": "0cb37e6e7c9591ca5877496970f981e08947b924e6a8054071298f909422e439"
     },
     {
       "path": "integrations/openclaw-channel/setup-entry.mjs",
@@ -398,7 +398,7 @@
     {
       "path": "package.json",
       "bytes": 1985,
-      "sha256": "e3eaf45bbf61dc809bd7acb88e1e25aa32040245f4b7f169b40914ee6174f9ef"
+      "sha256": "0215eaac79151bd9a1080885b4b883342585293753a115140ab466958763a152"
     },
     {
       "path": "README.md",
@@ -562,8 +562,8 @@
     },
     {
       "path": "runtime/core/hellolynk-native-addressing-tools.cjs",
-      "bytes": 19350,
-      "sha256": "252251de855c3fe9c5ebdd54a97ba976a8009f4ac57ec44f492bed8c7fb903de"
+      "bytes": 19443,
+      "sha256": "f4bd81b3d03277e28955a62409383a0c4072c6212567f71425df4e18ece75d63"
     },
     {
       "path": "runtime/core/hellolynk-native-conversations.mjs",
@@ -613,7 +613,7 @@
     {
       "path": "runtime/core/hellolynk-neutral-host-process.mjs",
       "bytes": 225161,
-      "sha256": "48f9bd6451adafdf3b43591a3b1469e36174c30fe04214cd2a84fb0aeebea023"
+      "sha256": "af6cb6585baae477f87ee880bd044dffb4c7f71667bfa78bcbf0d4d20e7483af"
     },
     {
       "path": "runtime/core/hellolynk-neutral-host-store-adapters.mjs",
@@ -637,8 +637,8 @@
     },
     {
       "path": "runtime/core/hellolynk-release-retention.mjs",
-      "bytes": 18822,
-      "sha256": "4ba5607e92f98a9a33b9ffd9ad166e559bc3197fcb1a6d54cef96b2b91ddc38e"
+      "bytes": 20624,
+      "sha256": "9b02a42a510fa5ef4a251b6e675f9ccc60f20b718d17c1617027cd048c5634dd"
     },
     {
       "path": "runtime/core/hellolynk-runtime-safety.cjs",
@@ -673,12 +673,12 @@
     {
       "path": "runtime/neutral-host-release-manifest.json",
       "bytes": 11228,
-      "sha256": "4059d5ef394c53c3d6235c332e0de58fc5f2e3b59a043ac3c3563de6745bcff7"
+      "sha256": "1666255ab9676913302d388b5029b9045c46775de7eaff9edd182929d246ec32"
     },
     {
       "path": "runtime/neutral-host-release-pin.json",
       "bytes": 146,
-      "sha256": "416a7fdbe52b44dec67be54f09cdf5c6cf7c4da3b1d0193cce2f721e9eb9da02"
+      "sha256": "cdb4c1e7ca4ee27cd217893b5b9b23f9defd2df9f3969ea981cd2abb0e25f35f"
     },
     {
       "path": "runtime/platform/windows/configure-agent.ps1",

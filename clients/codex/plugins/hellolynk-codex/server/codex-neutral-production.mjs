@@ -7,6 +7,7 @@ import { discoverNeutralHost } from "./neutral-host-adapter.mjs";
 import { launchPinnedNeutralHostBootstrap, verifyPinnedNeutralHostRuntime } from "../runtime/core/hellolynk-neutral-host-launcher.mjs";
 import { resolveClientAccountRoot } from "../runtime/core/hellolynk-client-account.mjs";
 import { startInstalledClientUpdate } from "../runtime/core/hellolynk-client-update-entry.mjs";
+import { recordCodexReleaseProcess } from "../runtime/core/hellolynk-release-retention.mjs";
 
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN_ROOT = path.dirname(MODULE_DIR);
@@ -216,6 +217,7 @@ async function prepareSelectedRelease(options, verifiedInitial = null) {
     assertReleaseBinding(binding, inspection);
     const release = await loader.activateNeutralHostRelease(inspection);
     if (!release || typeof release.run !== "function") throw codeError("neutral_codex_runner_integrity_invalid");
+    await recordCodexReleaseProcess(path.resolve(releaseRoot, "../.."));
     return Object.freeze({ release, inspection, binding, initialBindingFingerprint,
       releaseRoot, storeRoot, installationStore, protectedStore,
       runnerBinding: (root) => currentRunnerBinding(storeRoot, root, binding, initialBindingFingerprint) });

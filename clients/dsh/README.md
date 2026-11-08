@@ -8,7 +8,7 @@ Windows 10/11、Node.js 22.16 或更高版本、PowerShell 7，以及 DeepSeek H
 
 ## 安装
 
-1. 下载 [hellolynk-dsh-0.1.103.zip](hellolynk-dsh-0.1.103.zip)，完整解压到一个新目录。
+1. 下载 [hellolynk-dsh-0.1.104.zip](hellolynk-dsh-0.1.104.zip)，完整解压到一个新目录。
 2. 打开一次 Harness 桌面版，让它创建 `desktop` profile，再关闭 Harness。
 3. 在解压目录运行下面的命令。改过 Harness 安装位置时，换成实际的绝对路径：
 

@@ -2,7 +2,7 @@
   "contract": "hellolynk-client-npm-pack-manifest-v1",
   "client": "workbuddy",
   "packageName": "@hellolynk-ai/workbuddy-mcp",
-  "version": "0.3.97",
+  "version": "0.3.98",
   "workbench": {
     "path": "runtime/workbench/hellolynk-workbench-build.json",
     "contract": "hellolynk-shared-workbench-build-v1",
@@ -12,8 +12,8 @@
   "files": [
     {
       "path": "bin/hellolynk-client-setup.mjs",
-      "bytes": 141259,
-      "sha256": "ab6ce9491d9b88856fdc0207b0df3230ed27642d9d206f52341a4f9791622a4e"
+      "bytes": 141769,
+      "sha256": "0bb0706c06bd193cfa37007dd95e3107b52aacb0a7ebaec2249b153ff7dd772b"
     },
     {
       "path": "bin/hellolynk-mcp-config-shape.mjs",
@@ -167,8 +167,8 @@
     },
     {
       "path": "clients/core/hellolynk-native-addressing-tools.cjs",
-      "bytes": 19581,
-      "sha256": "e583c769b72d8cf52523c19b3320c982c2550f002041770f5953f16951690162"
+      "bytes": 19674,
+      "sha256": "cce89fa33dbe630a78d77843919a8e4b0c12f3482e754f783e6ff038b81929c4"
     },
     {
       "path": "clients/core/hellolynk-native-conversations.mjs",
@@ -223,7 +223,7 @@
     {
       "path": "clients/core/hellolynk-neutral-host-process.mjs",
       "bytes": 229535,
-      "sha256": "75076c91d2240ed749969997b6fc8f0f252e938ab33412904031c9298ee831f7"
+      "sha256": "5e5b9f535331444d284b2e62cc2593d6279b8a30332c82f4f85c7ff25e2f3727"
     },
     {
       "path": "clients/core/hellolynk-neutral-host-store-adapters.mjs",
@@ -247,8 +247,8 @@
     },
     {
       "path": "clients/core/hellolynk-release-retention.mjs",
-      "bytes": 19099,
-      "sha256": "679bd875f8952a5070455d7219926cf95117c7589b8abdf1d79eabf6917b5530"
+      "bytes": 20922,
+      "sha256": "9f8b5b97eee7530dc8ef965b0df6a19065b06012255100977d8abb17ce50d204"
     },
     {
       "path": "clients/core/hellolynk-runtime-safety.cjs",
@@ -303,7 +303,7 @@
     {
       "path": "integrations/workbuddy/package.json",
       "bytes": 1124,
-      "sha256": "94dd6849e56be0342485fcee3a1ac6e63ed9efdac97f5c64fa4b38d80cda3d3b"
+      "sha256": "b213e8830b815cd7033231766874f3b0156fa3acad5bcf4853125e8c73bb6902"
     },
     {
       "path": "integrations/workbuddy/server/host-lifecycle.mjs",
@@ -413,7 +413,7 @@
     {
       "path": "package.json",
       "bytes": 2018,
-      "sha256": "a7deda81be6fae750d06de8da0d35e86b493d638b5718af4b984c13db64c7133"
+      "sha256": "a427edcc3907e7a38f9f1ce64966fb5330fdaddbe899cfee770289fa38ac12e3"
     },
     {
       "path": "README.md",
@@ -577,8 +577,8 @@
     },
     {
       "path": "runtime/core/hellolynk-native-addressing-tools.cjs",
-      "bytes": 19350,
-      "sha256": "252251de855c3fe9c5ebdd54a97ba976a8009f4ac57ec44f492bed8c7fb903de"
+      "bytes": 19443,
+      "sha256": "f4bd81b3d03277e28955a62409383a0c4072c6212567f71425df4e18ece75d63"
     },
     {
       "path": "runtime/core/hellolynk-native-conversations.mjs",
@@ -628,7 +628,7 @@
     {
       "path": "runtime/core/hellolynk-neutral-host-process.mjs",
       "bytes": 225161,
-      "sha256": "48f9bd6451adafdf3b43591a3b1469e36174c30fe04214cd2a84fb0aeebea023"
+      "sha256": "af6cb6585baae477f87ee880bd044dffb4c7f71667bfa78bcbf0d4d20e7483af"
     },
     {
       "path": "runtime/core/hellolynk-neutral-host-store-adapters.mjs",
@@ -652,8 +652,8 @@
     },
     {
       "path": "runtime/core/hellolynk-release-retention.mjs",
-      "bytes": 18822,
-      "sha256": "4ba5607e92f98a9a33b9ffd9ad166e559bc3197fcb1a6d54cef96b2b91ddc38e"
+      "bytes": 20624,
+      "sha256": "9b02a42a510fa5ef4a251b6e675f9ccc60f20b718d17c1617027cd048c5634dd"
     },
     {
       "path": "runtime/core/hellolynk-runtime-safety.cjs",
@@ -688,12 +688,12 @@
     {
       "path": "runtime/neutral-host-release-manifest.json",
       "bytes": 11228,
-      "sha256": "a90945fc34ec9cd8bccfdc39193084515f432aa84980f927a475841a6cdb34b2"
+      "sha256": "8171d1ac9ba90e45f3cf9cc7dab5f4c05a283101c2457e4c5e8870ae54269eba"
     },
     {
       "path": "runtime/neutral-host-release-pin.json",
       "bytes": 146,
-      "sha256": "1e8e8e153126b9a9d38412a36bba7eda55a9d68d5f58cd7e2fa43633913580ce"
+      "sha256": "a5cc48363f9cb8ff174f02d6cb20f95e314c7520f89eab5027f47a41a3017e2c"
     },
     {
       "path": "runtime/platform/windows/configure-agent.ps1",
@@ -873,12 +873,12 @@
     {
       "path": "workbuddy-package-manifest.json",
       "bytes": 22134,
-      "sha256": "5ec9f5e9ee1c7f44b58e465029b1146918892d71792a62629b83adcccc2d3bcc"
+      "sha256": "fb956894f5beca013d7b0ae19353475cdf93c80b0ed166fde06e0a6dc2eb7a2b"
     },
     {
       "path": "workbuddy-package-pin.json",
       "bytes": 143,
-      "sha256": "f1799d502d498ff3cdd5ab1b1f226e6d478dee786b23c98e312b18ef821fc354"
+      "sha256": "ab7c4123868f507d33f52eef1e3506e52ded6a514396116ca1f68960b176ddb9"
     }
   ]
 }

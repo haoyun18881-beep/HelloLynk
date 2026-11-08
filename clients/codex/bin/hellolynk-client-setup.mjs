@@ -84,6 +84,13 @@ try {
   if (mutating) {
     await prepareFinalClientRoot(locations);
     installed = await installStablePackage({ packageClosure, sourceRelease, locations: packageLocations });
+    if (metadata.client === "codex") {
+      // The invoking updater can still be B255 code. Stop its old cleanup
+      // before switching the binding/cache to a release with process records.
+      const cleanup = await importStableCore(installed.packageRoot, "hellolynk-release-retention.mjs", "hellolynk_release_retention_unavailable");
+      await cleanup.protectRetentionReceipt({ releasesRoot: path.dirname(installed.packageRoot),
+        client: "codex", currentRelease: installed.packageRoot });
+    }
   }
   const activation = await inspectActivation(locations.hostRoot, metadata.profileId);
   // Both public install commands use the actual account state. Native recovery

@@ -48,7 +48,7 @@
     },
     {
       "path": "core/hellolynk-release-retention.mjs",
-      "sha256": "4ba5607e92f98a9a33b9ffd9ad166e559bc3197fcb1a6d54cef96b2b91ddc38e"
+      "sha256": "9b02a42a510fa5ef4a251b6e675f9ccc60f20b718d17c1617027cd048c5634dd"
     },
     {
       "path": "core/hellolynk-contact-request-e2ee.mjs",
@@ -164,7 +164,7 @@
     },
     {
       "path": "core/hellolynk-native-addressing-tools.cjs",
-      "sha256": "252251de855c3fe9c5ebdd54a97ba976a8009f4ac57ec44f492bed8c7fb903de"
+      "sha256": "f4bd81b3d03277e28955a62409383a0c4072c6212567f71425df4e18ece75d63"
     },
     {
       "path": "core/hellolynk-native-human-confirmation-broker.mjs",
@@ -184,7 +184,7 @@
     },
     {
       "path": "core/hellolynk-neutral-host-process.mjs",
-      "sha256": "48f9bd6451adafdf3b43591a3b1469e36174c30fe04214cd2a84fb0aeebea023"
+      "sha256": "af6cb6585baae477f87ee880bd044dffb4c7f71667bfa78bcbf0d4d20e7483af"
     },
     {
       "path": "core/hellolynk-neutral-host-store-adapters.mjs",
