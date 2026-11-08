@@ -2,16 +2,16 @@
   "contract": "hellolynk-private-client-release-v1",
   "client": "dsh",
   "distribution": "public-authorized-release",
-  "version": "0.1.104",
+  "version": "0.1.105",
   "license": "PolyForm-Shield-1.0.0",
   "installEntry": "scripts/install.mjs",
   "setupEntry": "dist/package/runtime/connect/bin/hellolynk-client-setup.mjs",
   "artifact": {
-    "path": "hellolynk-dsh-0.1.104.zip",
-    "bytes": 2805167,
-    "sha256": "3eb48342c680fa39cdafe3f2997f3b978af0f3a5fbb2a85976a49ddc6ce4c73f"
+    "path": "hellolynk-dsh-0.1.105.zip",
+    "bytes": 2807218,
+    "sha256": "2aca6683883298f3460e91cfba35d11e844cb2003985ab61c57039c48ae50a1d"
   },
-  "packageManifestSha256": "df55bd9c38ae7a0e2beba39f8832f519bc331f15acd3b00fd2b8658b3cc3913b",
-  "previousPackageManifestSha256": "2e867453a3c2b59e6ef868dcff9a15e1ea4a88470ab836d1caadedd5924c906c",
-  "connectPackManifestSha256": "7fa09701c4c2ecb0513f8e8a1637eb6ca6768bca6f01e6341942d1e6d691582a"
+  "packageManifestSha256": "d51d743efe3971591c0d2b9b07dab14b732ac1157c88191f6a2691955924e34f",
+  "previousPackageManifestSha256": "df55bd9c38ae7a0e2beba39f8832f519bc331f15acd3b00fd2b8658b3cc3913b",
+  "connectPackManifestSha256": "a1da3552f7391ee96bcdf306cff1545b0901ac2ab5d112f90df88c74e0b0d77c"
 }

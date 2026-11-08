@@ -1,6 +1,6 @@
 {
   "name": "@hellolynk-ai/workbuddy-mcp",
-  "version": "0.3.98",
+  "version": "0.3.99",
   "private": true,
   "type": "module",
   "description": "WorkBuddy one-click bridge for local HelloLynk Messaging.",

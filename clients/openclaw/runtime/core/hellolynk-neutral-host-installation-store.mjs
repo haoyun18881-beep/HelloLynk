@@ -12,10 +12,9 @@ import {
 } from "node:fs/promises";
 import { basename, dirname, isAbsolute, join, parse, resolve } from "node:path";
 import { spawn } from "node:child_process";
-import { homedir } from "node:os";
 import { performance } from "node:perf_hooks";
 import { withLocalProcessLock } from "./hellolynk-local-process-lock.mjs";
-import { readClientProfile } from "./hellolynk-client-profile.mjs";
+import { defaultHelloLynkClientRoot, readClientProfile } from "./hellolynk-client-profile.mjs";
 import { assertIdentifier } from "./hellolynk-host-auth.mjs";
 import runtimeSafety from "./hellolynk-runtime-safety.cjs";
 
@@ -46,10 +45,7 @@ export function defaultNeutralHostStoreRoot(platform = process.platform, env = p
     }
     return root;
   }
-  const home = resolve(String(env.HOME || env.USERPROFILE || homedir()));
-  if (platform === "win32") return resolve(String(env.LOCALAPPDATA || join(home, "AppData", "Local")), "HelloLynk", "host");
-  if (platform === "darwin") return join(home, "Library", "Application Support", "HelloLynk", "host");
-  return resolve(String(env.XDG_DATA_HOME || join(home, ".local", "share")), "hellolynk", "host");
+  return join(defaultHelloLynkClientRoot(platform, env), "host");
 }
 
 export function createNeutralHostInstallationStore(options = {}) {

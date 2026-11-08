@@ -32,7 +32,7 @@
     },
     {
       "path": "core/hellolynk-client-profile.mjs",
-      "sha256": "4b45a78b4d6c4794a1f494bd95777579c32c56a68321a1d3b484048942ae4742"
+      "sha256": "8be37831c96610e3d0a64848ada86488970cc6079e49764b47d8a8b2ba852269"
     },
     {
       "path": "core/hellolynk-client-update-entry.mjs",
@@ -176,7 +176,7 @@
     },
     {
       "path": "core/hellolynk-neutral-host-installation-store.mjs",
-      "sha256": "b5f6288732af6f9b9c0c750f6002eae657dde9513fc97674f6e59200f3cc9dc6"
+      "sha256": "dfb6bba4c627082cd6fca8cb38dc786f905e38f3e83ccf91dbfe57e55639e8a2"
     },
     {
       "path": "core/hellolynk-neutral-host-launcher.mjs",
@@ -184,7 +184,7 @@
     },
     {
       "path": "core/hellolynk-neutral-host-process.mjs",
-      "sha256": "af6cb6585baae477f87ee880bd044dffb4c7f71667bfa78bcbf0d4d20e7483af"
+      "sha256": "e744bacf65f7b86cbcf7d654189c0e07e09401083e2b6f9053b17c1c3bacd1b4"
     },
     {
       "path": "core/hellolynk-neutral-host-store-adapters.mjs",

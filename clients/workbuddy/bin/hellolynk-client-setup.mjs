@@ -61,8 +61,8 @@ try {
       "--expected-manifest-sha256", sourceRelease.outerManifestSha256,
     ]);
   } else {
-  const originalLocations = resolveLocations();
   const accountModule = await importStableCore(PACKAGE_ROOT, "hellolynk-client-account.mjs", "hellolynk_npm_account_runtime_invalid");
+  const originalLocations = resolveLocations(accountModule.clientAccountBaseRoot);
   const baseRoot = accountModule.clientAccountBaseRoot(originalLocations.hostRoot);
   const packageLocations = { ...originalLocations, hostRoot: baseRoot, finalCurrentRoot: path.dirname(baseRoot) };
   const accounts = accountModule.createClientAccountActions({ client: metadata.client, storeRoot: baseRoot });
@@ -838,7 +838,7 @@ async function verifyRelease(releaseRoot, packageRoot, expectedMetadata = metada
   return Object.freeze({ manifestSha256, outerManifestSha256 });
 }
 
-function resolveLocations() {
+function resolveLocations(getDefaultHostRoot) {
   if (process.platform !== "win32") fail("hellolynk_npm_windows_only");
   const home = path.resolve(process.env.USERPROFILE || os.homedir());
   const localAppData = path.resolve(process.env.LOCALAPPDATA || path.join(home, "AppData", "Local"));
@@ -848,7 +848,7 @@ function resolveLocations() {
   const codexHome = path.resolve(configuredCodexHome || path.join(home, ".codex"));
   const configuredHostRoot = String(process.env.HELLOLYNK_NEUTRAL_STORE_ROOT || "").trim();
   if (configuredHostRoot && !path.isAbsolute(configuredHostRoot)) fail("hellolynk_npm_store_root_invalid");
-  const hostRoot = path.resolve(configuredHostRoot || path.join(localAppData, "HelloLynk", "host"));
+  const hostRoot = path.resolve(configuredHostRoot || getDefaultHostRoot());
   if (configuredHostRoot && path.basename(hostRoot).toLowerCase() !== "host") {
     fail("hellolynk_npm_store_root_invalid");
   }
@@ -1004,6 +1004,12 @@ async function startHostWhenAbsent(runtime, binding) {
 }
 
 async function secureStableReleaseTree(locations, releaseId, options = {}) {
+  const releasePath = path.resolve(locations.finalCurrentRoot, "releases", releaseId);
+  // An existing AppData root can be shared while a new release is redirected
+  // into one desktop app's private cache. Other clients cannot use that release.
+  if (process.platform === "win32" && realpathSync.native(releasePath).toLowerCase() !== releasePath.toLowerCase()) {
+    fail("client_root_alias_rejected");
+  }
   const module = await importCore(
     "hellolynk-platform-credential-store.mjs",
     "hellolynk_npm_client_root_security_unavailable",

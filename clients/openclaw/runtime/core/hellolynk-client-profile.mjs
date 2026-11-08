@@ -1,4 +1,5 @@
 import { lstat, mkdir, open, readFile, rename, rm, stat } from "node:fs/promises";
+import { readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -19,10 +20,32 @@ const SAFE_SCOPE = /^[a-z][a-z0-9_.:-]{0,127}$/;
 const MAX_PROFILE_BYTES = 64 * 1024;
 
 export function defaultHelloLynkClientRoot(platform = process.platform, env = process.env) {
-  const home = resolve(String(env.HOME || env.USERPROFILE || homedir()));
-  if (platform === "win32") return resolve(String(env.LOCALAPPDATA || join(home, "AppData", "Local")), "HelloLynk");
+  const home = resolve(String((platform === "win32" ? env.USERPROFILE || env.HOME : env.HOME || env.USERPROFILE) || homedir()));
+  if (platform === "win32") {
+    const current = join(home, ".hellolynk", "hellolynk-v2");
+    // Once selected, another client's older installer must not move us back.
+    if (hasWindowsClientInstallation(current)) return current;
+    const existing = resolve(String(env.LOCALAPPDATA || join(home, "AppData", "Local")), "HelloLynk");
+    // AppData created from a packaged desktop app can be private to that app.
+    // Keep an existing installation; an empty failed setup is not an account.
+    if (hasWindowsClientInstallation(existing)) return existing;
+    return current;
+  }
   if (platform === "darwin") return join(home, "Library", "Application Support", "HelloLynk");
   return resolve(String(env.XDG_DATA_HOME || join(home, ".local", "share")), "hellolynk");
+}
+
+function hasWindowsClientInstallation(root) {
+  for (const directory of ["profiles", "releases", "host", "credentials", "e2ee-private-keys"]) {
+    try {
+      const entries = readdirSync(join(root, directory), { withFileTypes: true });
+      if (entries.some((entry) => directory !== "host" || entry.name !== "runtime")) return true;
+    } catch (error) {
+      // An unreadable existing location must not silently become a fresh account.
+      if (error.code !== "ENOENT") return true;
+    }
+  }
+  return false;
 }
 
 function safeId(value, code) {
