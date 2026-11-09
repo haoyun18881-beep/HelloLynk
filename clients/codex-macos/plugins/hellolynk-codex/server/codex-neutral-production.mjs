@@ -24,7 +24,7 @@ const TRUSTED_BOOTSTRAP_FILES = Object.freeze(new Map([
   ["runtime/neutral-host-release-loader.mjs", "283a20c6a9b90481bc03c143ab51d5289abf7b7a86fbe51fba7ea2ae1e6d2c60"],
   ["runtime/neutral-host-bootstrap.mjs", "53513deed7f0155a6603a1489d1609fae37776442358181ff7650d0cd9351f0a"],
   ["runtime/bootstrap/core/hellolynk-runtime-safety.cjs", "43d576d9f774409f4a735793c1503a6f397e787b10c59a4ac9cc9257299f5efe"],
-  ["runtime/bootstrap/core/hellolynk-darwin-host.mjs", "0772d7a23280b18d5bc59383a6a14fd2ecfd9de1ec53b351be0250770e3e2e70"],
+  ["runtime/bootstrap/core/hellolynk-darwin-host.mjs", "ded97c3bc3dd65ca75305f5199a1340dffb987a5f283454d60586df8b6b55c09"],
   ["runtime/bootstrap/core/hellolynk-darwin-vault.mjs", "b6094d856af016e674e4a0183a4e474397bbe92e66638743fa62fe085b554d30"],
   ["runtime/bootstrap/core/hellolynk-host-protected-store.mjs", "10f81f4f6a5dd2fe9a742e847b2eb47dbf20f802f4414f46a05ccbc3505148e2"],
   ["runtime/bootstrap/core/hellolynk-neutral-host-installation-store.mjs", "42ae1e7deb876a8308b7bfed6a7b891d1834117b62504fc5befe3f91a0b4c740"],

@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "release/package.json",
-      "sha256": "befbca064334e8ff7f9d192f095ac1bd786a3882385a450fc2c2d2a5c9b2b7dd"
+      "sha256": "f786baab2e9f35836813c6b77e1cbc0fb8c0a3c0a2055b2e6ea777f2428cd232"
     },
     {
       "path": "neutral-host-bootstrap.mjs",
@@ -40,19 +40,19 @@
     },
     {
       "path": "core/hellolynk-client-update-entry.mjs",
-      "sha256": "1e513a4a98437dc60b49f9f39fc3958808c3acfaeb6c5bb638efea2e61d4b1ee"
+      "sha256": "d9548eacda8632976e42aafc65f0cef2ec9c5233d2d53b31b02aec0a1702b5eb"
     },
     {
       "path": "core/hellolynk-client-update-runtime.mjs",
-      "sha256": "96aa12ba21619a0cd78ef61c63be6f43fdb61f892201ce923ee35e0912ae2e52"
+      "sha256": "aa233e2cdbdfadb7da6aa489591bc12c4121101b94696f93f6e6cb5d3e7c7870"
     },
     {
       "path": "core/hellolynk-client-update.mjs",
-      "sha256": "93bf5f2ecc72731d70367306989fa18c82fa7bf9e4b5f785a1376f0d55239428"
+      "sha256": "e57f7cc5e98519a014cef7cef68a97bb7e2beb33eb381c38d1751a3967904aaa"
     },
     {
       "path": "core/hellolynk-release-retention.mjs",
-      "sha256": "7cfd7e20c37ac1479f2472cc5fba8e830dcd1b83b91a86c340749cf145f0d661"
+      "sha256": "0ee150af5a9bcc1f636e3ff980ee90ce7d073ab5ed4a991920cd3472bc65529c"
     },
     {
       "path": "core/hellolynk-contact-request-e2ee.mjs",
@@ -64,7 +64,7 @@
     },
     {
       "path": "core/hellolynk-darwin-host.mjs",
-      "sha256": "0772d7a23280b18d5bc59383a6a14fd2ecfd9de1ec53b351be0250770e3e2e70"
+      "sha256": "ded97c3bc3dd65ca75305f5199a1340dffb987a5f283454d60586df8b6b55c09"
     },
     {
       "path": "core/hellolynk-darwin-vault.mjs",
@@ -196,7 +196,7 @@
     },
     {
       "path": "core/hellolynk-neutral-host-process.mjs",
-      "sha256": "e744bacf65f7b86cbcf7d654189c0e07e09401083e2b6f9053b17c1c3bacd1b4"
+      "sha256": "7b237a1400c604da5decbb29ab3ce556fd1b744d0cfd7d28b5560b217da120b1"
     },
     {
       "path": "core/hellolynk-neutral-host-store-adapters.mjs",
@@ -292,7 +292,7 @@
     },
     {
       "path": "platform/windows/credential-store.ps1",
-      "sha256": "d00dae4af08205fffa52c4956d1c87d5c3423e8f20982ccfc1b76e3424fe442e"
+      "sha256": "8f288c91a1f6ecaf2651baab9bdfc55014c11ea9e165f203ca7a69f4d47d7917"
     },
     {
       "path": "platform/windows/hellolynk-host-protected-store.ps1",
@@ -312,7 +312,7 @@
     },
     {
       "path": "bootstrap/core/hellolynk-darwin-host.mjs",
-      "sha256": "0772d7a23280b18d5bc59383a6a14fd2ecfd9de1ec53b351be0250770e3e2e70"
+      "sha256": "ded97c3bc3dd65ca75305f5199a1340dffb987a5f283454d60586df8b6b55c09"
     },
     {
       "path": "bootstrap/core/hellolynk-darwin-vault.mjs",
@@ -376,7 +376,7 @@
     },
     {
       "path": "release/server/codex-neutral-production.mjs",
-      "sha256": "2e09f95b8c15ac307d3be0e5b29fecd00e5eae95fd816e885c51484990e703cb"
+      "sha256": "2c2f209339385cc14f27fe985f4deb75f4bd48e689035311847cc3b08e36ac52"
     },
     {
       "path": "release/server/neutral-host-adapter.mjs",
@@ -384,7 +384,7 @@
     },
     {
       "path": "release/server/workbench-runtime.mjs",
-      "sha256": "99e069a72a0be3e73a993b2092d55470fcb481eb381841a156b2756415a0a0a9"
+      "sha256": "1136c7ea50cc73065fe04094c5b5c19cb676c40a0a189979015766a9c4e908d8"
     }
   ]
 }

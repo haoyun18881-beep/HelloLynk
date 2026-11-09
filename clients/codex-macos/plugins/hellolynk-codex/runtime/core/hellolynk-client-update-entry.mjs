@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { clientAccountBaseRoot } from "./hellolynk-client-account.mjs";
 import { startClientUpdateRuntime } from "./hellolynk-client-update-runtime.mjs";
-import { clientUpdateCatalogId, MAC_CODEX_VERSION } from "./hellolynk-client-update.mjs";
+import { clientUpdateCatalogId, MAC_CLIENT_VERSION } from "./hellolynk-client-update.mjs";
 
 const running = new Map();
 
@@ -11,7 +11,7 @@ const running = new Map();
 export function startInstalledClientUpdate(options = {}) {
   const { client, packageRoot, storeRoot } = options;
   const catalogId = clientUpdateCatalogId(client, process.platform);
-  const mac = catalogId === "codex-macos";
+  const mac = process.platform === "darwin";
   if (!catalogId || (mac && process.arch !== "arm64") || !path.isAbsolute(String(packageRoot || ""))) return Promise.resolve(null);
   let baseRoot;
   try { baseRoot = clientAccountBaseRoot(storeRoot); } catch { return Promise.resolve(null); }
@@ -24,7 +24,7 @@ export function startInstalledClientUpdate(options = {}) {
     const metadata = await fs.lstat(packageFile);
     if (!metadata.isFile() || metadata.isSymbolicLink() || metadata.nlink !== 1 || metadata.size > 64 * 1024) return null;
     const manifest = JSON.parse(await fs.readFile(packageFile, "utf8"));
-    const version = mac ? MAC_CODEX_VERSION : /^\d+\.\d+\.\d+$/u;
+    const version = mac ? MAC_CLIENT_VERSION : /^\d+\.\d+\.\d+$/u;
     if (manifest.hellolynkClient?.client !== client || !version.test(manifest.version || "")
       || (mac && (manifest.os?.[0] !== "darwin" || manifest.cpu?.[0] !== "arm64"))) return null;
     return startClientUpdateRuntime({

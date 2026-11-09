@@ -2,13 +2,13 @@
   "contract": "hellolynk-private-client-release-v1",
   "client": "claude-code-macos",
   "distribution": "public-authorized-release",
-  "version": "0.1.88-macos.1",
+  "version": "0.1.89-macos.1",
   "license": "PolyForm-Shield-1.0.0",
   "installEntry": "install.mjs",
   "artifact": {
-    "path": "hellolynk-claude-code-macos-0.1.88-macos.1.zip",
-    "bytes": 744713,
-    "sha256": "b3d207d48dc88835b6ffeb0c3a5d1b2b74fe84b25eb0844369f9856d8a5f587e"
+    "path": "hellolynk-claude-code-macos-0.1.89-macos.1.zip",
+    "bytes": 745906,
+    "sha256": "2b5acb74177838bcef8183fd07f63ca9e20d6e2044487716152d361245f051c3"
   },
-  "packageManifestSha256": "867b2036442ae9a91f6746c964808f1dbcb2a8b5cafddaecd2af2f5c60ee286f"
+  "packageManifestSha256": "66055e5cfb66b0b80dea1db206c1dc5e475cff33540ab3ab3dc9c17f86f4c81d"
 }

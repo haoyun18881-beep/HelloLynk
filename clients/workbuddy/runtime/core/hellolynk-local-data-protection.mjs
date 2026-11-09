@@ -1,3 +1,4 @@
+import { checkDarwinPath, DARWIN_VAULT_FILE, withDarwinVault } from "./hellolynk-darwin-vault.mjs";
 import {
   createHash,
   createHmac,
@@ -261,17 +262,26 @@ async function readProtectionState(statePath) {
 
 export function createWindowsLocalDataKeyProvider(options = {}) {
   const platform = options.platform || process.platform;
-  if (platform !== "win32") throw codeError("local_data_key_platform_unsupported");
+  if (!["darwin", "win32"].includes(platform)) throw codeError("local_data_key_platform_unsupported");
   const root = assertAbsoluteRoot(options.root);
   const helperPath = resolve(options.helperPath || WINDOWS_HELPER_PATH);
-  const invoke = options.invoke || ((command) => invokeWindowsDataKey({ command, root, helperPath }));
+  const invoke = options.invoke || (platform === "darwin"
+    ? command => withDarwinVault({ root, helperPath:options.helperPath, readOnly:command === "Load", allowMissing:true }, state => {
+      if (!state.localDataKey) {
+        if (command === "Load") throw codeError("local_data_key_missing");
+        state.localDataKey = { keyId:"ldk_" + cryptoRandomBytes(16).toString("base64url"), key:cryptoRandomBytes(32).toString("base64url") };
+      }
+      return state.localDataKey;
+    })
+    : command => invokeWindowsDataKey({ command, root, helperPath }));
+  const slot = platform === "darwin" ? DARWIN_VAULT_FILE : WINDOWS_KEY_FILE;
   let current = null;
   let durableFingerprint = null;
   const batches = new AsyncLocalStorage();
 
   async function rememberDurableSlot() {
     try {
-      durableFingerprint = await keySlotFingerprint(root);
+      durableFingerprint = await keySlotFingerprint(root, slot);
       const batch = batches.getStore();
       if (batch?.active) batch.record = current;
     } catch (error) {
@@ -287,7 +297,7 @@ export function createWindowsLocalDataKeyProvider(options = {}) {
     if (batch?.active && current != null && batch.record === current) return;
     let observed;
     try {
-      observed = await keySlotFingerprint(root);
+      observed = await keySlotFingerprint(root, slot);
     } catch (error) {
       current?.key.fill(0);
       current = null;
@@ -348,7 +358,7 @@ export function createWindowsLocalDataKeyProvider(options = {}) {
   });
 }
 
-async function keySlotFingerprint(root) {
+async function keySlotFingerprint(root, slot) {
   const rootMetadata = await lstat(root).catch((error) => {
     if (error?.code === "ENOENT") throw codeError("local_data_key_missing");
     throw error;
@@ -356,11 +366,15 @@ async function keySlotFingerprint(root) {
   if (!rootMetadata.isDirectory() || rootMetadata.isSymbolicLink()) {
     throw codeError("local_data_key_root_invalid");
   }
-  const slotPath = join(root, WINDOWS_KEY_FILE);
+  const slotPath = join(root, slot);
   let before;
   let handle;
   try {
     before = await lstat(slotPath);
+    if (slot === DARWIN_VAULT_FILE) {
+      checkDarwinPath(root, { directory:true, privateMode:true });
+      checkDarwinPath(slotPath, { privateMode:true });
+    }
     if (!before.isFile() || before.isSymbolicLink() || before.size < 2 || before.size > MAX_KEY_STORE_BYTES) {
       throw codeError("local_data_key_store_invalid");
     }
@@ -370,7 +384,8 @@ async function keySlotFingerprint(root) {
       throw codeError("local_data_key_store_invalid");
     }
     const bytes = await handle.readFile();
-    return `${opened.dev}:${opened.ino}:${createHash("sha256").update(bytes).digest("hex")}`;
+    const permissions = slot === DARWIN_VAULT_FILE ? `${rootMetadata.ctimeMs}:${opened.ctimeMs}:` : "";
+    return `${permissions}${opened.dev}:${opened.ino}:${createHash("sha256").update(bytes).digest("hex")}`;
   } catch (error) {
     if (error?.code === "ENOENT") throw codeError("local_data_key_missing");
     throw error;

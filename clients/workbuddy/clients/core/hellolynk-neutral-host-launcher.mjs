@@ -48,7 +48,7 @@ const SAFE_BOOTSTRAP_FAILURE_CODES = new Set([
   "neutral_trae_work_uncaught_exception",
   "powershell7_missing",
 ]);
-const SAFE_RELATIVE = /^(?:[A-Za-z0-9][A-Za-z0-9._-]*\/)*[A-Za-z0-9][A-Za-z0-9._-]*\.(?:cjs|cs|css|html|js|json|md|mjs|ps1|vbs)$/;
+const SAFE_RELATIVE = /^(?:[A-Za-z0-9][A-Za-z0-9._-]*\/)*[A-Za-z0-9][A-Za-z0-9._-]*\.(?:bin|cjs|cs|css|html|js|json|md|mjs|ps1|swift|vbs)$/;
 const REQUIRED_RUNTIME_RECORDS = Object.freeze([
   "neutral-host-bootstrap.mjs",
   "neutral-host-release-loader.mjs",
@@ -63,8 +63,14 @@ const REQUIRED_RUNTIME_RECORDS = Object.freeze([
   "core/hellolynk-neutral-host-process.mjs",
   "core/hellolynk-neutral-host-workbench-read-model.mjs",
   "core/hellolynk-workbench-action-grants.mjs",
-  "platform/windows/hellolynk-host-protected-store.ps1",
-  "platform/windows/hellolynk-local-data-key.ps1",
+  ...(process.platform === "darwin" ? [
+    "core/hellolynk-darwin-vault.mjs",
+    "core/hellolynk-darwin-host.mjs",
+    "platform/darwin/hellolynk-keychain-helper.bin",
+  ] : [
+    "platform/windows/hellolynk-host-protected-store.ps1",
+    "platform/windows/hellolynk-local-data-key.ps1",
+  ]),
   "workbench/contract.mjs",
 ]);
 

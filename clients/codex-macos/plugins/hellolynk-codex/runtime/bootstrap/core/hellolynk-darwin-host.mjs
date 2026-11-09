@@ -12,13 +12,13 @@ function unique(records, missing, ambiguous) {
   if (records.length !== 1) fail(records.length ? ambiguous : missing);
   return records[0];
 }
-function checkBindingPaths(b) {
+function checkBindingPaths(b, code) {
   try {
     checkDarwinPath(b.runtimeRoot, { directory: true });
     checkDarwinPath(b.releaseRoot, { directory: true });
     if (checkDarwinPath(b.profileManifestPath).size > 65536 ||
-        checkDarwinPath(join(b.releaseRoot, b.runnerRelativePath)).size > 1048576) fail("neutral_codex_launch_manifest_invalid");
-  } catch { fail("neutral_codex_launch_manifest_invalid"); }
+        checkDarwinPath(join(b.releaseRoot, b.runnerRelativePath)).size > 1048576) fail(code);
+  } catch { fail(code); }
 }
 function capMatches(cap, b) {
   return cap.state === "active" && fieldsMatch(cap, b,
@@ -38,51 +38,60 @@ function revokeCapability(s, r) {
   }
   return { capabilityId: r.capabilityId, revokedAt: r.revokedAt, state: "revoked" };
 }
-function codexBinding(s, command, input, oldId) {
-  const b = s.codex;
-  if (command === "ResolveCodexNeutralBinding" || command === "VerifyCodexNeutralBinding") {
-    if (!b) fail("neutral_codex_binding_configuration_required");
-    checkBindingPaths(b);
-    const active = s.caps.filter(c => c.adapterId === "codex" && c.state === "active");
+function neutralBinding(s, adapter, action, input, oldId) {
+  const codex = adapter === "codex";
+  const key = codex ? "codex" : "claudeCode";
+  const error = suffix => `neutral_${adapter.replace("-", "_")}_${suffix}`;
+  const check = binding => checkBindingPaths(binding, error("launch_manifest_invalid"));
+  const b = s[key];
+  if (action === "Resolve" || action === "Verify") {
+    if (!b) fail(error("binding_configuration_required"));
+    // Claude retains its identity across uninstall; Verify can inspect a
+    // retained binding whose old release is gone. Resolve always needs it.
+    if (codex || action === "Resolve") check(b);
+    const active = s.caps.filter(c => c.adapterId === adapter && c.state === "active");
     const cap = unique(active.filter(c => capMatches(c, b)),
-      active.length ? "neutral_codex_capability_binding_mismatch" : "neutral_codex_capability_missing", "neutral_codex_capability_ambiguous");
-    if (command.startsWith("Resolve")) return { binding: b, record: cap };
+      error(active.length ? "capability_binding_mismatch" : "capability_missing"), error("capability_ambiguous"));
+    if (action === "Resolve") return { binding: b, record: cap };
     const {secret, ...record} = cap;
     return { binding: b, record };
   }
-  if (command === "SaveCodexNeutralBinding" || command === "RemoveCodexNeutralBinding") {
-    checkBindingPaths(input);
-    if (command.startsWith("Remove")) {
-      if (!equal(b, input)) fail("neutral_codex_binding_invalid");
-      s.codex = null;
+  if (action === "Save" || action === "Remove") {
+    if (input.adapterId !== adapter) fail(error("binding_invalid"));
+    if (action === "Remove") {
+      if (codex) check(input);
+      if (!equal(b, input)) fail(error("binding_invalid"));
+      if (codex) s.codex = null;
+      else delete s.claudeCode;
       return { removed: true };
     }
-    if (b && !equal(b, input)) fail("neutral_codex_binding_invalid");
-    s.codex = input;
+    check(input);
+    if (b && !equal(b, input)) fail(error("binding_invalid"));
+    s[key] = input;
     return { binding: input };
   }
   const { previousBinding: previous, replacementBinding: next, replacementRecord } = input;
-  checkBindingPaths(previous);
-  checkBindingPaths(next);
-  if (!fieldsMatch(previous, next, ["contract","region","principalId","delegateId","hostInstallationId","profileId","adapterId","version","runtimeRoot"])) {
-    fail("neutral_codex_capability_binding_mismatch");
+  if (codex) check(previous);
+  check(next);
+  if (next.adapterId !== adapter || !fieldsMatch(previous, next, ["contract","region","principalId","delegateId","hostInstallationId","profileId","adapterId","version","runtimeRoot"])) {
+    fail(error("capability_binding_mismatch"));
   }
-  if (!equal(b, previous)) fail("neutral_codex_binding_invalid");
+  if (!equal(b, previous)) fail(error("binding_invalid"));
   const active = s.caps.filter(c => capMatches(c, next));
-  if (command === "ReplaceCodexNeutralBinding") {
-    if (!equal(previous.scopes, next.scopes)) fail("neutral_codex_capability_binding_mismatch");
-    if (active.length !== 1) fail("neutral_codex_capability_ambiguous");
-    s.codex = next;
+  if (codex && action === "Replace") {
+    if (!equal(previous.scopes, next.scopes)) fail(error("capability_binding_mismatch"));
+    if (active.length !== 1) fail(error("capability_ambiguous"));
+    s[key] = next;
     return { binding: next };
   }
-  if (command !== "MigrateCodexNeutralBinding") fail("host_protected_store_command_invalid");
+  if (action !== "Migrate") fail("host_protected_store_command_invalid");
   const old = s.caps.find(c => c.capabilityId === oldId);
-  if (!old || !capMatches(old, previous) || !capMatches(replacementRecord, next)) fail("neutral_codex_capability_binding_mismatch");
+  if (!old || !capMatches(old, previous) || !capMatches(replacementRecord, next)) fail(error("capability_binding_mismatch"));
   const other = active.filter(c => c.capabilityId !== oldId);
-  if (other.length > 1) fail("neutral_codex_capability_ambiguous");
+  if (other.length > 1) fail(error("capability_ambiguous"));
   if (!other.length) addCapability(s, replacementRecord);
   revokeCapability(s, old);
-  s.codex = next;
+  s[key] = next;
   return { binding: next, record: other[0] || replacementRecord, replacedCapabilityId: oldId };
 }
 
@@ -247,9 +256,13 @@ export function invokeDarwinHost(q) {
       case "DisconnectLocalClient":
         for (const cap of s.caps.filter(c => c.adapterId === input.client && c.state === "active")) revokeCapability(s,cap);
         if (input.client === "codex") s.codex = null;
+        if (input.client === "claude-code") delete s.claudeCode;
         return {disconnected:true,client:input.client};
     }
-    if (q.command.endsWith("CodexNeutralBinding")) return codexBinding(s,q.command,input,q.capabilityId);
+    const bindingCommand = /^(Resolve|Verify|Save|Remove|Replace|Migrate)(Codex|ClaudeCode)NeutralBinding$/.exec(q.command);
+    if (bindingCommand) {
+      return neutralBinding(s, bindingCommand[2] === "Codex" ? "codex" : "claude-code", bindingCommand[1], input, q.capabilityId);
+    }
     if (q.command.includes("Transport")) return transport(s,q,input);
     fail("host_protected_store_command_unsupported");
   });

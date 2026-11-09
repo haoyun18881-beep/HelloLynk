@@ -68,7 +68,7 @@ export function withClientAccountLock(client, root, operation) {
 
 export function createClientAccountActions(options) {
   const client = options?.client;
-  const root = options?.storeRoot || defaultNeutralHostStoreRoot("win32", options?.env || process.env);
+  const root = options?.storeRoot || defaultNeutralHostStoreRoot(process.platform, options?.env || process.env);
   statePath(client, clientAccountBaseRoot(root));
   const readAccountState = () => {
     const state = readClientAccount(client, root);

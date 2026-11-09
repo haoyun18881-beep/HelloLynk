@@ -1,3 +1,4 @@
+import { checkDarwinPath, DARWIN_HELPER, invokeDarwinHelper, withDarwinVault } from "./hellolynk-darwin-vault.mjs";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { spawn as nodeSpawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
@@ -260,6 +261,14 @@ export async function runWindowsClientTrustCommand(command, options = {}) {
 }
 
 export async function prepareWindowsClientRoot(clientRoot, options = {}) {
+  if ((options.platform || process.platform) === "darwin") {
+    checkDarwinPath(clientRoot, { directory: true, create: true, privateMode: true });
+    for (const sub of ["profiles", "credentials", "e2ee-private-keys", "status", "host", "host/runtime", "releases"]) {
+      checkDarwinPath(join(clientRoot, sub), { directory: true, create: true, privateMode: true });
+    }
+    await invokeDarwinHelper(options.helperPath || DARWIN_HELPER, ["verify-acl", clientRoot]);
+    return "prepared";
+  }
   return runWindowsClientTrustCommand("PrepareRoot", {
     ...options,
     clientRoot,
@@ -271,6 +280,14 @@ export async function secureWindowsClientReleaseTree(clientRoot, releaseId, opti
   const acceptedReleaseId = String(releaseId || "");
   if (!/^(?!\.{1,2}$)[A-Za-z0-9.][A-Za-z0-9_.-]{2,191}$/.test(acceptedReleaseId)) {
     throw new HelloLynkCredentialStoreError("client_release_path_invalid");
+  }
+  if ((options.platform || process.platform) === "darwin") {
+    checkDarwinPath(clientRoot, { directory: true, privateMode: true });
+    checkDarwinPath(join(clientRoot, "releases"), { directory: true, privateMode: true });
+    const release = join(clientRoot, "releases", acceptedReleaseId);
+    checkDarwinPath(release, { directory: true });
+    await invokeDarwinHelper(options.helperPath || DARWIN_HELPER, [options.verifyOnly ? "verify-tree" : "secure-tree", release]);
+    return options.verifyOnly ? "verified" : "secured";
   }
   return runWindowsClientTrustCommand(options.verifyOnly === true ? "VerifyReleaseTree" : "SecureReleaseTree", {
     ...options,
@@ -460,24 +477,61 @@ export function createPlatformCredentialStore(options = {}) {
   }
 
   if (platform === "darwin") {
-    const helper = options.helperPath || join(
-      homedir(), "Library", "Application Support", "HelloLynk", "bin", "hellolynk-keychain-helper",
-    );
-    const invoke = (command, profileId, stdin) => run(
-      helper,
-      [command.toLowerCase(), profileId],
-      { ...runnerOptions, stdin },
-    );
+    const clientRoot = options.clientRoot || (options.storeRoot ? windowsClientRootForStore(options.storeRoot)
+      : join(homedir(), "Library", "Application Support", "HelloLynk"));
+    if (clientRoot !== resolve(clientRoot) || clientRoot === "/") throw new HelloLynkCredentialStoreError("client_root_path_invalid");
+    const credentials = join(clientRoot, "credentials");
+    const privateKeys = join(clientRoot, "e2ee-private-keys");
+    const root = options.storeRoot || credentials;
+    const e2eeRoot = options.e2eeStoreRoot || privateKeys;
+    if (root !== clientRoot && root !== credentials) throw new HelloLynkCredentialStoreError("credential_store_root_invalid");
+    if (e2eeRoot !== privateKeys) throw new HelloLynkCredentialStoreError("e2ee_private_key_store_root_invalid");
+    function entry(location, section, profile, operation, value) {
+      const slot = section + ":" + assertCredentialProfileId(profile);
+      return withDarwinVault({ root: location, helperPath: options.helperPath, readOnly: operation === "load", allowMissing:true }, data => {
+        if (operation === "save") data[slot] = value;
+        if (operation === "remove") delete data[slot];
+        return data[slot] ?? null;
+      });
+    }
     return {
       platform,
-      async save(profile, credential) {
-        await invoke("Store", assertCredentialProfileId(profile), assertCredential(credential));
-      },
+      async save(profile, credential) { await entry(root, "device", profile, "save", assertCredential(credential)); },
       async load(profile) {
-        return assertCredential(await invoke("Load", assertCredentialProfileId(profile), ""));
+        const value = await entry(root, "device", profile, "load");
+        if (value === null) throw new HelloLynkCredentialStoreError("device_credential_missing");
+        return assertCredential(value);
       },
-      async remove(profile) {
-        await invoke("Remove", assertCredentialProfileId(profile), "");
+      async remove(profile) { await entry(root, "device", profile, "remove"); },
+      runtimeSessions: {
+        async save(profile, session) { await entry(root, "session", profile, "save", assertRuntimeSession(session)); },
+        async load(profile) {
+          const value = await entry(root, "session", profile, "load");
+          return value === null ? null : assertRuntimeSession(value);
+        },
+        async remove(profile) { await entry(root, "session", profile, "remove"); },
+        async withLock(profile, operation) {
+          const id = assertCredentialProfileId(profile);
+          if (typeof operation !== "function") throw new HelloLynkCredentialStoreError("runtime_session_lock_operation_invalid");
+          checkDarwinPath(root, { directory:true, create:true, privateMode:true });
+          return withRuntimeSessionFileLock(root, id, operation, options.runtimeSessionLockDependencies, options.timeoutMs);
+        },
+      },
+      directTextPrivateKeys: {
+        async save(profile, material) { await entry(e2eeRoot, "keys", profile, "save", encodeDirectTextPrivateKeyMaterial(material)); },
+        async load(profile) {
+          const value = await entry(e2eeRoot, "keys", profile, "load");
+          return value === null ? null : decodeDirectTextPrivateKeyMaterial(value);
+        },
+        async remove(profile) { await entry(e2eeRoot, "keys", profile, "remove"); },
+        async preload(profiles) {
+          const ids = [...new Set((Array.isArray(profiles) ? profiles : []).map(assertCredentialProfileId))];
+          if (!ids.length) return;
+          if (ids.length > MAX_E2EE_BATCH_PROFILES) throw new HelloLynkCredentialStoreError("e2ee_private_key_batch_invalid");
+          await withDarwinVault({root:e2eeRoot, helperPath:options.helperPath, readOnly:true, allowMissing:true}, data => {
+            for (const id of ids) if (data["keys:" + id] !== undefined) decodeDirectTextPrivateKeyMaterial(data["keys:" + id]);
+          });
+        },
       },
     };
   }

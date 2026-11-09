@@ -8,6 +8,7 @@ import { launchPinnedNeutralHostBootstrap, verifyPinnedNeutralHostRuntime } from
 import { resolveClientAccountRoot } from "../runtime/core/hellolynk-client-account.mjs";
 import { startInstalledClientUpdate } from "../runtime/core/hellolynk-client-update-entry.mjs";
 import { recordCodexReleaseProcess } from "../runtime/core/hellolynk-release-retention.mjs";
+import { DARWIN_VAULT_FILE } from "../runtime/core/hellolynk-darwin-vault.mjs";
 
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN_ROOT = path.dirname(MODULE_DIR);
@@ -19,17 +20,22 @@ const MAX_DISCOVERY_WAIT_MS = 120_000;
 let installedPrepare = null;
 const TRUSTED_BOOTSTRAP_FILES = Object.freeze(new Map([
   ["runtime/bootstrap/core/hellolynk-local-process-lock.mjs", "5212990a98b9ad2eb83fa2d5fb8a123d687c5ef6daf6cba49a4b6d04a7fe251e"],
-  ["runtime/bootstrap/core/hellolynk-client-account.mjs", "ab7ec5dda92e510e7deb14f900fd2df4c6c3373fbeb4af4fb2b6c1a72aa41a99"],
-  ["runtime/neutral-host-release-loader.mjs", "15593e237fd5cbd765b65e60efe7a1c87e24a5390ad932c8a23d2c03b8da9770"],
+  ["runtime/bootstrap/core/hellolynk-client-account.mjs", "6e03a05127d4dc86be6391567b51a956d1a987acf4e23f5699ce0e00c3187b7e"],
+  ["runtime/neutral-host-release-loader.mjs", "283a20c6a9b90481bc03c143ab51d5289abf7b7a86fbe51fba7ea2ae1e6d2c60"],
   ["runtime/neutral-host-bootstrap.mjs", "53513deed7f0155a6603a1489d1609fae37776442358181ff7650d0cd9351f0a"],
   ["runtime/bootstrap/core/hellolynk-runtime-safety.cjs", "43d576d9f774409f4a735793c1503a6f397e787b10c59a4ac9cc9257299f5efe"],
-  ["runtime/bootstrap/core/hellolynk-host-protected-store.mjs", "89b6e6c4ce9c6ba2984f8c301de4251da6004bdd402cc44d578a4505c21b75b1"],
-  ["runtime/bootstrap/core/hellolynk-neutral-host-installation-store.mjs", "dfb6bba4c627082cd6fca8cb38dc786f905e38f3e83ccf91dbfe57e55639e8a2"],
+  ["runtime/bootstrap/core/hellolynk-darwin-host.mjs", "ded97c3bc3dd65ca75305f5199a1340dffb987a5f283454d60586df8b6b55c09"],
+  ["runtime/bootstrap/core/hellolynk-darwin-vault.mjs", "b6094d856af016e674e4a0183a4e474397bbe92e66638743fa62fe085b554d30"],
+  ["runtime/bootstrap/core/hellolynk-host-protected-store.mjs", "10f81f4f6a5dd2fe9a742e847b2eb47dbf20f802f4414f46a05ccbc3505148e2"],
+  ["runtime/bootstrap/core/hellolynk-neutral-host-installation-store.mjs", "42ae1e7deb876a8308b7bfed6a7b891d1834117b62504fc5befe3f91a0b4c740"],
   ["runtime/bootstrap/core/hellolynk-host-auth.mjs", "db1ec56f4e60e6450fba50188eecf89748f39f5d7a75c2456c30a6053233555d"],
   ["runtime/bootstrap/core/hellolynk-client-profile.mjs", "8be37831c96610e3d0a64848ada86488970cc6079e49764b47d8a8b2ba852269"],
-  ["runtime/bootstrap/core/hellolynk-platform-credential-store.mjs", "f27f5f377cc4d6d2b5664212cf8fcc4c98d910064c1677ff9c1f776df1a59dba"],
+  ["runtime/bootstrap/core/hellolynk-platform-credential-store.mjs", "3969708bafefc3b267bb34a9dcc115804c874ad14f4a036426d727c02ff70d42"],
   ["runtime/bootstrap/core/hellolynk-client-core.mjs", "94bbad1d0ccee969bbffed176449e427188f1b892512a64167ab31f63d258e2b"],
   ["runtime/bootstrap/platform/windows/hellolynk-host-protected-store.ps1", "24357e8ce54090b4ec68e457f02c9e834a80f3273ef3c03a8c0fa7258797fb49"],
+  ...(process.platform === "darwin" ? [
+    ["runtime/bootstrap/platform/darwin/hellolynk-keychain-helper.bin", "0000000000000000000000000000000000000000000000000000000000000000"],
+  ] : []),
 ]));
 
 // A still-open cache may load a different installed release during an update.
@@ -150,7 +156,7 @@ export async function prepareCodexNeutralRelease(options = {}, finalBindingDefer
     releaseRoot: bootstrapReleaseRoot,
   });
   const storeRoot = resolveClientAccountRoot("codex", absolutePath(
-    options.storeRoot || env.HELLOLYNK_NEUTRAL_STORE_ROOT || bootstrapTrusted.defaultStoreRoot("win32", env),
+    options.storeRoot || env.HELLOLYNK_NEUTRAL_STORE_ROOT || bootstrapTrusted.defaultStoreRoot(process.platform, env),
     "neutral_codex_binding_configuration_required",
   ));
   const bootstrapInstallationStore = bootstrapTrusted.createInstallationStore({ root: storeRoot });
@@ -198,7 +204,7 @@ async function prepareSelectedRelease(options, verifiedInitial = null) {
   const releaseRoot = path.dirname(path.dirname(loaderPath));
   const trusted = await loadTrustedBootstrap({ loaderPath, releaseRoot });
   const storeRoot = resolveClientAccountRoot("codex", absolutePath(
-    options.storeRoot || env.HELLOLYNK_NEUTRAL_STORE_ROOT || trusted.defaultStoreRoot("win32", env),
+    options.storeRoot || env.HELLOLYNK_NEUTRAL_STORE_ROOT || trusted.defaultStoreRoot(process.platform, env),
     "neutral_codex_binding_configuration_required",
   ));
   const installationStore = trusted.createInstallationStore({ root: storeRoot });
@@ -268,7 +274,7 @@ async function initializationFingerprint(storeRoot, binding = null) {
         if (parent === path.dirname(parent)) break;
       }
     };
-    await stat(path.join(storeRoot, "capabilities-v1.dpapi.clixml"), false);
+    await stat(path.join(storeRoot, process.platform === "darwin" ? DARWIN_VAULT_FILE : "capabilities-v1.dpapi.clixml"), false);
     await stat(path.join(storeRoot, "installations-v1.json"), false);
     const state = JSON.stringify([...seen]);
     if (binding) {

@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PIN_PATH = path.join(ROOT, "neutral-host-release-pin.json");
 const MANIFEST_PATH = path.join(ROOT, "neutral-host-release-manifest.json");
-const SAFE_RUNTIME_RELATIVE = /^(?:[A-Za-z0-9][A-Za-z0-9._-]*\/)*[A-Za-z0-9][A-Za-z0-9._-]*\.(?:cjs|mjs|ps1)$/;
+const SAFE_RUNTIME_RELATIVE = /^(?:[A-Za-z0-9][A-Za-z0-9._-]*\/)*[A-Za-z0-9][A-Za-z0-9._-]*\.(?:cjs|mjs|ps1|swift|bin)$/;
 const SAFE_RELEASE_RELATIVE = /^release\/(?:[A-Za-z0-9][A-Za-z0-9._-]*\/)*[A-Za-z0-9][A-Za-z0-9._-]*\.(?:mjs|ps1|md|html|js|css|json)$/;
 
 export async function inspectNeutralHostRelease() {

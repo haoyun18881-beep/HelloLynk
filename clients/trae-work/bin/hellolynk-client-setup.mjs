@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import crypto from "node:crypto";
-import { lstatSync, realpathSync, writeSync } from "node:fs";
+import { constants, lstatSync, realpathSync, writeSync } from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -16,11 +16,14 @@ const PACK_PIN = "hellolynk-client-pack-pin.json";
 
 // A person at a terminal reads sentences in the system language; the updater, tests and other
 // programs read one JSON line.
-const jsonOutput = process.argv.includes("--json") || process.stdout.isTTY !== true;
+const explicitJson = process.argv.includes("--json");
+const jsonOutput = explicitJson || process.stdout.isTTY !== true;
 const CHINESE = /^zh\b/i.test(Intl.DateTimeFormat().resolvedOptions().locale);
 const CLIENT_NAMES = Object.freeze({ codex: "Codex", openclaw: "OpenClaw", "trae-work": "TRAE Work",
   workbuddy: "WorkBuddy", cursor: "Cursor", dsh: "DSH" });
 const { packageJson, metadata } = await readPackage();
+const macPackage = metadata.client === "codex" && packageJson.os?.[0] === "darwin"
+  && packageJson.cpu?.[0] === "arm64";
 const commandArguments = process.argv.slice(2).filter((value) => value !== "--json");
 const command = String(commandArguments.shift() || "help").toLowerCase();
 const waitForPending = command === "--wait-for-pending";
@@ -63,6 +66,12 @@ try {
   } else {
   const accountModule = await importStableCore(PACKAGE_ROOT, "hellolynk-client-account.mjs", "hellolynk_npm_account_runtime_invalid");
   const originalLocations = resolveLocations(accountModule.clientAccountBaseRoot);
+  if (macPackage && command !== "uninstall") {
+    const config = await readJson(path.join(sourceReleaseRoot, ".mcp.json"), "hellolynk_npm_release_invalid", true);
+    const commandPath = config.mcpServers?.["hellolynk-codex"]?.command;
+    if (typeof commandPath !== "string" || !path.isAbsolute(commandPath)) fail("hellolynk_npm_release_invalid");
+    await fs.access(commandPath, constants.X_OK).catch(() => fail("hellolynk_npm_codex_mac_node_required"));
+  }
   const baseRoot = accountModule.clientAccountBaseRoot(originalLocations.hostRoot);
   const packageLocations = { ...originalLocations, hostRoot: baseRoot, finalCurrentRoot: path.dirname(baseRoot) };
   const accounts = accountModule.createClientAccountActions({ client: metadata.client, storeRoot: baseRoot });
@@ -250,6 +259,10 @@ try {
       await verifyExactBinding({ ...installed, locations, activation });
       await verifyClientConfiguration({ ...installed, locations });
     }
+    // A running unsigned updater asks the stable package for implicit JSON. A
+    // staged package may still prove its own first install after lost stdout.
+    const legacyUpdateProof = installed && !existingDoctor && !explicitJson && jsonOutput
+      && process.env.HELLOLYNK_NEUTRAL_STORE_ROOT && samePath(PACKAGE_ROOT, installed.packageRoot);
     print({
       ok: true,
       client: metadata.client,
@@ -260,7 +273,7 @@ try {
       activated: activation.ready,
       activationState: activation.state,
       stableReleaseVerified: installed != null,
-      exactBindingVerified: installed != null,
+      ...(legacyUpdateProof ? {} : { exactBindingVerified: installed != null }),
       clientConfigurationVerified: installed != null,
       installsNode: false,
       installsGit: false,
@@ -429,7 +442,8 @@ async function uninstallClient(locations) {
     if (receiverConfigured) await receiver.configureTraeNativeTaskWorker({ storeRoot: locations.hostRoot, enabled: false });
   }
   // A binding names the release it starts, so it cannot outlive the releases removed below.
-  if (await exists(path.join(locations.hostRoot, "capabilities-v1.dpapi.clixml"))) {
+  const protectedFile = macPackage ? "protected-v1.sqlite" : "capabilities-v1.dpapi.clixml";
+  if (await exists(path.join(locations.hostRoot, protectedFile))) {
     const store = await importStableCore(PACKAGE_ROOT, "hellolynk-host-protected-store.mjs", "hellolynk_npm_binding_invalid");
     await store.createHostProtectedStore({ root: locations.hostRoot, followClientAccount: false }).disconnectLocalClient(metadata.client);
   }
@@ -839,10 +853,13 @@ async function verifyRelease(releaseRoot, packageRoot, expectedMetadata = metada
 }
 
 function resolveLocations(getDefaultHostRoot) {
-  if (process.platform !== "win32") fail("hellolynk_npm_windows_only");
-  const home = path.resolve(process.env.USERPROFILE || os.homedir());
-  const localAppData = path.resolve(process.env.LOCALAPPDATA || path.join(home, "AppData", "Local"));
-  const appData = path.resolve(process.env.APPDATA || path.join(home, "AppData", "Roaming"));
+  if (macPackage) {
+    if (process.platform !== "darwin" || process.arch !== "arm64") fail("hellolynk_npm_platform_unsupported");
+  } else if (process.platform !== "win32") fail("hellolynk_npm_windows_only");
+  const home = path.resolve((macPackage ? process.env.HOME : process.env.USERPROFILE) || os.homedir());
+  const localAppData = macPackage ? path.join(home, "Library", "Application Support")
+    : path.resolve(process.env.LOCALAPPDATA || path.join(home, "AppData", "Local"));
+  const appData = macPackage ? localAppData : path.resolve(process.env.APPDATA || path.join(home, "AppData", "Roaming"));
   const configuredCodexHome = String(process.env.CODEX_HOME || "");
   if (configuredCodexHome && !path.isAbsolute(configuredCodexHome)) fail("hellolynk_npm_codex_home_invalid");
   const codexHome = path.resolve(configuredCodexHome || path.join(home, ".codex"));
@@ -2252,6 +2269,13 @@ function runCodexJson(args, code, codexHome) {
 }
 
 function minimalEnv({ codexHome = null } = {}) {
+  if (macPackage) return Object.freeze({
+    PATH: process.env.PATH || "/usr/bin:/bin",
+    HOME: process.env.HOME || os.homedir(),
+    TMPDIR: process.env.TMPDIR || os.tmpdir(),
+    LANG: process.env.LANG || "en_US.UTF-8",
+    ...(codexHome ? { CODEX_HOME: codexHome } : {}),
+  });
   return Object.freeze({
     PATH: process.env.Path || process.env.PATH || "",
     PATHEXT: process.env.PATHEXT || "",
@@ -2267,13 +2291,18 @@ function minimalEnv({ codexHome = null } = {}) {
 
 function resolveCodexRunner(codexHome) {
   if (resolvedCodexRunner) return resolvedCodexRunner;
-  const searchPath = String(process.env.Path || process.env.PATH || "");
+  const searchPath = String((macPackage ? process.env.PATH : process.env.Path || process.env.PATH) || "");
   let sawLoaderCandidate = false;
   let sawNativeCandidate = false;
   for (const rawEntry of searchPath.split(path.delimiter)) {
     try {
       const logical = rawEntry.trim().replace(/^"(.*)"$/, "$1");
       if (!logical || !path.isAbsolute(logical)) continue;
+      if (macPackage) {
+        const runner = probeMacCodex(path.join(logical, "codex"), codexHome);
+        if (runner) return (resolvedCodexRunner = runner);
+        continue;
+      }
       // nvm/fnm and user profile mappings can put a junction on PATH. Resolve
       // that directory once, then retain the ordinary-file checks below it.
       const entry = realpathSync(path.resolve(logical));
@@ -2327,6 +2356,15 @@ function resolveCodexRunner(codexHome) {
 }
 
 function resolveCodexDesktopRunner(codexHome) {
+  if (macPackage) {
+    for (const directory of ["/Applications", path.join(os.homedir(), "Applications")]) {
+      for (const app of ["ChatGPT.app", "Codex.app"]) {
+        const runner = probeMacCodex(path.join(directory, app, "Contents", "Resources", "codex"), codexHome);
+        if (runner) return runner;
+      }
+    }
+    return null;
+  }
   if (process.platform !== "win32") return null;
   const systemRoot = process.env.SystemRoot || process.env.SYSTEMROOT;
   if (!systemRoot || !path.isAbsolute(systemRoot)) return null;
@@ -2351,6 +2389,22 @@ function resolveCodexDesktopRunner(codexHome) {
         argsPrefix: Object.freeze([]), kind: "native" });
     } catch { /* Ignore an absent or incomplete desktop installation. */ }
   }
+  return null;
+}
+
+function probeMacCodex(logicalPath, codexHome) {
+  // npm and Homebrew commonly expose a symlink. Execute the canonical file directly.
+  try {
+    const command = realpathSync(logicalPath);
+    const metadata = lstatSync(command);
+    if (!metadata.isFile() || !(metadata.mode & 0o111)) return null;
+    const result = spawnSync(command, ["--version"], {
+      encoding: "utf8", shell: false, timeout: 5000, env: minimalEnv({ codexHome }),
+    });
+    if (result.status === 0 && /^codex-cli\s+\d+\.\d+\.\d+/u.test(String(result.stdout || "").trim())) {
+      return Object.freeze({ command, argsPrefix: Object.freeze([]), kind: "native" });
+    }
+  } catch { /* Missing or unusable CLI. */ }
   return null;
 }
 
@@ -2533,6 +2587,7 @@ function samePath(left, right) {
     const resolved = normalizeWindowsNamespacePath(value);
     let canonical = resolved;
     try { canonical = realpathSync(resolved); } catch { /* comparison can still reject a missing path */ }
+    if (macPackage) return canonical;
     return normalizeWindowsNamespacePath(canonical).replace(/[\\/]+$/u, "").toLowerCase();
   };
   return normalize(left) === normalize(right);
@@ -2652,7 +2707,9 @@ function helpText() {
     : [[say("安装", "Install"), "init"], [say("连接账号", "Connect an account"), connect],
       [say("更新或修复", "Update or repair"), "setup"], [say("检查", "Check"), "doctor"],
       [say("卸载", "Uninstall"), "uninstall"]];
-  return `${[`HelloLynk for ${CLIENT_NAMES[metadata.client]}${say("（Windows，Node.js 22.16.0+）", " (Windows, Node.js 22.16.0+)")}`,
+  const platform = macPackage ? " (macOS arm64, Node.js 22.16.0+)"
+    : say("（Windows，Node.js 22.16.0+）", " (Windows, Node.js 22.16.0+)");
+  return `${[`HelloLynk for ${CLIENT_NAMES[metadata.client]}${platform}`,
     ...rows.map(([label, args]) => `${label}${say("：", ": ")}${run} ${args}`),
     say("加 --json 输出一行 JSON。", "Add --json for one line of JSON.")].join("\n")}\n`;
 }
@@ -2726,6 +2783,9 @@ function failureText(failure) {
 function failureReason(code, name) {
   if (code === "hellolynk_node_22_16_required") return say("需要 Node.js 22.16 或更高版本。", "Node.js 22.16 or later is required.");
   if (code === "hellolynk_npm_windows_only") return say("只支持 Windows。", "Windows only.");
+  if (code === "hellolynk_npm_platform_unsupported") return say("此安装包适用于 Apple 芯片的 Mac。", "This package requires an Apple silicon Mac.");
+  if (code === "hellolynk_npm_codex_mac_node_required") return say("请将 ChatGPT 安装到「应用程序」，打开 Codex 后再试。",
+    "Install ChatGPT in Applications, open Codex, and try again.");
   if (code === "hellolynk_npm_connect_id_invalid") {
     return say("灵信号不对。请从官网复制从 hellolynk: 开始的完整灵信号。",
       "This HelloLynk ID is not valid. Copy the complete ID, starting with hellolynk:, from the website.");

@@ -6,20 +6,39 @@ import { withNeutralHostStoreLock } from "./hellolynk-neutral-host-installation-
 
 const CATALOG = "https://hellolynk.com/downloads/clients.json";
 export const CLIENT_UPDATE_CLIENTS = Object.freeze(["codex", "openclaw", "trae-work", "workbuddy", "dsh", "claude-code"]);
+export const MAC_CLIENT_VERSION = /^\d+\.\d+\.\d+-macos\.[1-9]\d*$/u;
 const HOUR = 3_600_000;
 const MAX_ARTIFACT = 64 * 1024 * 1024;
 const HASH = /^[a-f0-9]{64}$/;
-const CONTRACT = "hellolynk-client-update-v1";
+const CONTRACT = "hellolynk-client-update-v2";
+export const CLIENT_UPDATE_RELEASES = "releases-v2";
+// The release freeze pins only public Ed25519 keys here. An empty set refuses all updates.
+export const CLIENT_UPDATE_CATALOG_KEYS = Object.freeze({
+  "ed25519-20261109-primary-d4fd7f46475dac48": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAucQohi+be+ksjQhRzYD8ZiyZMUz6Vi/DSphQ3iVOWDM=\n-----END PUBLIC KEY-----\n",
+  "ed25519-20261109-backup-5e3d08a775320304": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA2vxHpcgLZQc1cXqxq3dcmZRmE0fAFyeRC3umMVGAosA=\n-----END PUBLIC KEY-----\n"
+});
+export const CLIENT_UPDATE_CATALOG_LIMIT = 256 * 1024;
 // A failed integrity or path check keeps a downloaded package from installing. Every other failure is transient.
-const BLOCKING = /^client_update_(?:same_version_changed|version_rollback|artifact_integrity_invalid|archive_[a-z_]+|path_invalid|url_invalid|redirect_invalid)$/;
+const BLOCKING = /^client_update_(?:catalog_signature_invalid|same_version_changed|version_rollback|artifact_integrity_invalid|archive_[a-z_]+|path_invalid|url_invalid|redirect_invalid)$/;
+
+export function clientUpdateCatalogId(client, platform) {
+  if (platform === "win32") return client;
+  if (platform === "darwin" && (client === "codex" || client === "claude-code")) return `${client}-macos`;
+  return null;
+}
 
 // This component only stages verified files. Host lifecycle and client-native
 // installation remain the responsibility of the caller.
 export function createClientUpdateManager(options = {}) {
   const { client, currentVersion, platform = process.platform } = options;
   if (!CLIENT_UPDATE_CLIENTS.includes(client) || !semver(currentVersion) || !path.isAbsolute(String(options.root || ""))) fail("configuration_invalid");
+  const catalogId = clientUpdateCatalogId(client, platform);
+  const mac = platform === "darwin";
+  if (mac && !MAC_CLIENT_VERSION.test(currentVersion)) fail("configuration_invalid");
   const root = path.join(path.resolve(options.root), "client-updates", client);
-  const stateFile = path.join(root, "state.json");
+  // A still-running unsigned updater may read, rewrite and prune its own cache.
+  const stateFile = path.join(root, "state-v2.json");
+  const releases = path.join(root, CLIENT_UPDATE_RELEASES);
   const fetcher = options.fetchImpl || globalThis.fetch;
   const clock = options.clock || Date.now;
   const timeoutMs = bounded(options.timeoutMs, 30_000, 50, 120_000);
@@ -60,7 +79,7 @@ export function createClientUpdateManager(options = {}) {
     }
   }
 
-  function releasePath(record) { return path.join(root, "releases", `${record.version}-${record.sha256}`); }
+  function releasePath(record) { return path.join(releases, `${record.version}-${record.sha256}`); }
   async function save(record) {
     await safeDirectory(root);
     const temporary = path.join(root, `.state-${crypto.randomUUID()}.tmp`);
@@ -80,12 +99,13 @@ export function createClientUpdateManager(options = {}) {
       let old = await readState();
       const now = clock();
       if (!force && old.checkedAt > 0 && now >= old.checkedAt && now - old.checkedAt < 23 * HOUR) return old;
-      if (platform !== "win32") return save({ ...old, stage: "unsupported", checkedAt: now });
+      if (!catalogId) return save({ ...old, stage: "unsupported", checkedAt: now });
       try {
-        const metadata = await request(CATALOG, { limit: 256 * 1024, timeout: timeoutMs, kind: "catalog" });
+        const metadata = await request(CATALOG, { limit: CLIENT_UPDATE_CATALOG_LIMIT, timeout: timeoutMs, kind: "catalog" });
         let catalog;
         try { catalog = JSON.parse(metadata.toString("utf8")); } catch { fail("catalog_invalid"); }
-        const artifact = validateCatalog(catalog, client);
+        const verified = verifyClientUpdateCatalog(catalog, options.catalogKeys);
+        const artifact = validateClientUpdateCatalogEntry(verified, catalogId, mac);
         // The catalog has no build for this client: there is nothing to install.
         if (!artifact) {
           // A downloaded package keeps its stage and any integrity block; only an empty cache is "current".
@@ -134,12 +154,12 @@ export function createClientUpdateManager(options = {}) {
         if (!bytes) fail("source_unavailable");
         const release = releasePath(artifact);
         await safeDirectory(path.dirname(release));
-        const stage = path.join(root, "releases", `.stage-${crypto.randomUUID()}`);
+        const stage = path.join(releases, `.stage-${crypto.randomUUID()}`);
         await fs.mkdir(stage, { mode: 0o700 });
         try {
           const archivePath = path.join(stage, artifact.filename);
           await fs.writeFile(archivePath, bytes, { flag: "wx", mode: 0o600 });
-          await extractClientUpdateArchive({ archivePath, destination: path.join(stage, "extracted") });
+          await extractClientUpdateArchive({ archivePath, destination: path.join(stage, "extracted"), platform });
           await fs.rename(stage, release).catch(async (error) => {
             if (!["EEXIST", "ENOTEMPTY", "EPERM"].includes(error.code)) throw error;
             try {
@@ -147,7 +167,7 @@ export function createClientUpdateManager(options = {}) {
               return;
             } catch { /* Preserve damaged evidence without reusing it. */ }
             await safeAncestors(release, true);
-            const quarantine = path.join(root, "releases", `.corrupt-${artifact.sha256}-${crypto.randomUUID()}`);
+            const quarantine = path.join(releases, `.corrupt-${artifact.sha256}-${crypto.randomUUID()}`);
             await fs.rename(release, quarantine);
             try { await fs.rename(stage, release); }
             catch (replacement) { await fs.rename(quarantine, release).catch(() => {}); throw replacement; }
@@ -172,7 +192,7 @@ export function createClientUpdateManager(options = {}) {
     });
   }
 
-  // After an install only the package state.json names stays cached; older
+  // After an install only the package the signed state names stays cached; older
   // versions and quarantined copies go. Holding the check lock means no
   // download is in flight to be mistaken for leftovers.
   async function prune() {
@@ -180,7 +200,7 @@ export function createClientUpdateManager(options = {}) {
     return withNeutralHostStoreLock(root, "client-update", async () => {
       const state = await readState();
       if (!semver(state.version) || !HASH.test(String(state.sha256 || ""))) return [];
-      const keep = path.basename(releasePath(state)), releases = path.join(root, "releases"), removed = [];
+      const keep = path.basename(releasePath(state)), removed = [];
       await safeAncestors(releases, true);
       let entries;
       try { entries = await fs.readdir(releases, { withFileTypes: true }); }
@@ -267,15 +287,36 @@ export function createClientUpdateManager(options = {}) {
   });
 }
 
-function validateCatalog(catalog, client) {
+export function verifyClientUpdateCatalog(catalog, keys = CLIENT_UPDATE_CATALOG_KEYS) {
+  const signed = catalog?.signed;
+  if (!signed || typeof signed.keyId !== "string" || !/^[A-Za-z0-9_-]{1,64}$/.test(signed.keyId)
+    || !Object.hasOwn(keys, signed.keyId) || typeof signed.payload !== "string" || !signed.payload
+    || signed.payload.length > CLIENT_UPDATE_CATALOG_LIMIT || typeof signed.signature !== "string"
+    || !/^[A-Za-z0-9_-]{86}$/.test(signed.signature)) fail("catalog_signature_invalid");
+  const payload = Buffer.from(signed.payload, "base64");
+  const signature = Buffer.from(signed.signature, "base64url");
+  if (payload.toString("base64") !== signed.payload || signature.toString("base64url") !== signed.signature) fail("catalog_signature_invalid");
+  let valid = false;
+  try {
+    const key = crypto.createPublicKey(keys[signed.keyId]);
+    valid = key.asymmetricKeyType === "ed25519" && crypto.verify(null, payload, key, signature);
+  } catch { /* Invalid pins and invalid signatures both fail closed. */ }
+  if (!valid) fail("catalog_signature_invalid");
+  const json = payload.toString("utf8");
+  if (!Buffer.from(json, "utf8").equals(payload)) fail("catalog_invalid");
+  try { return JSON.parse(json); } catch { fail("catalog_invalid"); }
+}
+
+export function validateClientUpdateCatalogEntry(catalog, client, mac) {
   if (!catalog || !Array.isArray(catalog.clients) || catalog.clients.length > 32) fail("catalog_invalid");
   const matches = catalog.clients.filter((item) => item?.client === client);
   if (matches.length === 0) return null;
   if (matches.length > 1) fail("catalog_invalid");
   const item = matches[0];
-  if (!semver(item.version) || !HASH.test(String(item.sha256 || "")) || !safeFilename(item.filename)
+  if (!semver(item.version) || (mac && !MAC_CLIENT_VERSION.test(item.version))
+    || !HASH.test(String(item.sha256 || "")) || !safeFilename(item.filename)
     || !Number.isSafeInteger(item.bytes) || item.bytes < 4 || item.bytes > MAX_ARTIFACT
-    || !Array.isArray(item.platforms) || !item.platforms.includes("Windows")) fail("catalog_invalid");
+    || !Array.isArray(item.platforms) || !item.platforms.includes(mac ? "macOS" : "Windows")) fail("catalog_invalid");
   const official = new URL(String(item.url || ""), CATALOG);
   if (official.origin !== "https://hellolynk.com" || !official.pathname.startsWith("/downloads/")) fail("catalog_invalid");
   validateUrl(official, "artifact");
@@ -309,7 +350,7 @@ function validateUrl(url, kind, redirected = false, initial = url) {
   if (!direct && !githubCdn) fail("url_invalid");
 }
 
-export async function extractClientUpdateArchive({ archivePath, destination, maxTotalBytes = 128 * 1024 * 1024, maxFileBytes = 32 * 1024 * 1024, maxEntries = 4096 }) {
+export async function extractClientUpdateArchive({ archivePath, destination, platform = process.platform, maxTotalBytes = 128 * 1024 * 1024, maxFileBytes = 32 * 1024 * 1024, maxEntries = 4096 }) {
   if (!path.isAbsolute(archivePath) || !path.isAbsolute(destination)) fail("archive_path_invalid");
   await safeAncestors(archivePath, false);
   const stat = await fs.lstat(archivePath);
@@ -360,7 +401,7 @@ export async function extractClientUpdateArchive({ archivePath, destination, max
     total += size;
     if (total > maxTotalBytes) fail("archive_too_large");
     spans.push([local, start + packed]);
-    entries.push({ segments, directory, start, packed, size, method, crc });
+    entries.push({ segments, directory, start, packed, size, method, crc, mode });
     cursor += 46 + nameLength + extraLength + commentLength;
   }
   if (cursor !== eocd) fail("archive_invalid");
@@ -377,7 +418,10 @@ export async function extractClientUpdateArchive({ archivePath, destination, max
     try { body = entry.method === 0 ? compressed : inflateRawSync(compressed, { maxOutputLength: Math.max(1, entry.size) }); }
     catch { fail("archive_integrity_invalid"); }
     if (body.length !== entry.size || crc32(body) !== entry.crc) fail("archive_integrity_invalid");
-    await fs.writeFile(target, body, { flag: "wx", mode: 0o600 });
+    // A Mac update runs a bundled Keychain helper. Keep its execute bit without
+    // inheriting group/other access or special permission bits from the ZIP.
+    const ownerExecute = platform === "darwin" ? entry.mode & 0o100 : 0;
+    await fs.writeFile(target, body, { flag: "wx", mode: 0o600 | ownerExecute });
   }
   return Object.freeze({ files: entries.filter((item) => !item.directory).length, bytes: total });
 }

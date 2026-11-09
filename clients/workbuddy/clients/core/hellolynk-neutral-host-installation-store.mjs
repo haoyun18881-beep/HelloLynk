@@ -340,7 +340,7 @@ async function assertReadOnlyPath(path, directory, verifyPath) {
   if (metadata.isSymbolicLink() || (directory ? !metadata.isDirectory() : !metadata.isFile())) {
     throw codeError(directory ? "host_store_root_invalid" : "host_registry_path_invalid");
   }
-  if (process.platform === "win32") {
+  if (process.platform === "win32" || (process.platform === "darwin" && verifyPath)) {
     await verifyPath({ path, directory });
   }
 }

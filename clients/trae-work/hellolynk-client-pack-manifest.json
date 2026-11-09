@@ -2,7 +2,7 @@
   "contract": "hellolynk-client-npm-pack-manifest-v1",
   "client": "trae-work",
   "packageName": "@hellolynk-ai/trae-work-mcp",
-  "version": "0.4.97",
+  "version": "0.4.98",
   "workbench": {
     "path": "runtime/workbench/hellolynk-workbench-build.json",
     "contract": "hellolynk-shared-workbench-build-v1",
@@ -12,8 +12,8 @@
   "files": [
     {
       "path": "bin/hellolynk-client-setup.mjs",
-      "bytes": 142207,
-      "sha256": "95386fcd9092f31abb3b0441033b3b385b3c355506613da24b4557d5f9cac6ef"
+      "bytes": 145615,
+      "sha256": "044321ea6c5757a985b92a826ffc1fb3ffa4fb8355b732abecc64210d4ac3399"
     },
     {
       "path": "bin/hellolynk-mcp-config-shape.mjs",
@@ -23,7 +23,7 @@
     {
       "path": "integrations/trae-work/package.json",
       "bytes": 495,
-      "sha256": "acc248cf8fac9d1396cb120c4b80dbb73071d09cdd134c4a4e4ccb0a3079c6c6"
+      "sha256": "76d72f67de8dc545e61f39ad7edc996f5ce6344078e897fddfe3ff3c67eb5994"
     },
     {
       "path": "integrations/trae-work/runtime/neutral-host-bootstrap.mjs",
@@ -103,7 +103,7 @@
     {
       "path": "package.json",
       "bytes": 1850,
-      "sha256": "094666acbf503b73752321f6c73c3238687cddf95b03e32faf307a351300b72f"
+      "sha256": "044b9058ec8fbd7c098085fd0bfc72401a65fed9c4a9bc2700be9214a5adba85"
     },
     {
       "path": "README.md",
@@ -112,8 +112,8 @@
     },
     {
       "path": "runtime/bootstrap/core/hellolynk-client-account.mjs",
-      "bytes": 8594,
-      "sha256": "a22f14f494c1a44a9272ca95e160f8cb1df612a1ceb8b54e32596b13f90c3740"
+      "bytes": 8603,
+      "sha256": "57082d5ea5e068dad81a47dd8abd38e34663e4563d8efa40f5130b817a346670"
     },
     {
       "path": "runtime/bootstrap/core/hellolynk-client-core.mjs",
@@ -126,14 +126,24 @@
       "sha256": "4528f2eb90417dbe232c4fef254beeb20c94f9216388ec721f982dd7ee4adde5"
     },
     {
+      "path": "runtime/bootstrap/core/hellolynk-darwin-host.mjs",
+      "bytes": 15511,
+      "sha256": "43dba4cd61cff66f2479c39532e504348a46e76faae0f7b1e09a7a7f5362e64a"
+    },
+    {
+      "path": "runtime/bootstrap/core/hellolynk-darwin-vault.mjs",
+      "bytes": 7659,
+      "sha256": "2972df9fa8a0d7594072a39bc8dfa2a41b8fb33ddf79cc5abe5e66636c1ea3ca"
+    },
+    {
       "path": "runtime/bootstrap/core/hellolynk-host-auth.mjs",
       "bytes": 12428,
       "sha256": "49baa0b82ab078ad74a892a179189bdbd303a791d580ba4d6eac457564fad535"
     },
     {
       "path": "runtime/bootstrap/core/hellolynk-host-protected-store.mjs",
-      "bytes": 129557,
-      "sha256": "0cefa22574df9dd99073d73bb688e9cae3faf6da862af013c1dfe9c87efef32e"
+      "bytes": 130518,
+      "sha256": "bb0167b7861de2c408b90c16f24765f45dfeca7033f90d31e17dca3fc9e30c41"
     },
     {
       "path": "runtime/bootstrap/core/hellolynk-local-process-lock.mjs",
@@ -142,13 +152,13 @@
     },
     {
       "path": "runtime/bootstrap/core/hellolynk-neutral-host-installation-store.mjs",
-      "bytes": 33944,
-      "sha256": "7b8d62ce31f47ad08f2cf50b48f3bb66cfb9c4957942184abb6d04f437b1e4a0"
+      "bytes": 33993,
+      "sha256": "f6e04183e8e0c945006c5348ed251833ec12a6ab9777031609b5a3ccd0d2252d"
     },
     {
       "path": "runtime/bootstrap/core/hellolynk-platform-credential-store.mjs",
-      "bytes": 35294,
-      "sha256": "0558aca043ff586f10d7b82e1b2fe9b537ff661913dce76fc92feaf9bd7e5546"
+      "bytes": 39386,
+      "sha256": "0ab136d36e890309b4cb5ff6f1cef6f3d82caf65f5b1d08c7b3992442ffe38a7"
     },
     {
       "path": "runtime/bootstrap/core/hellolynk-runtime-safety.cjs",
@@ -162,8 +172,8 @@
     },
     {
       "path": "runtime/connect-activate.mjs",
-      "bytes": 33499,
-      "sha256": "50ec8b0a58ac5b099a653722b0946acb23d0a29a054bfb3856dc963db6f84bee"
+      "bytes": 33789,
+      "sha256": "93c68c23ed2d18e87766ecd8dae6c3d8e757eca6ad7569477c8ec994402a8b0e"
     },
     {
       "path": "runtime/core/hellolynk-agent-configurator.mjs",
@@ -172,8 +182,8 @@
     },
     {
       "path": "runtime/core/hellolynk-client-account.mjs",
-      "bytes": 8594,
-      "sha256": "a22f14f494c1a44a9272ca95e160f8cb1df612a1ceb8b54e32596b13f90c3740"
+      "bytes": 8603,
+      "sha256": "57082d5ea5e068dad81a47dd8abd38e34663e4563d8efa40f5130b817a346670"
     },
     {
       "path": "runtime/core/hellolynk-client-core.mjs",
@@ -187,23 +197,33 @@
     },
     {
       "path": "runtime/core/hellolynk-client-update-entry.mjs",
-      "bytes": 1612,
-      "sha256": "dc62228a7351c721514b5ca7921d485dc6aa05475aaa2e3881b78d7de0e1a134"
+      "bytes": 1974,
+      "sha256": "8b872933f9883a92889202cf370e1e8d878c2172e4e1c5d8aa8261f314577d90"
     },
     {
       "path": "runtime/core/hellolynk-client-update-runtime.mjs",
-      "bytes": 40309,
-      "sha256": "0a76f2bdcf338c544e493ca7d0b7168f03ffa32ed223e3537eccafc1cbaafba0"
+      "bytes": 42247,
+      "sha256": "6bdcc525579963fa3ffc46f29527817acc0b8090fdc6a9cbdadb0fc262eee12e"
     },
     {
       "path": "runtime/core/hellolynk-client-update.mjs",
-      "bytes": 28385,
-      "sha256": "a4104a67dd72cb7a1950585c92aa8424b9387c1eda4f191e0df3f901c4f16a8f"
+      "bytes": 31391,
+      "sha256": "374690bb6cc7335b5f1cf030c33989aba9713e0922369edda0348b40ef71b02f"
     },
     {
       "path": "runtime/core/hellolynk-contact-request-e2ee.mjs",
       "bytes": 35030,
       "sha256": "18526628b354d18bcbe5e621360ecfcd5dfa4cb4d91397fb87d0c20e1f332a5d"
+    },
+    {
+      "path": "runtime/core/hellolynk-darwin-host.mjs",
+      "bytes": 15511,
+      "sha256": "43dba4cd61cff66f2479c39532e504348a46e76faae0f7b1e09a7a7f5362e64a"
+    },
+    {
+      "path": "runtime/core/hellolynk-darwin-vault.mjs",
+      "bytes": 7659,
+      "sha256": "2972df9fa8a0d7594072a39bc8dfa2a41b8fb33ddf79cc5abe5e66636c1ea3ca"
     },
     {
       "path": "runtime/core/hellolynk-device-enrollment.mjs",
@@ -227,8 +247,8 @@
     },
     {
       "path": "runtime/core/hellolynk-host-protected-store.mjs",
-      "bytes": 129557,
-      "sha256": "0cefa22574df9dd99073d73bb688e9cae3faf6da862af013c1dfe9c87efef32e"
+      "bytes": 130518,
+      "sha256": "bb0167b7861de2c408b90c16f24765f45dfeca7033f90d31e17dca3fc9e30c41"
     },
     {
       "path": "runtime/core/hellolynk-host-transport-client.mjs",
@@ -242,8 +262,8 @@
     },
     {
       "path": "runtime/core/hellolynk-human-confirmation-ledger.mjs",
-      "bytes": 11327,
-      "sha256": "265ae39e93112416588841a14eb0351905d60b2552cf04c8cf8bd057acd64586"
+      "bytes": 14719,
+      "sha256": "746f2d23f19fa110ecd87d0b1dc3d88138776accc3b177afd8f5d266223ccc81"
     },
     {
       "path": "runtime/core/hellolynk-human-relationship-controller.mjs",
@@ -282,8 +302,8 @@
     },
     {
       "path": "runtime/core/hellolynk-local-data-protection.mjs",
-      "bytes": 26467,
-      "sha256": "798f42e9bd45a00565b628282233a55abfdc4d7102423cb0558a7e01fab76810"
+      "bytes": 27425,
+      "sha256": "e33b0c83fff59ba3ed49ae880d1b95016be4457bc7fd223367683942c78525bc"
     },
     {
       "path": "runtime/core/hellolynk-local-identity-trust.mjs",
@@ -327,8 +347,8 @@
     },
     {
       "path": "runtime/core/hellolynk-native-human-confirmation-broker.mjs",
-      "bytes": 40527,
-      "sha256": "755fd03a4ee3b97cdfdb1efc491fb4cf602e25173819380ea8a715c04c82ea5a"
+      "bytes": 40773,
+      "sha256": "98d986f492a9e646f4601f25588cabe065e3c7bb00f0773b5dfd99e72e65c324"
     },
     {
       "path": "runtime/core/hellolynk-native-inbox-runtime.mjs",
@@ -357,18 +377,18 @@
     },
     {
       "path": "runtime/core/hellolynk-neutral-host-installation-store.mjs",
-      "bytes": 33944,
-      "sha256": "7b8d62ce31f47ad08f2cf50b48f3bb66cfb9c4957942184abb6d04f437b1e4a0"
+      "bytes": 33993,
+      "sha256": "f6e04183e8e0c945006c5348ed251833ec12a6ab9777031609b5a3ccd0d2252d"
     },
     {
       "path": "runtime/core/hellolynk-neutral-host-launcher.mjs",
-      "bytes": 30122,
-      "sha256": "490f8010bd84fc7c92a00ec4d4a996c27dd398b2e3584ded8bcebb74c598c18d"
+      "bytes": 30326,
+      "sha256": "0afe5310d1d9f7b1448a9f50aeb2c1fc93b42ce7eb48dd8472fbde5d33e898af"
     },
     {
       "path": "runtime/core/hellolynk-neutral-host-process.mjs",
       "bytes": 229535,
-      "sha256": "2aaf2b604f896de0d171b20590954c8da0a4c29b2eced508b4aa0a27927b40d5"
+      "sha256": "634279c96b8b4e83bcbcc92c5184f4ec7c31713a097f45af3f5650f8151fb78b"
     },
     {
       "path": "runtime/core/hellolynk-neutral-host-store-adapters.mjs",
@@ -382,8 +402,8 @@
     },
     {
       "path": "runtime/core/hellolynk-platform-credential-store.mjs",
-      "bytes": 35294,
-      "sha256": "0558aca043ff586f10d7b82e1b2fe9b537ff661913dce76fc92feaf9bd7e5546"
+      "bytes": 39386,
+      "sha256": "0ab136d36e890309b4cb5ff6f1cef6f3d82caf65f5b1d08c7b3992442ffe38a7"
     },
     {
       "path": "runtime/core/hellolynk-relay-client-cli.mjs",
@@ -392,8 +412,8 @@
     },
     {
       "path": "runtime/core/hellolynk-release-retention.mjs",
-      "bytes": 20922,
-      "sha256": "9f8b5b97eee7530dc8ef965b0df6a19065b06012255100977d8abb17ce50d204"
+      "bytes": 26013,
+      "sha256": "b894c452019b89486dd3090c9eeee7b7c2bb4e50753565bf88ecd14ce0efeaf1"
     },
     {
       "path": "runtime/core/hellolynk-runtime-safety.cjs",
@@ -407,8 +427,8 @@
     },
     {
       "path": "runtime/core/hellolynk-workbench-connection.mjs",
-      "bytes": 14486,
-      "sha256": "198fb21c3db2c91b85ca38d334c0ffe56ef28f2f052b6b62a8d2ed5c166fcd82"
+      "bytes": 14575,
+      "sha256": "0f24d28316253a761dc03d8096dace3da7a3cf8cb8eaf575765b2aa07d30274c"
     },
     {
       "path": "runtime/neutral-host-bootstrap.mjs",
@@ -422,18 +442,18 @@
     },
     {
       "path": "runtime/neutral-host-release-loader.mjs",
-      "bytes": 7599,
-      "sha256": "70bacded7cd42bef424e927d4002b6171aa613b0609f62ea02ebe8344359bfd6"
+      "bytes": 7609,
+      "sha256": "137c5663e34ef8ee62340b1c2d46f7284dc60576b6f25d3d0122390bb600e372"
     },
     {
       "path": "runtime/neutral-host-release-manifest.json",
-      "bytes": 15032,
-      "sha256": "d7fd7a101ae4289a91ec390aba0339729514a0ec7f63fe4e5679902174546f22"
+      "bytes": 15630,
+      "sha256": "719385851a5847c41a5d32c1ab1c13d6057db194f9345e1df3212190b13d1192"
     },
     {
       "path": "runtime/neutral-host-release-pin.json",
       "bytes": 146,
-      "sha256": "d41f01bbe45d5aa8c3efd15fefaca924cf8bce68e429cf5a359d58af09f26d90"
+      "sha256": "5e85436a917df172ea0e8fbddf1ec296135d7b1ec847d5a54ccc5a8db4078010"
     },
     {
       "path": "runtime/platform/windows/configure-agent.ps1",
@@ -442,8 +462,8 @@
     },
     {
       "path": "runtime/platform/windows/credential-store.ps1",
-      "bytes": 39278,
-      "sha256": "7ec7362eba2c442d9417035ff14c1108c7a58558b6f09ac36a2275828370debb"
+      "bytes": 41068,
+      "sha256": "4817c3c91d5d180763794a7a528f83664602f34cf1d1a8396e75ad6d56bd874f"
     },
     {
       "path": "runtime/platform/windows/hellolynk-host-protected-store.ps1",
@@ -607,8 +627,8 @@
     },
     {
       "path": "tools/hellolynk-activate-neutral-host-clients.mjs",
-      "bytes": 33553,
-      "sha256": "f8007370c54756e4792affe3fbffe5209b3ece619eddc5713c20c8bed8a86b34"
+      "bytes": 33852,
+      "sha256": "123eb4a08cf5a6df748972c64c5cf911697a669e68ecab7c409c1c4006c47277"
     },
     {
       "path": "tools/hellolynk-install-client-skills.mjs",

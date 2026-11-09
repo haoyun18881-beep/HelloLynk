@@ -34,7 +34,7 @@ export const HELLOLYNK_NEUTRAL_HOST_PROCESS_CONTRACT = "hellolynk-neutral-host-p
 export const HELLOLYNK_NEUTRAL_HOST_DISCOVERY_CONTRACT = "hellolynk-neutral-host-discovery-v1";
 // Raised with every release batch, together with the six client versions. A Host reports it
 // in its health; the higher release stays and the lower one makes room.
-export const HELLOLYNK_HOST_RELEASE_ORDINAL = 15;
+export const HELLOLYNK_HOST_RELEASE_ORDINAL = 16;
 
 const INSTALLATION_LOCK_CONTRACT = "hellolynk-neutral-host-installation-lock-v2";
 const INSTALLATION_LOCK_MAX_BYTES = 4 * 1024;

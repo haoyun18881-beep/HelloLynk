@@ -16,7 +16,8 @@ const PACK_PIN = "hellolynk-client-pack-pin.json";
 
 // A person at a terminal reads sentences in the system language; the updater, tests and other
 // programs read one JSON line.
-const jsonOutput = process.argv.includes("--json") || process.stdout.isTTY !== true;
+const explicitJson = process.argv.includes("--json");
+const jsonOutput = explicitJson || process.stdout.isTTY !== true;
 const CHINESE = /^zh\b/i.test(Intl.DateTimeFormat().resolvedOptions().locale);
 const CLIENT_NAMES = Object.freeze({ codex: "Codex", openclaw: "OpenClaw", "trae-work": "TRAE Work",
   workbuddy: "WorkBuddy", cursor: "Cursor", dsh: "DSH" });
@@ -258,6 +259,10 @@ try {
       await verifyExactBinding({ ...installed, locations, activation });
       await verifyClientConfiguration({ ...installed, locations });
     }
+    // A running unsigned updater asks the stable package for implicit JSON. A
+    // staged package may still prove its own first install after lost stdout.
+    const legacyUpdateProof = installed && !existingDoctor && !explicitJson && jsonOutput
+      && process.env.HELLOLYNK_NEUTRAL_STORE_ROOT && samePath(PACKAGE_ROOT, installed.packageRoot);
     print({
       ok: true,
       client: metadata.client,
@@ -268,7 +273,7 @@ try {
       activated: activation.ready,
       activationState: activation.state,
       stableReleaseVerified: installed != null,
-      exactBindingVerified: installed != null,
+      ...(legacyUpdateProof ? {} : { exactBindingVerified: installed != null }),
       clientConfigurationVerified: installed != null,
       installsNode: false,
       installsGit: false,

@@ -10,7 +10,7 @@ import { startHelloLynkNeutralHostAssembly } from "./core/hellolynk-neutral-host
 
 export async function createNeutralHostReleaseRuntime() {
   return Object.freeze({
-    defaultStoreRoot: (env) => defaultNeutralHostStoreRoot("win32", env),
+    defaultStoreRoot: (env) => defaultNeutralHostStoreRoot(process.platform, env),
     createInstallationStore: (options) => createNeutralHostInstallationStore(options),
     createProtectedStore: (options) => createHostProtectedStore(options),
     run: async ({ root, binding }) => runProductionHost(root, binding),

@@ -1,3 +1,5 @@
+import { invokeDarwinHost } from "./hellolynk-darwin-host.mjs";
+import { checkDarwinPath, DARWIN_HELPER, invokeDarwinHelper } from "./hellolynk-darwin-vault.mjs";
 import { randomBytes } from "node:crypto";
 import { lstat, mkdir } from "node:fs/promises";
 import { createConnection } from "node:net";
@@ -142,7 +144,7 @@ const READ_ONLY_COMMANDS = new Set([
 ]);
 
 export function defaultClaudeCodeStoreRoot(env = process.env) {
-  return defaultNeutralHostStoreRoot("win32", env);
+  return defaultNeutralHostStoreRoot(process.platform, env);
 }
 
 function assertClaudeCodeStoreRoot(root) {
@@ -154,9 +156,9 @@ function assertClaudeCodeStoreRoot(root) {
 
 export function createHostProtectedStore(options = {}) {
   const platform = options.platform || process.platform;
-  if (platform !== "win32") throw codeError("host_protected_store_platform_unsupported");
+  if (!["darwin", "win32"].includes(platform)) throw codeError("host_protected_store_platform_unsupported");
   const root = assertRoot(options.root || defaultNeutralHostStoreRoot(platform, options.env));
-  const helperPath = resolve(options.helperPath || SCRIPT_PATH);
+  const helperPath = resolve(options.helperPath || (platform === "darwin" ? DARWIN_HELPER : SCRIPT_PATH));
   const clock = normalizeClock(options.clock);
   const random = typeof options.randomBytes === "function" ? options.randomBytes : randomBytes;
   const readOnly = options.readOnly === true;
@@ -166,12 +168,12 @@ export function createHostProtectedStore(options = {}) {
     verifyPath: ({ path, directory }) => verifyHostProtectedStorePath({
       root,
       path,
-      directory,
+      directory, platform,
       helperPath,
       signal: options.signal,
     }),
   } : { root });
-  const nativeInvoke = (command, invokeOptions) => invokeWindowsStore({
+  const nativeInvoke = (command, invokeOptions) => (platform === "darwin" ? invokeDarwinHost : invokeWindowsStore)({
     command, root, helperPath, verifyOnly: readOnly, ...(readOnly ? { signal: options.signal } : {}), ...invokeOptions,
   });
   const baseInvoke = options.invoke || ((command, invokeOptions) => serializeRootInvoke(root, () => nativeInvoke(command, invokeOptions)));
@@ -180,7 +182,7 @@ export function createHostProtectedStore(options = {}) {
     // Each peer lookup creates a read-only store. Reuse its successful DPAPI
     // result across those instances, while checking live paths and the file
     // on every use. Registration/account checks remain in the public methods.
-    if (readOnly && !options.invoke && NEUTRAL_BINDING_READ.test(command)) {
+    if (platform === "win32" && readOnly && !options.invoke && NEUTRAL_BINDING_READ.test(command)) {
       return readNeutralBinding(command, invokeOptions);
     }
     try {
@@ -271,6 +273,7 @@ export function createHostProtectedStore(options = {}) {
 
   async function resolveCapability(capabilityId) {
     const id = assertCapabilityId(capabilityId);
+    if (platform === "darwin") return currentCapability(await load(id));
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const fingerprint = await readCapabilityStoreFingerprint();
       if (fingerprint !== capabilityCacheFingerprint) {
@@ -1347,12 +1350,21 @@ async function protectedPathFingerprint(root, target, helperPath, directory, sig
 }
 
 export async function verifyHostProtectedStorePath(options = {}) {
-  const root = assertRoot(options.root || defaultNeutralHostStoreRoot("win32", options.env));
+  const platform = options.platform || process.platform;
+  const root = assertRoot(options.root || defaultNeutralHostStoreRoot(platform, options.env));
   const target = resolve(String(options.path || ""));
   const relativeTarget = relative(root, target);
   if (!isAbsolute(String(options.path || ""))
-    || (relativeTarget !== "" && (isAbsolute(relativeTarget) || relativeTarget === ".." || relativeTarget.startsWith(`..\\`)))) {
+    || (relativeTarget !== "" && (isAbsolute(relativeTarget) || relativeTarget === ".." || relativeTarget.startsWith("../") || relativeTarget.startsWith(`..\\`)))) {
     throw codeError("host_protected_store_path_invalid");
+  }
+  if (platform === "darwin") {
+    checkDarwinPath(root, { directory: true, privateMode: true });
+    checkDarwinPath(target, { directory: options.directory === true, privateMode: true });
+    const helper = options.helperPath || DARWIN_HELPER;
+    await invokeDarwinHelper(helper, ["verify-acl", root], options.signal);
+    if (target !== root) await invokeDarwinHelper(helper, ["verify-acl", target], options.signal);
+    return Object.freeze({ verified: true });
   }
   const helperPath = resolve(options.helperPath || SCRIPT_PATH);
   const directory = options.directory === true;

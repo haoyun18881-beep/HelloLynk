@@ -1,3 +1,4 @@
+import { withDarwinVault } from "./hellolynk-darwin-vault.mjs";
 import { randomBytes } from "node:crypto";
 import { lstat } from "node:fs/promises";
 import { createConnection } from "node:net";
@@ -23,14 +24,15 @@ const TERMINAL_STATES = new Set([
 ]);
 
 export function createWindowsHumanConfirmationLedger(options = {}) {
-  if ((options.platform || process.platform) !== "win32") {
+  const platform = options.platform || process.platform;
+  if (!["darwin", "win32"].includes(platform)) {
     throw error("human_confirmation_ledger_platform_unsupported");
   }
-  const root = assertRoot(options.root);
+  const root = assertRoot(options.root, platform);
   const helperPath = resolve(options.helperPath || HELPER_PATH);
-  const invoke = options.invoke || ((command, value) => invokeHelper({
-    command, value, root, helperPath,
-  }));
+  const invoke = options.invoke || (platform === "darwin"
+    ? (command, value) => darwinLedger(root, options.helperPath, command, value)
+    : (command, value) => invokeHelper({ command, value, root, helperPath }));
 
   async function admit(value) {
     const input = normalizeAdmission(value);
@@ -76,6 +78,45 @@ export function createWindowsHumanConfirmationLedger(options = {}) {
     admit,
     record,
     lookup,
+  });
+}
+
+function darwinLedger(root, helperPath, command, value) {
+  return withDarwinVault({ root, helperPath, readOnly: command === "Lookup", allowMissing: true }, data => {
+    const now = Date.now();
+    const records = (data.records || []).filter(r => r.admittedAtMs >= now - 86_400_000 || (r.pending && r.expiresAtMs > now));
+    const current = records.find(r => r.actionId === value.actionId);
+    if (command === "Lookup") {
+      if (!current || current.partitionDigest !== value.partitionDigest) return {record:null};
+      const { actionId, state, code, createdAtMs, expiresAtMs } = current;
+      return { record: { actionId, state, code, createdAtMs, expiresAtMs } };
+    }
+    if (current && (current.partitionDigest !== value.partitionDigest || current.createdAtMs !== value.createdAtMs ||
+      current.expiresAtMs !== value.expiresAtMs)) throw error("human_confirmation_ledger_action_conflict");
+    if (command === "Admit") {
+      if (current) return { accepted:true };
+      const partition = records.filter(r => r.partitionDigest === value.partitionDigest);
+      if (partition.some(r => r.pending && r.expiresAtMs > value.createdAtMs)) return { accepted:false, reason:"partition_pending" };
+      const recent = partition.filter(r => r.admittedAtMs > now - value.rateWindowMs);
+      if (recent.length >= value.rateLimit) return { accepted:false, reason:"rate_limited",
+        retryAfterMs:Math.max(0, Math.min(...recent.map(r => r.admittedAtMs)) + value.rateWindowMs - now) };
+      if (records.length >= 4096) throw error("human_confirmation_ledger_capacity_exceeded");
+      const { actionId, partitionDigest, createdAtMs, expiresAtMs } = value;
+      records.push({ actionId, partitionDigest, createdAtMs, expiresAtMs, admittedAtMs:now, pending:true,
+        state:"invalidated", code:"human_confirmation_restart_invalidated", recordedAtMs:createdAtMs });
+    } else {
+      if (!current) throw error("human_confirmation_ledger_action_missing");
+      const { state, code, recordedAtMs } = value;
+      if (current.state === state && current.code === code && current.recordedAtMs === recordedAtMs) return { recorded:true };
+      const fromPending = current.pending && current.state === "invalidated" && state !== "approved";
+      const fromConsuming = current.state === "consuming" && ["approved","failed"].includes(state);
+      if (!(fromPending || fromConsuming) || recordedAtMs < current.recordedAtMs) throw error("human_confirmation_ledger_state_regression");
+      if (state === "consuming" && recordedAtMs >= current.expiresAtMs) throw error("human_confirmation_timed_out");
+      Object.assign(current, {state, code, recordedAtMs, pending:false});
+    }
+    if (Buffer.byteLength(JSON.stringify(records)) > 1048576) throw error("human_confirmation_ledger_too_large");
+    data.records = records;
+    return command === "Admit" ? { accepted:true } : { recorded:true };
   });
 }
 
@@ -237,8 +278,14 @@ function publicCode(value) {
     : "human_confirmation_ledger_operation_failed";
 }
 
-function assertRoot(value) {
+function assertRoot(value, platform) {
   const raw = String(value || "");
+  if (platform === "darwin") {
+    if (!isAbsolute(raw) || raw !== resolve(raw) || raw === "/" || raw.includes("\0")) {
+      throw error("human_confirmation_ledger_root_invalid");
+    }
+    return raw;
+  }
   if (!/^[A-Za-z]:[\\/]/.test(raw) || raw.startsWith("\\\\") || raw.includes("\0")) {
     throw error("human_confirmation_ledger_root_invalid");
   }

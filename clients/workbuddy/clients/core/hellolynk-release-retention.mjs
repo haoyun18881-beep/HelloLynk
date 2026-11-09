@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { execFile } from 'node:child_process';
+import { homedir } from 'node:os';
 import { promisify } from 'node:util';
 
 const execute = promisify(execFile);
@@ -27,7 +28,7 @@ const equal = (a, b) => process.platform === 'win32' ? a.toLowerCase() === b.toL
 // recent successful binding, even when its command line names only the cache.
 // A checkout/uninstalled fixture has no immutable release to retain.
 export async function recordCodexReleaseProcess(packageRoot) {
-  if (process.platform !== 'win32' || !path.isAbsolute(packageRoot || '')
+  if (!['win32', 'darwin'].includes(process.platform) || !path.isAbsolute(packageRoot || '')
     || path.basename(path.dirname(packageRoot)) !== 'releases' || !/^codex-[a-f0-9]{64}$/.test(path.basename(packageRoot))) return;
   try {
     const root = await rootPath(path.dirname(packageRoot));
@@ -70,6 +71,10 @@ async function regularTree(target) {
 // older Host may still import files after installation; deletion waits for the
 // next successful install instead of stopping any user process.
 export async function runningReleaseNames(releasesRoot) {
+  if (process.platform === 'darwin') {
+    const pattern = darwinReleasePattern(await rootPath(releasesRoot), releasesRoot);
+    return darwinReleaseNames(await darwinPs('command='), pattern);
+  }
   if (process.platform !== 'win32') throw failure('release_retention_process_check_unavailable');
   const root = await rootPath(releasesRoot);
   const literal = `${root}${path.sep}`.replaceAll("'", "''");
@@ -89,8 +94,21 @@ export async function runningReleaseNames(releasesRoot) {
 // with a positive pid are listed, and command lines never leave PowerShell.
 export async function entryProcessList(client, releasesRoot, pids = []) {
   if (!ENTRY[client] && client !== 'codex') return [];
-  if (process.platform !== 'win32') throw failure('release_retention_process_check_unavailable');
   if (!Array.isArray(pids) || pids.some(pid => !Number.isSafeInteger(pid) || pid <= 0)) throw failure('release_retention_process_check_invalid');
+  if (process.platform === 'darwin') {
+    const root = await rootPath(releasesRoot);
+    const stdout = await darwinPs('pid=,ppid=,lstart=,command=');
+    if (client === 'codex') return parseDarwinCodexEntryProcesses(stdout, pids);
+    const entries = [...new Set([root, path.resolve(releasesRoot)])]
+      .map(value => path.join(path.dirname(value), ...ENTRY[client]).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const pattern = new RegExp(`(?:^|["\\s])(?:${entries.join('|')})(?=["\\s]|$)`, 'u');
+    const wanted = new Set(pids);
+    return [...parseDarwinProcesses(stdout).values()].flatMap(({ pid, startedAt, command }) => {
+      const entry = pattern.test(command);
+      return entry || wanted.has(pid) ? [{ pid, startedAt, entry }] : [];
+    });
+  }
+  if (process.platform !== 'win32') throw failure('release_retention_process_check_unavailable');
   const root = await rootPath(releasesRoot);
   // This installation's entry only, in its given and canonical spellings:
   // any case, either slash, quoted or not.
@@ -110,6 +128,50 @@ export async function entryProcessList(client, releasesRoot, pids = []) {
   if (!Array.isArray(list) || list.some(p => !Number.isSafeInteger(p?.pid) || p.pid <= 0 || typeof p.entry !== 'boolean'
     || (p.startedAt !== null && !Number.isSafeInteger(p.startedAt)))) throw failure('release_retention_process_check_invalid');
   return list;
+}
+
+async function darwinPs(fields) {
+  const { stdout } = await execute('/bin/ps', ['-ww', '-axo', fields], {
+    env: { LC_ALL: 'C', TZ: 'UTC0' }, timeout: 15000, maxBuffer: 4 * 1024 * 1024,
+  });
+  return stdout;
+}
+
+// Keep command lines inside the process probe. Only a PID, its start time and
+// whether it might still be serving the Codex cache reach the retention logic.
+function parseDarwinProcesses(stdout) {
+  const processes = new Map();
+  for (const line of stdout.trim().split('\n')) {
+    const fields = /^\s*(\d+)\s+(\d+)\s+(\w{3}\s+\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s+(.+)$/u.exec(line);
+    if (!fields) throw failure('release_retention_process_check_invalid');
+    const [, pid, parent, started, command] = fields;
+    const startedAt = Date.parse(`${started} UTC`);
+    processes.set(Number(pid), { pid: Number(pid), parent: Number(parent), startedAt: Number.isFinite(startedAt) ? startedAt : null, command });
+  }
+  return processes;
+}
+
+export function parseDarwinCodexEntryProcesses(stdout, pids = []) {
+  const processes = parseDarwinProcesses(stdout);
+  const wanted = new Set(pids);
+  const proxy = /(?:^|["\s/])(?:\.\/)?server\/mcp-proxy\.mjs(?=["\s]|$)/u;
+  const codexApp = /(?:^|["/])(?:Codex|ChatGPT)\.app\/Contents\//iu;
+  const codexCli = /^(?:"?[^"\s]*\/)?codex(?=["\s]|$)/iu;
+  const result = [];
+  for (const { pid, parent, startedAt, command } of processes.values()) {
+    let entry = false;
+    if (proxy.test(command) && /(?:^|\/)node(?=["\s]|$)/u.test(command)) {
+      entry = /\/cua_node\/bin\/node(?=["\s]|$)/u.test(command)
+        || /\/hellolynk-codex\/server\/mcp-proxy\.mjs(?=["\s]|$)/u.test(command);
+      const seen = new Set([pid]);
+      for (let ancestor = processes.get(parent); !entry && ancestor && !seen.has(ancestor.pid); ancestor = processes.get(ancestor.parent)) {
+        entry = codexApp.test(ancestor.command) || codexCli.test(ancestor.command);
+        seen.add(ancestor.pid);
+      }
+    }
+    if (entry || wanted.has(pid)) result.push({ pid, startedAt, entry });
+  }
+  return result;
 }
 
 // Releases named by live entry records, and whether a process started through
@@ -149,6 +211,33 @@ async function entryReleases(releasesRoot, root, client, pattern, dependencies) 
 // A stopped on-demand task is still a configuration reference. Keeping only
 // live processes can delete its executable before the next client startup.
 export async function configuredReleaseNames(releasesRoot) {
+  if (process.platform === 'darwin') {
+    const root = await rootPath(releasesRoot);
+    const pattern = darwinReleasePattern(root, releasesRoot);
+    const names = new Set();
+    const readAgent = async file => {
+      const { stdout } = await execute('/usr/bin/plutil', ['-convert', 'json', '-o', '-', file],
+        { timeout: 15000, maxBuffer: 256 * 1024 });
+      const { Program, WorkingDirectory, ProgramArguments } = JSON.parse(stdout);
+      for (const value of [Program, WorkingDirectory, ...(ProgramArguments || [])]) {
+        if (typeof value === 'string') for (const name of darwinReleaseNames(value, pattern)) names.add(name);
+      }
+    };
+    // A receiver set to start on demand keeps its definition outside LaunchAgents.
+    const definition = path.join(path.dirname(root), 'host', 'claude-native-service.plist');
+    if (await fs.lstat(definition).catch(error => { if (error.code === 'ENOENT') return null; throw error; })) {
+      await readAgent(definition);
+    }
+    for (const directory of [path.join(homedir(), 'Library', 'LaunchAgents'), '/Library/LaunchAgents', '/Library/LaunchDaemons']) {
+      let entries;
+      try { entries = await fs.readdir(directory); }
+      catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+      for (const entry of entries.filter(name => /hellolynk/i.test(name) && name.endsWith('.plist'))) {
+        await readAgent(path.join(directory, entry));
+      }
+    }
+    return [...names].sort();
+  }
   if (process.platform !== 'win32') throw failure('release_retention_configuration_check_unavailable');
   const root = await rootPath(releasesRoot);
   const prefixes = [...new Set([root, path.resolve(releasesRoot)])].map(value => (value + path.sep).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
@@ -162,6 +251,16 @@ export async function configuredReleaseNames(releasesRoot) {
     throw failure('release_retention_configuration_check_invalid');
   }
   return names;
+}
+
+function darwinReleasePattern(root, logicalRoot) {
+  const prefixes = [...new Set([root, path.resolve(logicalRoot)])]
+    .map(value => (value + path.sep).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  return new RegExp('(?:' + prefixes.join('|') + ')((?:' + clients.join('|') + ')-[a-f0-9]{64})(?=[/"\\s]|$)', 'g');
+}
+
+function darwinReleaseNames(text, pattern) {
+  return [...new Set([...text.matchAll(pattern)].map(match => match[1]))].sort();
 }
 
 // Call only after the caller's complete adoption transaction succeeds, while

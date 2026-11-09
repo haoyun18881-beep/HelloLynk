@@ -1,3 +1,4 @@
+import { DARWIN_HELPER, darwinHelperEnvironment } from "./hellolynk-darwin-vault.mjs";
 import crypto from "node:crypto";
 import { spawn } from "node:child_process";
 import { StringDecoder } from "node:string_decoder";
@@ -583,7 +584,7 @@ export function createWindowsNativeHumanConfirmationLauncher() {
         await context.deliver?.({ kind: "failure", code: "human_confirmation_timed_out" });
         return;
       }
-      if (process.platform !== "win32") {
+      if (!["darwin","win32"].includes(process.platform)) {
         await context.deliver?.({ kind: "failure", code: "human_confirmation_platform_unsupported" });
         return;
       }
@@ -592,12 +593,12 @@ export function createWindowsNativeHumanConfirmationLauncher() {
         await context.deliver?.({ kind: "failure", code: "human_confirmation_request_too_large" });
         return;
       }
-      await runPowerShellChild(serialized, context);
+      await runNativeDialogChild(serialized, context);
     },
   });
 }
 
-async function runPowerShellChild(serialized, context) {
+async function runNativeDialogChild(serialized, context) {
   await new Promise((resolve) => {
     let delivered = false;
     let stdout = "";
@@ -605,13 +606,14 @@ async function runPowerShellChild(serialized, context) {
     let stdoutBytes = 0;
     let stderrBytes = 0;
     let forcedCode = null;
-    const child = spawn("powershell.exe", [
+    const darwin = process.platform === "darwin";
+    const child = spawn(darwin ? DARWIN_HELPER : "powershell.exe", darwin ? ["confirm"] : [
       "-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
       "-STA", "-File", POWERSHELL_SCRIPT,
     ], {
       windowsHide: true,
       stdio: ["pipe", "pipe", "pipe"],
-      env: sanitizeHelloLynkChildEnvironment(process.env),
+      env: darwin ? darwinHelperEnvironment() : sanitizeHelloLynkChildEnvironment(process.env),
     });
     const finish = async (result) => {
       if (delivered) return;

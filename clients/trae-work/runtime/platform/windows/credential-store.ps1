@@ -85,8 +85,27 @@ public static class HelloLynkWindowsFileNative {
   [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
   public static extern bool MoveFileExW(string existingName, string newName, uint flags);
 
+  [StructLayout(LayoutKind.Sequential)]
+  private struct SECURITY_ATTRIBUTES {
+    public int Length;
+    public IntPtr SecurityDescriptor;
+    public int InheritHandle;
+  }
+
   [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-  public static extern bool CreateDirectoryW(string path, IntPtr securityAttributes);
+  private static extern bool CreateDirectoryW(string path, ref SECURITY_ATTRIBUTES attributes);
+
+  public static bool CreateProtectedDirectory(string path, byte[] descriptor) {
+    var pinned = GCHandle.Alloc(descriptor, GCHandleType.Pinned);
+    try {
+      var attributes = new SECURITY_ATTRIBUTES {
+        Length = Marshal.SizeOf<SECURITY_ATTRIBUTES>(),
+        SecurityDescriptor = pinned.AddrOfPinnedObject(),
+        InheritHandle = 0
+      };
+      return CreateDirectoryW(path, ref attributes);
+    } finally { pinned.Free(); }
+  }
 }
 '@
 
@@ -162,7 +181,7 @@ function Get-HelloLynkExistingAncestorDirectories([string]$RootPath) {
   return $ordered
 }
 
-function Assert-HelloLynkTrustedAncestorAcl([string]$RootPath) {
+function Assert-HelloLynkTrustedAncestorAcl([string]$RootPath, [bool]$Create = $false) {
   $rootParent = [IO.Path]::GetDirectoryName($RootPath.TrimEnd([char[]]@('\', '/')))
   $directories = @(Get-HelloLynkExistingAncestorDirectories $RootPath)
   $dangerousRights = (
@@ -175,6 +194,8 @@ function Assert-HelloLynkTrustedAncestorAcl([string]$RootPath) {
     [Security.AccessControl.FileSystemRights]::ChangePermissions -bor
     [Security.AccessControl.FileSystemRights]::TakeOwnership
   )
+  $createRights = [Security.AccessControl.FileSystemRights]::CreateFiles -bor
+    [Security.AccessControl.FileSystemRights]::CreateDirectories
   foreach ($directory in $directories) {
     Assert-HelloLynkNoReparseAncestors $directory
     $identity = Open-HelloLynkIdentity $directory $true
@@ -204,6 +225,7 @@ function Assert-HelloLynkTrustedAncestorAcl([string]$RootPath) {
     )
     $isRootParent = $directory.Equals($rootParent, [StringComparison]::OrdinalIgnoreCase)
     $directoryIndex = [Array]::IndexOf($directories, $directory)
+    $willCreateProtectedChild = $Create -and -not $isRootParent -and $directoryIndex -eq $directories.Count - 1
     $nextDirectoryProtected = $false
     if ($directoryIndex -ge 0 -and $directoryIndex + 1 -lt $directories.Count) {
       try {
@@ -220,15 +242,20 @@ function Assert-HelloLynkTrustedAncestorAcl([string]$RootPath) {
       ) { continue }
       $rights = $rule.FileSystemRights
       $hasDangerousRights = (($rights -band $dangerousRights) -ne 0)
+      # A competing child created by a different user fails our owner check.
+      # A grant to alter the ancestor itself still prevents first creation.
+      $canCreateProtectedChild = $willCreateProtectedChild -and
+        (($rights -band $dangerousRights -band (-bnot $createRights)) -eq 0)
       $hasDeleteChild = (
         ($rights -band [Security.AccessControl.FileSystemRights]::DeleteSubdirectoriesAndFiles) -ne 0
       )
       if (
         $hasDeleteChild -or
-        ($hasDangerousRights -and ($isRootParent -or -not $nextDirectoryProtected))
+        ($hasDangerousRights -and ($isRootParent -or (-not $nextDirectoryProtected -and -not $canCreateProtectedChild)))
       ) { Fail "client_root_ancestor_dacl_untrusted" }
     }
   }
+  return $directories[-1]
 }
 
 function New-HelloLynkAcl([bool]$Directory) {
@@ -361,7 +388,7 @@ function Exit-HelloLynkRootMutex($Mutex) {
   try { $Mutex.ReleaseMutex() } finally { $Mutex.Dispose() }
 }
 
-function Ensure-HelloLynkSecureDirectory([string]$PathValue) {
+function Ensure-HelloLynkSecureDirectory([string]$PathValue, [string]$ExistingAncestor = "") {
   if ([IO.Directory]::Exists($PathValue)) {
     Assert-HelloLynkNoReparseAncestors $PathValue
     Assert-HelloLynkSecureAcl $PathValue $true
@@ -370,12 +397,21 @@ function Ensure-HelloLynkSecureDirectory([string]$PathValue) {
     return
   }
   $parent = [IO.Path]::GetDirectoryName($PathValue)
-  if (-not [IO.Directory]::Exists($parent)) { Ensure-HelloLynkSecureDirectory $parent }
-  if (-not [HelloLynkWindowsFileNative]::CreateDirectoryW($PathValue, [IntPtr]::Zero)) {
+  if ($ExistingAncestor) {
+    if (-not $parent.Equals($ExistingAncestor, [StringComparison]::OrdinalIgnoreCase)) {
+      Ensure-HelloLynkSecureDirectory $parent $ExistingAncestor
+    }
+  } elseif (-not [IO.Directory]::Exists($parent)) {
+    Ensure-HelloLynkSecureDirectory $parent
+  }
+  Assert-HelloLynkNoReparseAncestors $PathValue
+  $descriptor = (New-HelloLynkAcl $true).GetSecurityDescriptorBinaryForm()
+  if (-not [HelloLynkWindowsFileNative]::CreateProtectedDirectory($PathValue, $descriptor)) {
     Fail "client_root_create_race"
   }
-  Set-HelloLynkSecureAcl $PathValue $true
   Assert-HelloLynkNoReparseAncestors $PathValue
+  # Keep the Windows auto-inheritance marker used by child file ACL checks.
+  Set-HelloLynkSecureAcl $PathValue $true
   Assert-HelloLynkSecureAcl $PathValue $true
   $identity = Open-HelloLynkIdentity $PathValue $true
   $identity.Handle.Dispose()
@@ -386,14 +422,14 @@ function Resolve-HelloLynkClientRoot([string]$RootValue, [bool]$Create) {
   Assert-HelloLynkNoReparseAncestors $root
   $mutex = Enter-HelloLynkRootMutex $root
   try {
-    Assert-HelloLynkTrustedAncestorAcl $root
-    if ($Create) { Ensure-HelloLynkSecureDirectory $root }
+    $existingAncestor = Assert-HelloLynkTrustedAncestorAcl $root $Create
+    if ($Create) { Ensure-HelloLynkSecureDirectory $root $existingAncestor }
     if (-not [IO.Directory]::Exists($root)) { Fail "client_root_missing" }
     Assert-HelloLynkNoReparseAncestors $root
     Assert-HelloLynkSecureAcl $root $true
     $identity = Open-HelloLynkIdentity $root $true
     try {
-      Assert-HelloLynkTrustedAncestorAcl $root
+      $null = Assert-HelloLynkTrustedAncestorAcl $root
       $canonical = $root
     } finally { $identity.Handle.Dispose() }
     return [pscustomobject]@{ Root = $canonical; Mutex = $mutex }

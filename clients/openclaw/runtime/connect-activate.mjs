@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import { verifyDarwinUnclaimedAuthorization } from "./core/hellolynk-darwin-host.mjs";
 import { readClientProfile } from "./core/hellolynk-client-profile.mjs";
 import { createNeutralHostInstallationStore } from "./core/hellolynk-neutral-host-installation-store.mjs";
 import { clientAccountBaseRoot } from "./core/hellolynk-client-account.mjs";
@@ -164,7 +165,7 @@ assert.equal(releaseVerification.verifiedFileCount >= 8, true);
 let transport = null;
 let bootstrapTransportRequired = false;
 let protectedStorePresent = true;
-try { await fs.lstat(path.join(root, "capabilities-v1.dpapi.clixml")); }
+try { await fs.lstat(path.join(root, process.platform === "darwin" ? "protected-v1.sqlite" : "capabilities-v1.dpapi.clixml")); }
 catch (error) {
   if (error?.code !== "ENOENT") throw error;
   protectedStorePresent = false;
@@ -172,6 +173,9 @@ catch (error) {
 if (!protectedStorePresent) {
   if (!(freshPreBind || recoveryPreBind)) await store.status();
   await verifyHostProtectedStorePath({ root, path: root, directory: true });
+  bootstrapTransportRequired = true;
+} else if (process.platform === "darwin" && freshPreBind) {
+  await verifyDarwinUnclaimedAuthorization(root);
   bootstrapTransportRequired = true;
 } else {
   assert.equal((await store.status()).protected, true);

@@ -60,7 +60,7 @@ export function validateWorkbenchConnectionInput(value) {
 export function createWorkbenchConnection(options) {
   if (!CLIENTS.has(options?.client) || !path.isAbsolute(options?.releaseRoot || "")) throw code("workbench_connect_configuration_invalid");
   const env = options.env || process.env;
-  const storeRoot = options.storeRoot || env.HELLOLYNK_NEUTRAL_STORE_ROOT || defaultNeutralHostStoreRoot("win32", env);
+  const storeRoot = options.storeRoot || env.HELLOLYNK_NEUTRAL_STORE_ROOT || defaultNeutralHostStoreRoot(process.platform, env);
   if (!path.isAbsolute(storeRoot)) throw code("workbench_connect_configuration_invalid");
   let busy = false;
   const accounts = createClientAccountActions(options);
@@ -87,7 +87,7 @@ export function createWorkbenchAccountActions(options) {
 }
 
 async function connectAccount(client, sourceRoot, storeRoot, input) {
-  if (process.platform !== "win32") throw code("workbench_connect_windows_only", 400);
+  if (!["win32", "darwin"].includes(process.platform)) throw code("workbench_connect_platform_unsupported", 400);
   if (!CLIENTS.has(client) || !path.isAbsolute(sourceRoot) || !path.isAbsolute(storeRoot)
     || path.basename(storeRoot).toLowerCase() !== "host") throw code("workbench_connect_configuration_invalid");
   const value = validateWorkbenchConnectionInput(input);
@@ -181,7 +181,9 @@ async function retainRelease(binding, currentRoot, client) {
       const destination = path.resolve(stage, relative);
       if (!destination.startsWith(`${stage}${path.sep}`)) throw code("workbench_connect_release_invalid");
       await fs.mkdir(path.dirname(destination), { recursive: true, mode: 0o700 });
-      await fs.writeFile(destination, await fs.readFile(path.join(sourceRoot, relative)), { flag: "wx", mode: 0o600 });
+      await fs.writeFile(destination, await fs.readFile(path.join(sourceRoot, relative)), {
+        flag: "wx", mode: relative.endsWith(".bin") ? 0o700 : 0o600,
+      });
     }
     await verifyPinnedNeutralHostRuntime({ ...binding, releaseRoot: stage });
     await secureWindowsClientReleaseTree(currentRoot, stageId);

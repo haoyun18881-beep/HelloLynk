@@ -5,7 +5,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createClientUpdateManager, extractClientUpdateArchive, compareClientUpdateVersions, clientUpdateCatalogId,
-  CLIENT_UPDATE_CLIENTS, MAC_CODEX_VERSION } from "./hellolynk-client-update.mjs";
+  CLIENT_UPDATE_CLIENTS, CLIENT_UPDATE_RELEASES, MAC_CLIENT_VERSION } from "./hellolynk-client-update.mjs";
 import { withNeutralHostStoreLock } from "./hellolynk-neutral-host-installation-store.mjs";
 import { readClientAccount } from "./hellolynk-client-account.mjs";
 import runtimeSafety from "./hellolynk-runtime-safety.cjs";
@@ -95,7 +95,7 @@ export async function runClientUpdateWorker(options = {}) {
 function createRuntime(config, options) {
   const { root, client, currentVersion, installContext } = config;
   const directory = path.join(root, "client-updates", client);
-  const statePath = path.join(directory, "runtime.json"), leasePath = path.join(directory, "leases.json"), installedPath = path.join(directory, "installed.json");
+  const statePath = path.join(directory, "runtime-v2.json"), leasePath = path.join(directory, "leases.json"), installedPath = path.join(directory, "installed.json");
   const manager = createClientUpdateManager({ ...options, root, client, currentVersion, platform: config.platform });
   const alive = options.isProcessAlive || processAlive;
   async function gate(operation) {
@@ -201,7 +201,8 @@ function createRuntime(config, options) {
       const attempted = runtime.sha256 === downloaded.sha256 && !(runtime.stage === "applying" || retryable);
       if (downloaded.stage !== "downloaded" || downloaded.error || attempted) return;
       // A damaged worker record means no known worker.
-      const worker = await readJson(path.join(directory, "worker.json"), null).catch((error) => { if (!damaged(error)) throw error; return null; });
+      const workerPath = path.join(directory, "worker-v2.json");
+      const worker = await readJson(workerPath, null).catch((error) => { if (!damaged(error)) throw error; return null; });
       if (worker?.client === client && Number.isSafeInteger(worker.pid) && alive(worker.pid)) return;
       const launch = options.spawnWorker || launchWorker;
       let pid;
@@ -211,13 +212,13 @@ function createRuntime(config, options) {
       } catch (error) {
         // Retain only this rejected launch attempt, not raw errors or proof of
         // worker absence. Keep an earlier PID's conservative liveness check.
-        await atomicJson(path.join(directory, "worker.json"), { client,
+        await atomicJson(workerPath, { client,
           ...(worker?.client === client && Number.isSafeInteger(worker.pid) ? { pid: worker.pid } : {}),
           sha256: downloaded.sha256, error: "client_update_worker_launch_failed", failedAt: Date.now(),
         }).catch(() => {});
         throw error;
       }
-      await atomicJson(path.join(directory, "worker.json"), { client, pid });
+      await atomicJson(workerPath, { client, pid });
     });
   }
   async function applyPending() {
@@ -237,7 +238,7 @@ function createRuntime(config, options) {
           if (sha(await safeFile(path.join(proof.packageRoot, "hellolynk-client-pack-manifest.json")))
             !== sha(await safeFile(path.join(installContext.packageRoot, "hellolynk-client-pack-manifest.json")))) throw failure("adoption_invalid");
           const doctor = await (options.runInstaller || runInstaller)({ executable: installContext.nodePath || process.execPath,
-            args: [path.join(installContext.packageRoot, "bin", "hellolynk-client-setup.mjs"), "doctor"], cwd: installContext.packageRoot, root, timeoutMs: 180_000 });
+            args: [path.join(installContext.packageRoot, "bin", "hellolynk-client-setup.mjs"), "doctor", "--json"], cwd: installContext.packageRoot, root, timeoutMs: 180_000 });
           if (!doctorProves(doctor, client, currentVersion)) throw failure("adoption_invalid");
           const adoptedRoot = path.join(path.dirname(root), "releases", `${client}-${sha(await safeFile(path.join(proof.packageRoot, "hellolynk-client-pack-manifest.json")))}`);
           if (!options.runInstaller) await verifyPackage(adoptedRoot, client, currentVersion);
@@ -275,7 +276,7 @@ function createRuntime(config, options) {
       try {
         await verifyPackage(packageRoot, client, version);
         const inspected = await run({ executable: installContext.nodePath || process.execPath,
-          args: [path.join(packageRoot, "bin", "hellolynk-client-setup.mjs"), "doctor"], cwd: packageRoot, root, timeoutMs: 180_000 });
+          args: [path.join(packageRoot, "bin", "hellolynk-client-setup.mjs"), "doctor", "--json"], cwd: packageRoot, root, timeoutMs: 180_000 });
         return doctorProves(inspected, client, version);
       } catch { return false; }
     };
@@ -398,7 +399,7 @@ async function prepareCandidate(config, record) {
   const directory = path.join(config.root, "client-updates", config.client);
   if (!HASH.test(record.sha256) || typeof record.version !== "string" || !/^[0-9A-Za-z.+-]{1,100}$/.test(record.version)
     || typeof record.filename !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}\.zip$/.test(record.filename)) throw failure("candidate_invalid");
-  const artifactPath = path.join(directory, "releases", `${record.version}-${record.sha256}`, record.filename);
+  const artifactPath = path.join(directory, CLIENT_UPDATE_RELEASES, `${record.version}-${record.sha256}`, record.filename);
   if (artifactPath !== record.artifactPath) throw failure("candidate_path_invalid");
   const archive = await safeFile(artifactPath, 64 * 1024 * 1024);
   if (archive.length !== record.bytes || sha(archive) !== record.sha256) throw failure("artifact_integrity_invalid");
@@ -407,31 +408,38 @@ async function prepareCandidate(config, record) {
   const extractedRoot = path.join(temporaryRoot, "extracted");
   try {
     // Re-extract the hash-verified archive; never execute a mutable earlier
-    // extractedRoot or an executable path supplied by state.json.
+    // extractedRoot or an executable path supplied by update state.
     const sealed = path.join(temporaryRoot, record.filename);
     await fs.writeFile(sealed, archive, { flag: "wx", mode: 0o600 });
     await extractClientUpdateArchive({ archivePath: sealed, destination: extractedRoot, platform: config.platform });
-    let packageRoot;
-    if (config.client === "dsh") {
-      const descriptor = await readJson(path.join(extractedRoot, "trusted-release.json"));
-      const manifestBytes = await safeFile(path.join(extractedRoot, "dist", "package", "hellolynk-dsh-nav-build.json"));
-      if (descriptor?.contract !== "hellolynk-dsh-nav-release-v1" || descriptor.manifestSha256 !== sha(manifestBytes)) throw failure("package_pin_invalid");
-      const manifest = JSON.parse(manifestBytes.toString("utf8"));
-      if (manifest.contract !== "hellolynk-dsh-nav-build-v3") throw failure("package_pin_invalid");
-      await verifyRecords(path.join(extractedRoot, "dist", "package"), manifest.packageFiles, ["hellolynk-dsh-nav-build.json"]);
-      packageRoot = path.join(extractedRoot, "dist", "package", "runtime", "connect");
-      await safeFile(path.join(extractedRoot, "scripts", "install.mjs"));
-    } else {
-      const id = clientUpdateCatalogId(config.client, config.platform) || config.client;
-      const candidates = [extractedRoot, path.join(extractedRoot, "package"), path.join(extractedRoot, `hellolynk-${id}-${record.version}`, "package")];
-      const matches = [];
-      for (const candidate of candidates) if (await exists(path.join(candidate, "package.json"))) matches.push(candidate);
-      if (matches.length !== 1) throw failure("package_identity_invalid");
-      packageRoot = matches[0];
-    }
-    await verifyPackage(packageRoot, config.client, record.version);
+    const { packageRoot } = await verifyExtractedClientUpdatePackage(extractedRoot,
+      { client: config.client, platform: config.platform, version: record.version });
     return { temporaryRoot, extractedRoot, artifactPath: sealed, packageRoot, setupPath: path.join(packageRoot, "bin", "hellolynk-client-setup.mjs") };
   } catch (error) { await fs.rm(temporaryRoot, { recursive: true, force: true }); throw error; }
+}
+
+export async function verifyExtractedClientUpdatePackage(extractedRoot, { client, platform, version }) {
+  if (!CLIENT_UPDATE_CLIENTS.includes(client) || typeof version !== "string" || !VERSION.test(version)) throw failure("package_identity_invalid");
+  let packageRoot;
+  if (client === "dsh") {
+    const descriptor = await readJson(path.join(extractedRoot, "trusted-release.json"));
+    const manifestBytes = await safeFile(path.join(extractedRoot, "dist", "package", "hellolynk-dsh-nav-build.json"));
+    if (descriptor?.contract !== "hellolynk-dsh-nav-release-v1" || descriptor.manifestSha256 !== sha(manifestBytes)) throw failure("package_pin_invalid");
+    const manifest = JSON.parse(manifestBytes.toString("utf8"));
+    if (manifest.contract !== "hellolynk-dsh-nav-build-v3") throw failure("package_pin_invalid");
+    await verifyRecords(path.join(extractedRoot, "dist", "package"), manifest.packageFiles, ["hellolynk-dsh-nav-build.json"]);
+    packageRoot = path.join(extractedRoot, "dist", "package", "runtime", "connect");
+    await safeFile(path.join(extractedRoot, "scripts", "install.mjs"));
+  } else {
+    const id = clientUpdateCatalogId(client, platform) || client;
+    const candidates = [extractedRoot, path.join(extractedRoot, "package"), path.join(extractedRoot, `hellolynk-${id}-${version}`, "package")];
+    const matches = [];
+    for (const candidate of candidates) if (await exists(path.join(candidate, "package.json"))) matches.push(candidate);
+    if (matches.length !== 1) throw failure("package_identity_invalid");
+    packageRoot = matches[0];
+  }
+  const checked = await verifyPackage(packageRoot, client, version);
+  return { packageRoot, ...checked };
 }
 
 async function verifyPackage(root, client, version) {
@@ -440,18 +448,23 @@ async function verifyPackage(root, client, version) {
   const pin = await readJson(path.join(root, "hellolynk-client-pack-pin.json"));
   const manifest = JSON.parse(manifestBytes.toString("utf8"));
   if (pkg.version !== version || pkg.hellolynkClient?.client !== client || pkg.name !== NAMES[client]
-    || (MAC_CODEX_VERSION.test(version) && (client !== "codex" || pkg.os?.[0] !== "darwin" || pkg.cpu?.[0] !== "arm64"))
+    || (MAC_CLIENT_VERSION.test(version) && (!clientUpdateCatalogId(client, "darwin") || pkg.os?.[0] !== "darwin" || pkg.cpu?.[0] !== "arm64"))
     || manifest.contract !== "hellolynk-client-npm-pack-manifest-v1" || manifest.client !== client
     || manifest.packageName !== pkg.name || manifest.version !== version
     || pin.contract !== "hellolynk-client-npm-pack-pin-v1" || pin.manifestSha256 !== sha(manifestBytes)) throw failure("package_identity_invalid");
   await verifyRecords(root, manifest.files, ["hellolynk-client-pack-manifest.json", "hellolynk-client-pack-pin.json"]);
   if (!manifest.files.some((file) => file.path === "bin/hellolynk-client-setup.mjs")) throw failure("package_pin_invalid");
-  if (process.platform !== "win32" && MAC_CODEX_VERSION.test(version)) {
-    for (const relative of ["platform/darwin", "bootstrap/platform/darwin"]) {
-      const helper = path.join(root, "plugins/hellolynk-codex/runtime", relative, "hellolynk-keychain-helper.bin");
-      if (!((await fs.lstat(helper)).mode & 0o100)) throw failure("package_pin_invalid");
+  if (MAC_CLIENT_VERSION.test(version)) {
+    const helpers = client === "codex"
+      ? ["plugins/hellolynk-codex/runtime/platform/darwin", "plugins/hellolynk-codex/runtime/bootstrap/platform/darwin"]
+      : ["runtime/platform/darwin"];
+    for (const relative of helpers) {
+      const file = `${relative}/hellolynk-keychain-helper.bin`;
+      if (!manifest.files.some(record => record.path === file)
+        || (process.platform !== "win32" && !((await fs.lstat(path.join(root, file))).mode & 0o100))) throw failure("package_pin_invalid");
     }
   }
+  return { coreRoot: pkg.hellolynkClient.coreRoot, files: manifest.files };
 }
 async function verifyRecords(root, records, allowedExtra) {
   if (!Array.isArray(records) || records.length < 1 || records.length > 5000) throw failure("package_pin_invalid");
@@ -482,7 +495,7 @@ async function verifyInstalledContext(config) {
 function normalize(value) {
   const platform = value.platform || process.platform;
   if (!CLIENT_UPDATE_CLIENTS.includes(value.client) || typeof value.currentVersion !== "string" || !VERSION.test(value.currentVersion)
-    || (platform === "darwin" && (value.client !== "codex" || !MAC_CODEX_VERSION.test(value.currentVersion)))
+    || (platform === "darwin" && !MAC_CLIENT_VERSION.test(value.currentVersion))
     || !path.isAbsolute(String(value.root || "")) || !path.isAbsolute(String(value.installContext?.packageRoot || ""))) throw failure("configuration_invalid");
   const context = { packageRoot: path.resolve(value.installContext.packageRoot) };
   for (const name of ["nodePath", "dshProfile", "dshRoot"]) {
