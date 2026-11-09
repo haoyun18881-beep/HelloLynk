@@ -56,12 +56,13 @@ Windows 10/11 版需要 Node.js 22.16 或更高版本、PowerShell 7 和要接�
 2. 在上表选择客户端，按它的安装说明下载并装好插件。也可以把安装说明和安装包交给你的 AI，让它帮你装。
 3. 完全退出并重新打开这个客户端。
 
-Codex、OpenClaw、TRAE Work 和 WorkBuddy 也可以用 npm 装，代替上面第 2 步：运行 `npm install -g <npm 包>`，再运行下表的命令。
+Codex、Claude Code for Mac、OpenClaw、TRAE Work 和 WorkBuddy 也可以用 npm 装。运行 `npm install -g <npm 包>`，再运行下表的命令。安装 Claude Code for Mac 前，请先完全退出 Claude。
 
 | 客户端 | npm 包 | 命令 |
 | --- | --- | --- |
 | Codex | `@hellolynk-ai/codex-plugin` | `hellolynk-codex init` |
 | Codex for Mac | `@hellolynk-ai/codex-plugin@macos` | `hellolynk-codex init` |
+| Claude Code for Mac | `@hellolynk-ai/claude-code-mcp@macos` | `hellolynk-claude-code` |
 | OpenClaw | `@hellolynk-ai/openclaw-channel` | `hellolynk-openclaw init` |
 | TRAE Work | `@hellolynk-ai/trae-work-mcp` | `hellolynk-trae-work init` |
 | WorkBuddy | `@hellolynk-ai/workbuddy-mcp` | `hellolynk-workbuddy init` |
