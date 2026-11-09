@@ -44,11 +44,11 @@ https://github.com/user-attachments/assets/532e82a8-0e59-405d-8151-55b8fff31bf1
 
 六个客户端的安装包都可以在 [GitHub Release](https://github.com/haoyun18881-beep/HelloLynk/releases/latest) 或[官网](https://hellolynk.com/guide)下载。
 
-Apple 芯片的 Mac 可安装 [Codex for Mac](clients/codex-macos/)。
+Apple 芯片的 Mac 可安装 [Codex for Mac](clients/codex-macos/) 或 [Claude Code for Mac](clients/claude-code-macos/)。
 
 ## 前提
 
-Windows 10/11 版需要 Node.js 22.16 或更高版本、PowerShell 7 和要接入的 AI 客户端。Mac 版需要 macOS 13 或更高版本，以及安装在「应用程序」中的 ChatGPT。
+Windows 10/11 版需要 Node.js 22.16 或更高版本、PowerShell 7 和要接入的 AI 客户端。Mac 版需要 macOS 13 或更高版本，具体条件见各客户端的安装说明。
 
 ## 安装
 
