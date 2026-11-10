@@ -7,7 +7,6 @@ import path from "node:path";
 
 import {
   createDeviceRuntimeSessionManager,
-  issueDeviceRuntimeSession,
   normalizeHelloLynkBaseUrl,
 } from "./hellolynk-client-core.mjs";
 import { readClientProfile } from "./hellolynk-client-profile.mjs";
@@ -243,31 +242,19 @@ export async function startHelloLynkNeutralHostAssembly(options = {}, dependenci
     const manager = (dependencies.createRuntimeSessionManager || createDeviceRuntimeSessionManager)({
       sessionStore: credentialStore.runtimeSessions,
       sessionKey,
-      issue: async ({ previousSession } = {}) => {
-        let deviceCredential = await credentialStore.load(profile.profileId);
-        try {
-          return await (dependencies.issueRuntimeSession || issueDeviceRuntimeSession)({
-            baseUrl: profile.baseUrl,
-            allowLoopbackHttp: profile.allowLoopbackHttp,
-            deviceCredential,
-            expectedPrincipalId: profile.principalId,
-            expectedAgentId: profile.agentId,
-            expectedDelegateId: profile.delegateId,
-            expectedHostId: profile.hostId,
-            expectedAuthorizationVersion: profile.authorizationVersion,
-            previousSession,
-            fetchImpl: dependencies.fetchImpl,
-          });
-        } finally { deviceCredential = null; }
-      },
+      loadDeviceCredential: () => credentialStore.load(profile.profileId),
+      issue: dependencies.issueRuntimeSession,
     });
     const sessionProvider = Object.freeze({
       get: () => manager.get({
+        baseUrl: profile.baseUrl,
+        allowLoopbackHttp: profile.allowLoopbackHttp,
         expectedPrincipalId: profile.principalId,
         expectedAgentId: profile.agentId,
         expectedDelegateId: profile.delegateId,
         expectedHostId: profile.hostId,
         expectedAuthorizationVersion: profile.authorizationVersion,
+        fetchImpl: dependencies.fetchImpl,
       }),
       clear: (error) => manager.clear(error),
       status: () => manager.status(),

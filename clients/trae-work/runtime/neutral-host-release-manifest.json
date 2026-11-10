@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "release/integrations/trae-work/package.json",
-      "sha256": "b6b956acae6bf9a5a7b083abe3db0f30fe3c0b8bb8a87b1f0dcd60b96daf2e47"
+      "sha256": "8ad763f376491fc244c63a904d7eaa59d007213fe49c8ec6b7aabe2dcae7cf03"
     },
     {
       "path": "connect-activate.mjs",
@@ -36,7 +36,7 @@
     },
     {
       "path": "core/hellolynk-client-core.mjs",
-      "sha256": "af7c9cb7a996fdb194c51dbcc745c48b616ff1686d79a1451104690d882df1b8"
+      "sha256": "5d2190c2354ede169b2053864674c7ae5b80985970dc13609d6818c5a6d16940"
     },
     {
       "path": "core/hellolynk-client-profile.mjs",
@@ -188,7 +188,7 @@
     },
     {
       "path": "core/hellolynk-neutral-host-assembly.mjs",
-      "sha256": "98b2b669183cda15272b182d5c04d3ae77511b8b657cd3179cbf2fa5d5f27920"
+      "sha256": "8f8038559ed249d29e53e8ee0ad3db8e6319336bd3aadf49434aa7aa755bb647"
     },
     {
       "path": "core/hellolynk-neutral-host-installation-store.mjs",
@@ -200,7 +200,7 @@
     },
     {
       "path": "core/hellolynk-neutral-host-process.mjs",
-      "sha256": "634279c96b8b4e83bcbcc92c5184f4ec7c31713a097f45af3f5650f8151fb78b"
+      "sha256": "a2ed64720bd9772e5ac1fd93692820e1c5c58e03be114eb4707c2a7f4bd57f5e"
     },
     {
       "path": "core/hellolynk-neutral-host-store-adapters.mjs",
@@ -212,7 +212,7 @@
     },
     {
       "path": "core/hellolynk-platform-credential-store.mjs",
-      "sha256": "0ab136d36e890309b4cb5ff6f1cef6f3d82caf65f5b1d08c7b3992442ffe38a7"
+      "sha256": "4a4f073c3a5398d0d51be5a28c1b86b06e6f3b0b613e833928d8437c030cf65f"
     },
     {
       "path": "core/hellolynk-relay-client-cli.mjs",
@@ -328,7 +328,7 @@
     },
     {
       "path": "bootstrap/core/hellolynk-client-core.mjs",
-      "sha256": "af7c9cb7a996fdb194c51dbcc745c48b616ff1686d79a1451104690d882df1b8"
+      "sha256": "5d2190c2354ede169b2053864674c7ae5b80985970dc13609d6818c5a6d16940"
     },
     {
       "path": "bootstrap/core/hellolynk-client-profile.mjs",
@@ -352,7 +352,7 @@
     },
     {
       "path": "bootstrap/core/hellolynk-platform-credential-store.mjs",
-      "sha256": "0ab136d36e890309b4cb5ff6f1cef6f3d82caf65f5b1d08c7b3992442ffe38a7"
+      "sha256": "4a4f073c3a5398d0d51be5a28c1b86b06e6f3b0b613e833928d8437c030cf65f"
     },
     {
       "path": "bootstrap/core/hellolynk-runtime-safety.cjs",

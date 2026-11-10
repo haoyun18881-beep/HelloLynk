@@ -297,6 +297,36 @@ export async function secureWindowsClientReleaseTree(clientRoot, releaseId, opti
   });
 }
 
+// Accessed under the same cross-process lock as the corresponding session.
+function createCredentialRejectionStore(root) {
+  const fileFor = (profile) => join(root, `runtime-session-rejection-${assertCredentialProfileId(profile)}.json`);
+  const isRejection = (value) => typeof value?.fingerprint === "string" && /^[a-f0-9]{64}$/.test(value.fingerprint)
+    && Number.isSafeInteger(value.rejectedAtMs) && value.rejectedAtMs >= 0;
+  return {
+    async load(profile) {
+      let value;
+      try { value = JSON.parse(await readFile(fileFor(profile), "utf8")); }
+      catch (error) { if (error?.code === "ENOENT" || error instanceof SyntaxError) return null; throw error; }
+      return isRejection(value) ? value : null;
+    },
+    async save(profile, rejection) {
+      if (!isRejection(rejection)) throw new HelloLynkCredentialStoreError("invalid_credential_rejection");
+      const { fingerprint, rejectedAtMs } = rejection;
+      const file = fileFor(profile);
+      const temporary = `${file}.${randomBytes(12).toString("hex")}.tmp`;
+      try {
+        await writeFile(temporary, `${JSON.stringify({ fingerprint, rejectedAtMs })}\n`, { encoding: "utf8", flag: "wx", mode: 0o600 });
+        await rename(temporary, file);
+      } finally {
+        await rm(temporary, { force: true }).catch(() => {});
+      }
+    },
+    async remove(profile) {
+      await rm(fileFor(profile), { force: true });
+    },
+  };
+}
+
 export function createPlatformCredentialStore(options = {}) {
   const platform = options.platform || process.platform;
   const run = options.runHelper || runCredentialHelper;
@@ -370,6 +400,7 @@ export function createPlatformCredentialStore(options = {}) {
         await invoke("Remove", assertCredentialProfileId(profile), "");
       },
       runtimeSessions: {
+        credentialRejections: createCredentialRejectionStore(runtimeStoreRoot),
         async save(profile, session) {
           const body = JSON.stringify({ schemaVersion: 1, ...assertRuntimeSession(session) });
           await invoke("StoreRuntimeSession", assertCredentialProfileId(profile), body);
@@ -504,6 +535,7 @@ export function createPlatformCredentialStore(options = {}) {
       },
       async remove(profile) { await entry(root, "device", profile, "remove"); },
       runtimeSessions: {
+        credentialRejections: createCredentialRejectionStore(root),
         async save(profile, session) { await entry(root, "session", profile, "save", assertRuntimeSession(session)); },
         async load(profile) {
           const value = await entry(root, "session", profile, "load");

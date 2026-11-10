@@ -30,8 +30,8 @@ const TRUSTED_BOOTSTRAP_FILES = Object.freeze(new Map([
   ["runtime/bootstrap/core/hellolynk-neutral-host-installation-store.mjs", "42ae1e7deb876a8308b7bfed6a7b891d1834117b62504fc5befe3f91a0b4c740"],
   ["runtime/bootstrap/core/hellolynk-host-auth.mjs", "db1ec56f4e60e6450fba50188eecf89748f39f5d7a75c2456c30a6053233555d"],
   ["runtime/bootstrap/core/hellolynk-client-profile.mjs", "8be37831c96610e3d0a64848ada86488970cc6079e49764b47d8a8b2ba852269"],
-  ["runtime/bootstrap/core/hellolynk-platform-credential-store.mjs", "3969708bafefc3b267bb34a9dcc115804c874ad14f4a036426d727c02ff70d42"],
-  ["runtime/bootstrap/core/hellolynk-client-core.mjs", "94bbad1d0ccee969bbffed176449e427188f1b892512a64167ab31f63d258e2b"],
+  ["runtime/bootstrap/core/hellolynk-platform-credential-store.mjs", "4b4b27cd86f4816e5e6ec4914816a335cdea5c4b4ffb2091775c061a9676a69c"],
+  ["runtime/bootstrap/core/hellolynk-client-core.mjs", "dbab0f067c1a7f02c43b2696e1f5972288acd4f93a18684bf3cc120edff5cf94"],
   ["runtime/bootstrap/platform/windows/hellolynk-host-protected-store.ps1", "24357e8ce54090b4ec68e457f02c9e834a80f3273ef3c03a8c0fa7258797fb49"],
   ...(process.platform === "darwin" ? [
     ["runtime/bootstrap/platform/darwin/hellolynk-keychain-helper.bin", "0000000000000000000000000000000000000000000000000000000000000000"],

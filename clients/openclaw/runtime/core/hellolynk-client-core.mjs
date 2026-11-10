@@ -1,9 +1,11 @@
+import { createHash } from "node:crypto";
 import runtimeSafety from "./hellolynk-runtime-safety.cjs";
 const DEFAULT_TIMEOUT_MS = 10_000;
 const MAX_JSON_RESPONSE_BYTES = 256 * 1024;
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]"]);
 const DEVICE_RUNTIME_TTL_MS = 20 * 60 * 1000;
 const DEVICE_RUNTIME_RECOVERY_WINDOW_MS = 120_000;
+const DEVICE_CREDENTIAL_RECHECK_MS = 60 * 60_000;
 const DEVICE_RUNTIME_SCOPES = Object.freeze([
   "relay.text.receive",
   "relay.text.send",
@@ -567,6 +569,7 @@ export function createDeviceRuntimeSessionManager(options = {}) {
   const issue = options.issue || issueDeviceRuntimeSession;
   const now = options.now || (() => Date.now());
   const sessionStore = options.sessionStore || null;
+  const credentialRejections = sessionStore?.credentialRejections;
   const sessionKey = options.sessionKey == null ? null : String(options.sessionKey);
   if (sessionStore && (
     !sessionKey ||
@@ -580,6 +583,8 @@ export function createDeviceRuntimeSessionManager(options = {}) {
     5 * 60 * 1000,
   );
   let current = null;
+  let rejectedCredential = null;
+  let localIssueTail = Promise.resolve();
 
   const routeMatches = (session, input) => {
     const expectedValues = [
@@ -652,22 +657,67 @@ export function createDeviceRuntimeSessionManager(options = {}) {
     return proof;
   };
 
+  const issueSession = async (input, previousSession) => {
+    const request = { ...input, previousSession };
+    if (options.loadDeviceCredential) request.deviceCredential = await options.loadDeviceCredential();
+    const fingerprint = request.deviceCredential && request.baseUrl
+      ? createHash("sha256").update(JSON.stringify([
+        normalizeHelloLynkBaseUrl(request.baseUrl, { allowLoopbackHttp: request.allowLoopbackHttp === true }),
+        request.deviceCredential,
+      ])).digest("hex")
+      : null;
+    // The production caller holds the existing session lock, including across
+    // Host processes. An authority denial may drain the current Host.
+    if (fingerprint) {
+      const isCoolingDown = (rejection) => {
+        if (rejection?.fingerprint !== fingerprint) return false;
+        const age = now() - rejection.rejectedAtMs;
+        return age >= 0 && age < DEVICE_CREDENTIAL_RECHECK_MS;
+      };
+      // A generic denial may clear after a server-side repair, without a new
+      // credential. The lock permits one recheck once the cooldown ends.
+      if (isCoolingDown(rejectedCredential)
+        || isCoolingDown(await credentialRejections?.load(sessionKey).catch(() => null))) {
+        throw new HelloLynkClientError("device_credential_invalid", { httpStatus: 401 });
+      }
+    }
+    let session;
+    try {
+      session = reusable(await issue(request), input);
+    } catch (error) {
+      if (fingerprint && error?.httpStatus === 401 && error.code === "device_credential_invalid") {
+        rejectedCredential = { fingerprint, rejectedAtMs: now() };
+        // Preserve the authority denial even if local storage is unavailable.
+        await credentialRejections?.save(sessionKey, rejectedCredential).catch(() => {});
+      }
+      throw error;
+    }
+    if (session && fingerprint) {
+      rejectedCredential = null;
+      await credentialRejections?.remove(sessionKey).catch(() => {});
+    }
+    return session;
+  };
+
   return {
     async get(input) {
       if (!sessionStore) {
-        if (
-          current && current.expiresAtMs - now() > minimumRemainingMs
-          && routeMatches(current, input)
-          && scopesMatch(current, input)
-          && (input?.expectedAgentId == null || input.expectedAgentId === current.agentId)
-          && (input?.expectedPrincipalId == null || input.expectedPrincipalId === current.principalId)
-        ) return current;
-        const reusableCurrent = reusable(current, input);
-        if (reusableCurrent) return reusableCurrent;
-        const previousSession = recoveryProof(current, input);
-        current = reusable(await issue({ ...input, previousSession }), input);
-        if (!current) throw new HelloLynkClientError("invalid_runtime_session_handle");
-        return current;
+        const result = localIssueTail.then(async () => {
+          if (
+            current && current.expiresAtMs - now() > minimumRemainingMs
+            && routeMatches(current, input)
+            && scopesMatch(current, input)
+            && (input?.expectedAgentId == null || input.expectedAgentId === current.agentId)
+            && (input?.expectedPrincipalId == null || input.expectedPrincipalId === current.principalId)
+          ) return current;
+          const reusableCurrent = reusable(current, input);
+          if (reusableCurrent) return reusableCurrent;
+          current = await issueSession(input, recoveryProof(current, input));
+          if (!current) throw new HelloLynkClientError("invalid_runtime_session_handle");
+          return current;
+        });
+        localIssueTail = result.catch(() => {});
+        return result;
       }
       const inMemory = reusable(current, input);
       if (inMemory) return inMemory;
@@ -678,7 +728,7 @@ export function createDeviceRuntimeSessionManager(options = {}) {
           current = persisted;
           return current;
         }
-        const issued = reusable(await issue({ ...input, previousSession: persisted }), input);
+        const issued = await issueSession(input, persisted);
         if (!issued) throw new HelloLynkClientError("invalid_runtime_session_handle");
         await sessionStore.save(sessionKey, issued);
         current = issued;
