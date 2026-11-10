@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "release/integrations/trae-work/package.json",
-      "sha256": "76d72f67de8dc545e61f39ad7edc996f5ce6344078e897fddfe3ff3c67eb5994"
+      "sha256": "b6b956acae6bf9a5a7b083abe3db0f30fe3c0b8bb8a87b1f0dcd60b96daf2e47"
     },
     {
       "path": "connect-activate.mjs",

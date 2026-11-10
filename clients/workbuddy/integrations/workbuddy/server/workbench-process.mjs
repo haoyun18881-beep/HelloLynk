@@ -1,4 +1,5 @@
 import { execFile, spawn } from "node:child_process";
+import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
 import net from "node:net";
@@ -6,7 +7,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import runtimeSafety from "../../../clients/core/hellolynk-runtime-safety.cjs";
-import { defaultNeutralHostStoreRoot } from "../../../clients/core/hellolynk-neutral-host-installation-store.mjs";
+import { applyCurrentUserAcl, defaultNeutralHostStoreRoot } from "../../../clients/core/hellolynk-neutral-host-installation-store.mjs";
 import { bootstrapWorkBuddyWorkbenchCandidate } from "./workbench-candidate.mjs";
 import { registerWorkBuddyNativeMcp } from "./native-task-mcp-registration.mjs";
 import { configureWorkBuddyDebugStartup, transferWorkBuddyDebugStartupOwner } from "./native-task-debug-startup.mjs";
@@ -216,13 +217,54 @@ function controlPipe(options) {
   return `\\\\.\\pipe\\hellolynk-workbuddy-${key}`;
 }
 
+// The service creates the key before listening, so a missing key means no
+// service yet: ENOENT keeps the existing start-and-poll path.
+async function readPageKey(options) {
+  const filename = pageKeyFile(options);
+  let value;
+  try {
+    const metadata = await fs.lstat(filename);
+    if (!metadata.isFile() || metadata.size > 256) throw failure("workbuddy_page_service_key_invalid");
+    value = JSON.parse(await fs.readFile(filename, "utf8"));
+  } catch (error) { throw error?.code === "ENOENT" ? error : failure("workbuddy_page_service_key_invalid"); }
+  if (!/^[A-Za-z0-9_-]{43}$/.test(value?.key || "")) throw failure("workbuddy_page_service_key_invalid");
+  return value.key;
+}
+
+// The pipe admits every local caller, so this file's ACL is the boundary: one
+// key per user store, readable only by this user, shared by every release and
+// never replaced. The empty file is limited to this user before the key is
+// written; the link fails if another service created the key first, and both
+// then use that one. The installed store root must already exist.
+async function ensurePageKey(options) {
+  const filename = pageKeyFile(options);
+  for (let attempt = 0; ; attempt += 1) {
+    try { return await readPageKey(options); }
+    catch (error) { if (error?.code !== "ENOENT" || attempt) throw error; }
+    const temporary = `${filename}.${crypto.randomUUID()}.tmp`;
+    try {
+      await (await fs.open(temporary, "wx", 0o600)).close();
+      await applyCurrentUserAcl(temporary, false);
+      await fs.writeFile(temporary, JSON.stringify({ key: crypto.randomBytes(32).toString("base64url") }), { flag: "r+" });
+      await fs.link(temporary, filename).catch((error) => { if (error?.code !== "EEXIST") throw error; });
+    } finally { await fs.rm(temporary, { force: true }); }
+  }
+}
+
+function pageKeyFile(options) {
+  return path.join(options.storeRoot || defaultNeutralHostStoreRoot(), "workbuddy-page-key.json");
+}
+
 async function requestExistingWorkbench(options) {
+  const key = await readPageKey(options);
   return new Promise((resolve, reject) => {
     const socket = net.connect(controlPipe(options));
     let text = "";
     socket.setTimeout(3000, () => socket.destroy(failure("workbuddy_page_service_timeout")));
-    socket.on("error", reject);
-    socket.on("connect", () => socket.write("open\n"));
+    // Only "no service yet" may start the task; any other refusal is reported.
+    socket.on("error", (error) => reject(["ENOENT", "ECONNREFUSED"].includes(error?.code) || /^workbuddy_/.test(error?.code || "")
+      ? error : failure("workbuddy_page_service_unreachable")));
+    socket.on("connect", () => socket.write(`open ${key}\n`));
     socket.on("data", (chunk) => {
       text += chunk.toString("utf8");
       if (text.length > 4096) socket.destroy(failure("workbuddy_local_web_launch_invalid"));
@@ -251,22 +293,30 @@ export async function serveWorkBuddyWorkbenchService(options) {
   let server;
   const sockets = new Set();
   try {
+    const request = Buffer.from(`open ${await ensurePageKey(options)}\n`);
     await serveWorkBuddyWorkbench({ ...options, async publishReady(value, surface) {
       server = net.createServer((socket) => {
         sockets.add(socket);
         socket.on("close", () => sockets.delete(socket));
         socket.on("error", () => {});
         socket.setTimeout(3000, () => socket.destroy());
-        let text = "";
+        let received = Buffer.alloc(0);
         socket.on("data", (chunk) => {
-          text += chunk.toString("utf8");
-          if (text === "open\n") { surface.armNavigation(); socket.end(`${JSON.stringify(validateReady(value))}\n`); }
-          else if (text.length >= 5) socket.destroy();
+          received = Buffer.concat([received, chunk]);
+          if (received.length < request.length && !received.includes(0x0a)) return;
+          if (received.length === request.length && crypto.timingSafeEqual(received, request)) {
+            surface.armNavigation(); socket.end(`${JSON.stringify(validateReady(value))}\n`);
+          } else socket.destroy();
         });
       });
       await new Promise((resolve, reject) => {
         server.once("error", reject);
-        server.listen(controlPipe(options), () => { server.off("error", reject); resolve(); });
+        // Task Scheduler can run this service with the full token of a built-in
+        // Administrator while WorkBuddy runs unelevated; the default pipe ACL
+        // would then refuse WorkBuddy. Any local caller may connect, and only
+        // one that can read this user's page key gets the page.
+        server.listen({ path: controlPipe(options), readableAll: true, writableAll: true },
+          () => { server.off("error", reject); resolve(); });
       });
     } });
   } finally {

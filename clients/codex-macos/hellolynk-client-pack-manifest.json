@@ -2,12 +2,12 @@
   "contract": "hellolynk-client-npm-pack-manifest-v1",
   "client": "codex",
   "packageName": "@hellolynk-ai/codex-plugin",
-  "version": "0.2.103-macos.1",
+  "version": "0.2.104-macos.1",
   "workbench": {
     "path": "plugins/hellolynk-codex/runtime/workbench/hellolynk-workbench-build.json",
     "contract": "hellolynk-shared-workbench-build-v1",
     "version": "1.3.43",
-    "manifestSha256": "43e42633242cb456ecf2a120380230485e4d8533934ad6242089049d9282da11"
+    "manifestSha256": "e24d6fe83a562f069012e1a7181835f240cdfd706b406a1c92dae659cc6e22eb"
   },
   "files": [
     {
@@ -33,7 +33,7 @@
     {
       "path": "package.json",
       "bytes": 1776,
-      "sha256": "4115862c2d4169f3876fe2c35a3a96c8c1fb50b6a3a73af80456e26702ad3105"
+      "sha256": "9485c043ba6f164976d9256d03da20c8db9a5c688d10359fc006a5b17ffeb917"
     },
     {
       "path": "plugins/hellolynk-codex/.app.json",
@@ -43,7 +43,7 @@
     {
       "path": "plugins/hellolynk-codex/.codex-plugin/plugin.json",
       "bytes": 1669,
-      "sha256": "1de6bb823a304b733c0c75418389b1e32819191adea03c575f5c602f2e00631c"
+      "sha256": "5cbee29306a0ff88cbe11d76bcaefdbfd5b56292cf8e5a4de21577ca0b61674e"
     },
     {
       "path": "plugins/hellolynk-codex/.mcp.json",
@@ -58,7 +58,7 @@
     {
       "path": "plugins/hellolynk-codex/package.json",
       "bytes": 1030,
-      "sha256": "f786baab2e9f35836813c6b77e1cbc0fb8c0a3c0a2055b2e6ea777f2428cd232"
+      "sha256": "6f378efda0ab9a8f5555e88978dfaccdf7db448b7219da4e86b21fe0b59f1f75"
     },
     {
       "path": "plugins/hellolynk-codex/runtime/bootstrap/core/hellolynk-client-account.mjs",
@@ -408,12 +408,12 @@
     {
       "path": "plugins/hellolynk-codex/runtime/neutral-host-release-manifest.json",
       "bytes": 14698,
-      "sha256": "f054f0e73accc788fb24c437eea03a6e4cd5872f39dc4d65cbc7ff0e17e6bcae"
+      "sha256": "96b171b53d91da097e2c36c36dbe9e6e6b0e2ca0fb34c1741b0df2cb5ac38e9b"
     },
     {
       "path": "plugins/hellolynk-codex/runtime/neutral-host-release-pin.json",
       "bytes": 146,
-      "sha256": "530ed943cd227874b5096c7bb3657ec0f7a624c2b049680003f6237574d9d73a"
+      "sha256": "f68a4fe31eba6adc1c31aa1c2ccf399e584e02ea9556371f2b8363cf5633c7f3"
     },
     {
       "path": "plugins/hellolynk-codex/runtime/platform/darwin/hellolynk-keychain-helper.bin",
@@ -468,7 +468,7 @@
     {
       "path": "plugins/hellolynk-codex/runtime/workbench/hellolynk-workbench-build.json",
       "bytes": 7191,
-      "sha256": "43e42633242cb456ecf2a120380230485e4d8533934ad6242089049d9282da11"
+      "sha256": "e24d6fe83a562f069012e1a7181835f240cdfd706b406a1c92dae659cc6e22eb"
     },
     {
       "path": "plugins/hellolynk-codex/runtime/workbench/host-capabilities.mjs",
@@ -587,8 +587,8 @@
     },
     {
       "path": "plugins/hellolynk-codex/runtime/workbench/ui/styles.css",
-      "bytes": 53189,
-      "sha256": "34d24d3d35800a796905049eb5f785f402cf1e82118c66efd4893bd003adbe31"
+      "bytes": 53238,
+      "sha256": "26525ca14369e5e58e756ad3cb8dd5ca86d5158a838e2aab920506679cd384f0"
     },
     {
       "path": "plugins/hellolynk-codex/server/codex-neutral-production.mjs",

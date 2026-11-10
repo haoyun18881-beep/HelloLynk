@@ -2,12 +2,12 @@
   "contract": "hellolynk-client-npm-pack-manifest-v1",
   "client": "openclaw",
   "packageName": "@hellolynk-ai/openclaw-channel",
-  "version": "0.2.104",
+  "version": "0.2.105",
   "workbench": {
     "path": "runtime/workbench/hellolynk-workbench-build.json",
     "contract": "hellolynk-shared-workbench-build-v1",
     "version": "1.3.43",
-    "manifestSha256": "43e42633242cb456ecf2a120380230485e4d8533934ad6242089049d9282da11"
+    "manifestSha256": "e24d6fe83a562f069012e1a7181835f240cdfd706b406a1c92dae659cc6e22eb"
   },
   "files": [
     {
@@ -333,7 +333,7 @@
     {
       "path": "integrations/openclaw-channel/package.json",
       "bytes": 2158,
-      "sha256": "c391fd29dfcdd4bf8883ddea76ceecb7e9837d26aa486672213bb25ab13fd857"
+      "sha256": "0bd09779092e5c4bd24c4324c51654d55135d4fa473c0d193e29f931b778fdd7"
     },
     {
       "path": "integrations/openclaw-channel/setup-entry.mjs",
@@ -408,7 +408,7 @@
     {
       "path": "package.json",
       "bytes": 1985,
-      "sha256": "38d85d5bfd34b8a79ee0e60e25648e68bd4b0c148cab62c92eb8aedb83daa77b"
+      "sha256": "f34b316f809ffd8c0bb93bfc5f55469ffcc59fa4569c3b8285efe42a02c49f48"
     },
     {
       "path": "README.md",
@@ -743,7 +743,7 @@
     {
       "path": "runtime/workbench/hellolynk-workbench-build.json",
       "bytes": 7191,
-      "sha256": "43e42633242cb456ecf2a120380230485e4d8533934ad6242089049d9282da11"
+      "sha256": "e24d6fe83a562f069012e1a7181835f240cdfd706b406a1c92dae659cc6e22eb"
     },
     {
       "path": "runtime/workbench/host-capabilities.mjs",
@@ -862,8 +862,8 @@
     },
     {
       "path": "runtime/workbench/ui/styles.css",
-      "bytes": 53189,
-      "sha256": "34d24d3d35800a796905049eb5f785f402cf1e82118c66efd4893bd003adbe31"
+      "bytes": 53238,
+      "sha256": "26525ca14369e5e58e756ad3cb8dd5ca86d5158a838e2aab920506679cd384f0"
     },
     {
       "path": "tools/hellolynk-activate-neutral-host-clients.mjs",

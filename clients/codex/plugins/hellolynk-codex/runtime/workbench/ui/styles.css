@@ -227,9 +227,9 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .conversation-header > .thread-avatar { flex-shrink: 0; }
 .conversation-read-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; max-width: 100%; }
 .conversation-auto-read { flex: none; }
-.auto-read-toggle { background: var(--panel); white-space: nowrap; }
+.auto-read-toggle { background: var(--panel); color: var(--ink-950); white-space: nowrap; }
 .auto-read-toggle::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--ink-450); }
-.auto-read-toggle[aria-checked="true"] { background: var(--sky); }
+.auto-read-toggle[aria-checked="true"] { background: var(--sky); color: var(--accent-ink); }
 .auto-read-toggle[aria-checked="true"]::before { background: var(--blue-700); }
 .conversation-auto-read .action-status { margin: 4px 0 0; max-width: 180px; }
 .conversation-heading { min-width: 0; flex: 1 1 96px; }

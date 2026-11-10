@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "release/package.json",
-      "sha256": "f786baab2e9f35836813c6b77e1cbc0fb8c0a3c0a2055b2e6ea777f2428cd232"
+      "sha256": "6f378efda0ab9a8f5555e88978dfaccdf7db448b7219da4e86b21fe0b59f1f75"
     },
     {
       "path": "neutral-host-bootstrap.mjs",

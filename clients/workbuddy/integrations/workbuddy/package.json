@@ -1,12 +1,12 @@
 {
   "name": "@hellolynk-ai/workbuddy-mcp",
-  "version": "0.3.100",
+  "version": "0.3.101",
   "private": true,
   "type": "module",
   "description": "WorkBuddy one-click bridge for local HelloLynk Messaging.",
   "scripts": {
     "smoke": "node test/workbuddy-stdio-smoke.mjs",
-    "test": "node test/workbuddy-stdio-smoke.mjs && node test/local-web-smoke.mjs && node test/local-web-package-smoke.mjs && node test/workbench-process-smoke.mjs && node test/pending-consumption-smoke.mjs && node test/pending-loopback-smoke.mjs && node --test test/model-inbox-caller.test.mjs test/proxy-reply.test.mjs test/native-task-store.test.mjs test/native-task-worker.test.mjs test/origin-routes.test.mjs test/native-task-scheduled.test.mjs test/native-task-debug-startup.test.mjs test/native-task-service-registration.test.mjs test/native-task-upgrade.test.mjs",
+    "test": "node test/workbuddy-stdio-smoke.mjs && node test/local-web-smoke.mjs && node test/local-web-package-smoke.mjs && node test/workbench-process-smoke.mjs && node test/pending-consumption-smoke.mjs && node test/pending-loopback-smoke.mjs && node --test test/model-inbox-caller.test.mjs test/proxy-reply.test.mjs test/native-task-store.test.mjs test/native-task-worker.test.mjs test/origin-routes.test.mjs test/native-task-scheduled.test.mjs test/native-task-debug-startup.test.mjs test/native-task-service-registration.test.mjs test/native-task-upgrade.test.mjs test/page-service-key.test.mjs",
     "smoke:web": "node test/local-web-smoke.mjs",
     "build:immutable-package": "node scripts/build-local-web-package.mjs --output workbuddy-immutable-package",
     "smoke:pending": "node test/pending-consumption-smoke.mjs",

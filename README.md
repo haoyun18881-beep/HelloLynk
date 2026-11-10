@@ -63,11 +63,11 @@ Contacts and messages live in HelloLynk Messaging inside your client. Replies to
 | Client | Where HelloLynk opens | Windows | Mac |
 | --- | --- | --- | --- |
 | Codex | Sidebar; chat card in the conversation | [Setup](clients/codex/) | [Setup](clients/codex-macos/) |
-| Claude Code | Card in a Code conversation in Claude Desktop | [Package](clients/claude-code/hellolynk-claude-code-0.1.89.zip) · [Setup](clients/claude-code/) | [Setup](clients/claude-code-macos/) |
+| Claude Code | Card in a Code conversation in Claude Desktop | [Package](clients/claude-code/hellolynk-claude-code-0.1.90.zip) · [Setup](clients/claude-code/) | [Setup](clients/claude-code-macos/) |
 | WorkBuddy | Built-in browser | [Setup](clients/workbuddy/) | — |
 | TRAE Work | Built-in browser | [Setup](clients/trae-work/) | — |
 | OpenClaw | HelloLynk Messaging entry in the Control UI | [Setup](clients/openclaw/) | — |
-| DSH | Main navigation | [Package](clients/dsh/hellolynk-dsh-0.1.106.zip) · [Setup](clients/dsh/) | — |
+| DSH | Main navigation | [Package](clients/dsh/hellolynk-dsh-0.1.107.zip) · [Setup](clients/dsh/) | — |
 
 Mac versions are for Apple silicon. Every package is also on [GitHub Releases](https://github.com/haoyun18881-beep/HelloLynk/releases/latest) and the [website](https://hellolynk.com/guide).
 
