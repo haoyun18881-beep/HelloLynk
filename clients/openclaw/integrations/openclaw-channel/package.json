@@ -1,6 +1,6 @@
 {
   "name": "@hellolynk-ai/openclaw-channel",
-  "version": "0.2.106",
+  "version": "0.2.107",
   "private": true,
   "description": "HelloLynk Messaging channel plugin for the public OpenClaw Windows client",
   "type": "module",

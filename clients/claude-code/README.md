@@ -8,7 +8,7 @@ Windows 10/11、Node.js 22.16 或更高版本、PowerShell 7，以及打开过�
 
 ## 安装
 
-1. 下载 [hellolynk-claude-code-0.1.91.zip](hellolynk-claude-code-0.1.91.zip)，完整解压。
+1. 下载 [hellolynk-claude-code-0.1.92.zip](hellolynk-claude-code-0.1.92.zip)，完整解压。
 2. 完全退出 Claude，包括托盘中的程序和正在运行的 Claude CLI。
 3. 在解压目录打开终端，运行 `node install.mjs`。有多个 Claude 实例或自定义配置路径时，按 ZIP 内的 README.md 操作。
 

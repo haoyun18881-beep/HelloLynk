@@ -334,6 +334,9 @@ export async function startHelloLynkNeutralHostAssembly(options = {}, dependenci
       authorizationVersion: profile.authorizationVersion,
       identityKeyId: e2ee.identityKeyId,
       runtimeHeaders: () => runtimeHeaders(sessionProvider),
+      // Drops only this instance's cached runtime session, and only for a stale
+      // session, so the Host can verify it once more with the device credential.
+      clearRuntimeSession: (error) => sessionProvider.clear(error),
       e2ee,
       contactE2ee,
     }));

@@ -1,6 +1,7 @@
 import { nativeConversationId, nativeConversationQuery, nativeDirectoryResult, queryLocalNativeConversations } from "./hellolynk-native-conversations.mjs";
 import { DIRECT_TEXT_E2EE_MAX_TTL_MS } from "./hellolynk-direct-text-e2ee.mjs";
 import { runModelInbox } from "./hellolynk-model-inbox.mjs";
+import { shouldInvalidateDeviceRuntimeSession } from "./hellolynk-client-core.mjs";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import http from "node:http";
@@ -34,7 +35,7 @@ export const HELLOLYNK_NEUTRAL_HOST_PROCESS_CONTRACT = "hellolynk-neutral-host-p
 export const HELLOLYNK_NEUTRAL_HOST_DISCOVERY_CONTRACT = "hellolynk-neutral-host-discovery-v1";
 // Raised with every release batch, together with the six client versions. A Host reports it
 // in its health; the higher release stays and the lower one makes room.
-export const HELLOLYNK_HOST_RELEASE_ORDINAL = 17;
+export const HELLOLYNK_HOST_RELEASE_ORDINAL = 18;
 
 const INSTALLATION_LOCK_CONTRACT = "hellolynk-neutral-host-installation-lock-v2";
 const INSTALLATION_LOCK_MAX_BYTES = 4 * 1024;
@@ -97,9 +98,16 @@ const PREKEY_REFILL_RETRY_MIN_MS = 1_000;
 const PREKEY_REFILL_RETRY_MAX_MS = 60_000;
 const RELAY_RETRY_MIN_MS = 1_000;
 const RELAY_RETRY_MAX_MS = 60_000;
-const RELAY_AUTHORITY_DENIAL_CODES = new Set([
+// Revocation of this Host or its transport credential fences the whole Host.
+const HOST_AUTHORITY_DENIAL_CODES = new Set([
   "host_transport_host_revoked", "host_transport_credential_revoked", "host_transport_credential_inactive",
+]);
+// A refusal of one instance's own device credential or delegate stops only that
+// instance. The Host and its other instances keep receiving and sending. The
+// server reports these when issuing or using that instance's runtime session.
+const ENDPOINT_AUTHORITY_DENIAL_CODES = new Set([
   "device_credential_invalid", "device_credential_revoked", "delegate_revoked", "delegate_inactive",
+  "device_credential_identity_inactive", "device_credential_inactive", "runtime_identity_inactive",
 ]);
 const MESSAGE_LOCAL_CAPACITY_CODES = new Set(["local_message_store_too_large"]);
 const CONTACT_REQUEST_LOCAL_CAPACITY_CODES = new Set([
@@ -247,6 +255,9 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
   let receiverState = null;
   const relayAbortController = new AbortController();
   const relayProvisionedEndpoints = new Set();
+  // Refused instances and their refusal code. Only a later successful registration
+  // (the next relay connection or session rotation) readmits one.
+  const rejectedEndpoints = new Map();
   const relayState = { status: "connecting", failureCount: 0, nextAttemptAtMs: 0, errorCode: null };
   const rejectedInboundTimes = new WeakSet();
   let lastRejectedInbound = null;
@@ -600,6 +611,20 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
             lastRejectedInbound = { errorCode: error.code };
             continue;
           }
+          // The frame's own instance was refused (for example at ACK). Stop only that
+          // instance and skip the frame; the relay expires or redelivers it.
+          const refused = ENDPOINT_AUTHORITY_DENIAL_CODES.has(error?.code)
+            && endpoints.get(String(item.data?.recipientDelegateId || ""));
+          if (refused) {
+            rejectedEndpoints.set(refused.delegateId, error.code);
+            relayState.errorCode = error.code;
+            lastRejectedInbound = { errorCode: error.code };
+            continue;
+          }
+          // A stale runtime session (such as a revocation landing between persist and
+          // ACK) is not a local failure. Reconnect: registration verifies that instance
+          // again and isolates it if refused. The durable record stays; the relay redelivers.
+          if (shouldInvalidateDeviceRuntimeSession(error)) throw error;
           if (!isInboundLocalCapacityError(error)) {
             inboundFailed = true;
             throw error;
@@ -612,7 +637,7 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
     } catch (error) {
       if (lifecycle !== "running") return;
       // Preserve fail-closed persistence/ACK and other malformed-inbound errors.
-      if (inboundFailed || RELAY_AUTHORITY_DENIAL_CODES.has(error?.code)) throw error;
+      if (inboundFailed || HOST_AUTHORITY_DENIAL_CODES.has(error?.code)) throw error;
       await stream?.close?.().catch(() => {});
       stream = null;
       scheduleRelayRetry(error);
@@ -638,31 +663,63 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
     const task = (async () => {
       let connected = null;
       try {
-        const registrations = await Promise.allSettled([...endpoints.values()].map(async (endpoint) => {
-          if (endpoint.e2ee?.preKeyInventoryStatus?.status === "deferred"
-            && !relayProvisionedEndpoints.has(endpoint.delegateId)) {
-            try {
-              await endpoint.e2ee.ensurePreKeyInventory({ signal });
-            } catch (error) {
-              if (error?.code !== "e2ee_local_prekey_capacity_exceeded") throw error;
-              const state = preKeyRefillState(endpoint.delegateId);
-              state.failureCount = 1;
-              state.nextAttemptAtMs = Math.max(nowMs(clock) + PREKEY_REFILL_RETRY_MIN_MS, retryAtTimestamp(error.retryAt) || 0);
-              state.errorCode = error.code;
+        const attempted = [...endpoints.values()];
+        const registrations = await Promise.allSettled(attempted.map(async (endpoint) => {
+          const register = async () => {
+            if (endpoint.e2ee?.preKeyInventoryStatus?.status === "deferred"
+              && !relayProvisionedEndpoints.has(endpoint.delegateId)) {
+              try {
+                await endpoint.e2ee.ensurePreKeyInventory({ signal });
+              } catch (error) {
+                if (error?.code !== "e2ee_local_prekey_capacity_exceeded") throw error;
+                const state = preKeyRefillState(endpoint.delegateId);
+                state.failureCount = 1;
+                state.nextAttemptAtMs = Math.max(nowMs(clock) + PREKEY_REFILL_RETRY_MIN_MS, retryAtTimestamp(error.retryAt) || 0);
+                state.errorCode = error.code;
+              }
+              relayProvisionedEndpoints.add(endpoint.delegateId);
             }
-            relayProvisionedEndpoints.add(endpoint.delegateId);
+            if (signal.aborted || lifecycle !== "running") return;
+            await options.transport.registerEndpoint({
+              delegateId: endpoint.delegateId, identityKeyId: endpoint.identityKeyId,
+              runtimeHeaders: endpoint.runtimeHeaders, signal,
+            });
+          };
+          try {
+            await register();
+          } catch (error) {
+            // Revoking an instance also drops its runtime session, so its cached session
+            // fails first. Clear only that stale cache and verify once more: a device
+            // refusal then isolates the instance; any other failure keeps the usual path.
+            const cleared = !shouldInvalidateDeviceRuntimeSession(error) || signal.aborted || lifecycle !== "running"
+              || typeof endpoint.clearRuntimeSession !== "function" ? false
+              : await Promise.resolve().then(() => endpoint.clearRuntimeSession(error)).catch(() => false);
+            if (cleared !== true) throw error;
+            await register();
           }
-          if (signal.aborted || lifecycle !== "running") return;
-          await options.transport.registerEndpoint({
-            delegateId: endpoint.delegateId, identityKeyId: endpoint.identityKeyId,
-            runtimeHeaders: endpoint.runtimeHeaders, signal,
-          });
         }));
         if (signal.aborted || lifecycle !== "running") return;
-        const failed = registrations.find((result) => result.status === "rejected"
-          && RELAY_AUTHORITY_DENIAL_CODES.has(result.reason?.code))
-          || registrations.find((result) => result.status === "rejected");
+        const hostDenial = registrations.find((result) => result.status === "rejected"
+          && HOST_AUTHORITY_DENIAL_CODES.has(result.reason?.code));
+        if (hostDenial) throw hostDenial.reason;
+        // A refused instance stays out of the relay while the others connect. Each
+        // later connection, including session rotation, registers it again.
+        registrations.forEach((result, index) => {
+          if (result.status === "fulfilled") rejectedEndpoints.delete(attempted[index].delegateId);
+          else if (ENDPOINT_AUTHORITY_DENIAL_CODES.has(result.reason?.code)) {
+            rejectedEndpoints.set(attempted[index].delegateId, result.reason.code);
+          }
+        });
+        // A refused instance whose re-verification fails for another reason (such as
+        // its dropped runtime session) stays refused and does not hold back the others.
+        const failed = registrations.find((result, index) => result.status === "rejected"
+          && !rejectedEndpoints.has(attempted[index].delegateId));
         if (failed) throw failed.reason;
+        // With every instance refused there is nothing to receive: keep the Host and
+        // retry with the usual backoff. The session manager bounds cloud rechecks.
+        if (rejectedEndpoints.size === endpoints.size) {
+          throw registrations.find((result) => result.status === "rejected").reason;
+        }
         connected = await openRelayStream(signal);
         if (!connected?.events || typeof connected.events[Symbol.asyncIterator] !== "function") {
           throw failure("neutral_host_transport_stream_invalid");
@@ -672,14 +729,15 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
           return;
         }
         stream = connected;
-        Object.assign(relayState, { status: "ready", failureCount: 0, nextAttemptAtMs: 0, errorCode: null });
+        Object.assign(relayState, { status: "ready", failureCount: 0, nextAttemptAtMs: 0,
+          errorCode: rejectedEndpoints.values().next().value ?? null });
         startReceiveTask();
       } catch (error) {
         await connected?.close?.().catch(() => {});
         if (signal.aborted || lifecycle !== "running") return;
         // An explicit revocation of this Host still fences local access. A
         // timeout/expired cloud session alone is not a local revocation.
-        if (RELAY_AUTHORITY_DENIAL_CODES.has(error?.code)) {
+        if (HOST_AUTHORITY_DENIAL_CODES.has(error?.code)) {
           // Failure is exposed as host.status/failureCode to the release entry.
           void beginDrain(error.code).catch(() => {});
           return;
@@ -733,6 +791,14 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
     }
     const endpoint = endpoints.get(safeId(event.recipientDelegateId, "neutral_host_inbound_delegate_invalid"));
     if (!endpoint) throw failure("neutral_host_inbound_endpoint_unknown");
+    if (rejectedEndpoints.has(endpoint.delegateId)) {
+      // A refused instance receives nothing, also not from its Host's siblings.
+      // Relay frames are skipped unacknowledged; a local sender sees the failure.
+      const refused = failure(item.localDelivery === true
+        ? "neutral_host_same_host_recipient_unavailable" : rejectedEndpoints.get(endpoint.delegateId));
+      rejectedInboundTimes.add(refused);
+      throw refused;
+    }
     const isContactRequest = item.event === "contact_request";
     if (!isContactRequest && item.event !== "message") throw failure("neutral_host_inbound_kind_invalid");
     const decryptor = isContactRequest ? endpoint.contactE2ee : endpoint.e2ee;
@@ -1015,7 +1081,14 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
     return inboundResumeTask;
   }
 
+  // A refused instance does not send, including over local routes that skip the relay.
+  function assertEndpointAccepted(delegateId) {
+    const code = rejectedEndpoints.get(delegateId);
+    if (code) throw hostApplicationFailure(code);
+  }
+
   async function sendOutboundOnce({ endpoint, delegateId, clientMessageId, input }) {
+    assertEndpointAccepted(endpoint.delegateId);
     try {
       const result = await endpoint.outbound.send(input);
       if (result?.message?.lastErrorCode === "reply_target_deleted" || result?.relay?.status === "reply_target_deleted") {
@@ -1529,6 +1602,7 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
   async function queryPeerNativeDirectory(delegateId, authorization, request) {
     const sender = endpoints.get(delegateId);
     if (!sender?.outbound?.sendDirectory) throw hostApplicationFailure("native_directory_unavailable");
+    assertEndpointAccepted(delegateId);
     const friend = request.kind === "friend_target_request";
     const unavailable = friend ? null : nativeDirectoryResult({ conversations: [], coverage: "unavailable",
       available: false, exactTargetSupported: false, reason: "native_directory_unavailable" });
@@ -2274,6 +2348,7 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
       || current.senderDelegateId !== context.delegateId) {
       throw hostApplicationFailure("host_app_record_not_found");
     }
+    assertEndpointAccepted(context.delegateId);
     if (!MANUAL_RETRYABLE_STATUSES.has(current.status) || current.lastErrorCode === "reply_target_deleted") {
       throw hostApplicationFailure("host_app_state_conflict");
     }
@@ -3120,7 +3195,8 @@ export async function startHelloLynkNeutralHostProcess(options = {}) {
     return {
       status: inboundPaused
         ? "paused"
-        : preKeyInventory.status === "ready" && relayState.status === "ready" && !lastRejectedInbound ? "ready" : "degraded",
+        : preKeyInventory.status === "ready" && relayState.status === "ready" && !lastRejectedInbound
+          && rejectedEndpoints.size === 0 ? "ready" : "degraded",
       ...(lastRejectedInbound ? { lastRejectedInbound } : {}),
       preKeyInventory,
       relay: {
