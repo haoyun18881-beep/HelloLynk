@@ -2,13 +2,13 @@
   "contract": "hellolynk-private-client-release-v1",
   "client": "claude-code",
   "distribution": "public-authorized-release",
-  "version": "0.1.92",
+  "version": "0.1.93",
   "license": "PolyForm-Shield-1.0.0",
   "installEntry": "install.mjs",
   "artifact": {
-    "path": "hellolynk-claude-code-0.1.92.zip",
-    "bytes": 770188,
-    "sha256": "2725e988b0f14b385a7bc7275e040729ceeefcc0d0c77b64c5a791d172ed514a"
+    "path": "hellolynk-claude-code-0.1.93.zip",
+    "bytes": 770359,
+    "sha256": "e75bdf0231a56e808d0926cb0631c51e1a7f349bf2d51fff2fc6b74926126a4e"
   },
-  "packageManifestSha256": "cb4885fcc63121895e06474b1f613fe53d318dfa90948f2fe2681bb8aa2ba1c5"
+  "packageManifestSha256": "ff6a0067102ce6261c88bb542038527af33f136a668509840f9dbc9443da0dff"
 }

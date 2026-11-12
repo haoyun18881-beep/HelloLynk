@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "release/package.json",
-      "sha256": "a1167379affa28c595008e826ff854536d75b34d440a11963428d978230170f1"
+      "sha256": "3a44be3833835bc8559deec0d75f3ae6186483c568439704e407919635890a22"
     },
     {
       "path": "neutral-host-bootstrap.mjs",
@@ -32,7 +32,7 @@
     },
     {
       "path": "core/hellolynk-client-core.mjs",
-      "sha256": "dbab0f067c1a7f02c43b2696e1f5972288acd4f93a18684bf3cc120edff5cf94"
+      "sha256": "1fb8f11e78c0c26e74a4e76dbf295131b63ab6908e964c62e6452e31a694f67a"
     },
     {
       "path": "core/hellolynk-client-profile.mjs",
@@ -196,7 +196,7 @@
     },
     {
       "path": "core/hellolynk-neutral-host-process.mjs",
-      "sha256": "34b985f75bc693954eb66bb788fc2814482bb8bf402f14b72ea2faf5f70cf4ea"
+      "sha256": "146cac23328760ae5e71e52b297ea6a7990972d3181b65209f308e0c3b579a1a"
     },
     {
       "path": "core/hellolynk-neutral-host-store-adapters.mjs",
@@ -324,7 +324,7 @@
     },
     {
       "path": "bootstrap/core/hellolynk-client-core.mjs",
-      "sha256": "dbab0f067c1a7f02c43b2696e1f5972288acd4f93a18684bf3cc120edff5cf94"
+      "sha256": "1fb8f11e78c0c26e74a4e76dbf295131b63ab6908e964c62e6452e31a694f67a"
     },
     {
       "path": "bootstrap/core/hellolynk-client-profile.mjs",
@@ -376,7 +376,7 @@
     },
     {
       "path": "release/server/codex-neutral-production.mjs",
-      "sha256": "a307100c0b5835f5a6cba5151db367515b7f6cedd09d16af914f28e163df107a"
+      "sha256": "d88329fe9397bf4909c48429d8638ac9ce52e1db83dd1150f2f6dda1a6ece415"
     },
     {
       "path": "release/server/neutral-host-adapter.mjs",

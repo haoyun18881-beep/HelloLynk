@@ -31,7 +31,7 @@ const TRUSTED_BOOTSTRAP_FILES = Object.freeze(new Map([
   ["runtime/bootstrap/core/hellolynk-host-auth.mjs", "db1ec56f4e60e6450fba50188eecf89748f39f5d7a75c2456c30a6053233555d"],
   ["runtime/bootstrap/core/hellolynk-client-profile.mjs", "8be37831c96610e3d0a64848ada86488970cc6079e49764b47d8a8b2ba852269"],
   ["runtime/bootstrap/core/hellolynk-platform-credential-store.mjs", "4b4b27cd86f4816e5e6ec4914816a335cdea5c4b4ffb2091775c061a9676a69c"],
-  ["runtime/bootstrap/core/hellolynk-client-core.mjs", "dbab0f067c1a7f02c43b2696e1f5972288acd4f93a18684bf3cc120edff5cf94"],
+  ["runtime/bootstrap/core/hellolynk-client-core.mjs", "1fb8f11e78c0c26e74a4e76dbf295131b63ab6908e964c62e6452e31a694f67a"],
   ["runtime/bootstrap/platform/windows/hellolynk-host-protected-store.ps1", "24357e8ce54090b4ec68e457f02c9e834a80f3273ef3c03a8c0fa7258797fb49"],
   ...(process.platform === "darwin" ? [
     ["runtime/bootstrap/platform/darwin/hellolynk-keychain-helper.bin", "0000000000000000000000000000000000000000000000000000000000000000"],

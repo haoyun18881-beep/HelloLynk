@@ -387,7 +387,9 @@ export async function issueDeviceRuntimeSession(options) {
       }
       return fresh;
     }
-    throw new HelloLynkClientError(safeDeviceRuntimeErrorCode(result?.error), {
+    const code = response.status === 401 && result?.error === "device_credential_invalid"
+      && result?.reason === "device_credential_revoked" ? result.reason : safeDeviceRuntimeErrorCode(result?.error);
+    throw new HelloLynkClientError(code, {
       httpStatus: response.status,
       retryable: response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500,
     });
@@ -584,6 +586,7 @@ export function createDeviceRuntimeSessionManager(options = {}) {
   );
   let current = null;
   let rejectedCredential = null;
+  const revokedFingerprints = new Set();
   let localIssueTail = Promise.resolve();
 
   const routeMatches = (session, input) => {
@@ -668,7 +671,15 @@ export function createDeviceRuntimeSessionManager(options = {}) {
       : null;
     // The production caller holds the existing session lock, including across
     // Host processes. An authority denial may drain the current Host.
+    const revocationKey = fingerprint && `revoked-${fingerprint}`;
     if (fingerprint) {
+      // An older process may update or clear its temporary rejection for the
+      // profile. Keep permanent revocation under the credential's own key.
+      if (revokedFingerprints.has(fingerprint)
+        || (await credentialRejections?.load(revocationKey).catch(() => null))?.fingerprint === fingerprint) {
+        revokedFingerprints.add(fingerprint);
+        throw new HelloLynkClientError("device_credential_revoked", { httpStatus: 401 });
+      }
       const isCoolingDown = (rejection) => {
         if (rejection?.fingerprint !== fingerprint) return false;
         const age = now() - rejection.rejectedAtMs;
@@ -685,10 +696,14 @@ export function createDeviceRuntimeSessionManager(options = {}) {
     try {
       session = reusable(await issue(request), input);
     } catch (error) {
-      if (fingerprint && error?.httpStatus === 401 && error.code === "device_credential_invalid") {
-        rejectedCredential = { fingerprint, rejectedAtMs: now() };
-        // Preserve the authority denial even if local storage is unavailable.
-        await credentialRejections?.save(sessionKey, rejectedCredential).catch(() => {});
+      if (fingerprint && error?.httpStatus === 401) {
+        if (error.code === "device_credential_revoked") {
+          revokedFingerprints.add(fingerprint);
+          await credentialRejections?.save(revocationKey, { fingerprint, rejectedAtMs: now() }).catch(() => {});
+        } else if (error.code === "device_credential_invalid") {
+          rejectedCredential = { fingerprint, rejectedAtMs: now() };
+          await credentialRejections?.save(sessionKey, rejectedCredential).catch(() => {});
+        }
       }
       throw error;
     }
