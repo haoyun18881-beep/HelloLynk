@@ -79,6 +79,12 @@ try {
     fail("hellolynk_npm_binding_key_stdin_flag_required");
   }
   const mutating = ["init", "connect", "activate", "setup"].includes(command);
+  if (mutating && process.platform === "win32") {
+    const { default: runtimeSafety } = await importStableCore(
+      PACKAGE_ROOT, "hellolynk-runtime-safety.cjs", "hellolynk_npm_release_invalid",
+    );
+    runtimeSafety.assertHelloLynkPowerShell7();
+  }
   if (mutating) await prepareFinalClientRoot(packageLocations);
   const revision = connectOptions?.accountRevision
     || setupRecovery?.expectedAccountRevision
@@ -2633,6 +2639,7 @@ function safeCode(error) {
 }
 function failureResult(error, recoveryState) {
   const result = { ok: false, error: safeCode(error) };
+  if (result.error === "powershell7_missing") result.guidance = failureReason(result.error, CLIENT_NAMES[metadata.client]);
   if (result.error === "hellolynk_native_existing_profile_conflict") {
     return Object.freeze({ ...result, recoveryState: "existing_profile_preserved", recovery: "inspect_existing_profile" });
   }
@@ -2708,7 +2715,7 @@ function helpText() {
       [say("更新或修复", "Update or repair"), "setup"], [say("检查", "Check"), "doctor"],
       [say("卸载", "Uninstall"), "uninstall"]];
   const platform = macPackage ? " (macOS arm64, Node.js 22.16.0+)"
-    : say("（Windows，Node.js 22.16.0+）", " (Windows, Node.js 22.16.0+)");
+    : say("（Windows，Node.js 22.16.0+，PowerShell 7）", " (Windows, Node.js 22.16.0+, PowerShell 7)");
   return `${[`HelloLynk for ${CLIENT_NAMES[metadata.client]}${platform}`,
     ...rows.map(([label, args]) => `${label}${say("：", ": ")}${run} ${args}`),
     say("加 --json 输出一行 JSON。", "Add --json for one line of JSON.")].join("\n")}\n`;
@@ -2777,11 +2784,15 @@ function failureText(failure) {
     binding_committed_roll_forward_required: say("账号已连接，客户端设置还没写完。运行 setup 完成。",
       "The account is connected, but the client settings are not finished. Run setup to finish."),
   }[failure.recoveryState];
-  return `${failure.error}\n${byState || failureReason(failure.error, name)}\n`;
+  return `${failure.error}\n${byState || failure.guidance || failureReason(failure.error, name)}\n`;
 }
 
 function failureReason(code, name) {
   if (code === "hellolynk_node_22_16_required") return say("需要 Node.js 22.16 或更高版本。", "Node.js 22.16 or later is required.");
+  if (code === "powershell7_missing") return say(
+    "找不到 PowerShell 7。按 https://hellolynk.com/zh/guide#install 安装，打开新终端运行 pwsh -v 确认后，再运行这条命令。",
+    "PowerShell 7 could not be found. Install it using https://hellolynk.com/guide#install, open a new terminal, and run pwsh -v before trying this command again.",
+  );
   if (code === "hellolynk_npm_windows_only") return say("只支持 Windows。", "Windows only.");
   if (code === "hellolynk_npm_platform_unsupported") return say("此安装包适用于 Apple 芯片的 Mac。", "This package requires an Apple silicon Mac.");
   if (code === "hellolynk_npm_codex_mac_node_required") return say("请将 ChatGPT 安装到「应用程序」，打开 Codex 后再试。",

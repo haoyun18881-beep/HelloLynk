@@ -1,6 +1,6 @@
 {
   "contract": "hellolynk-shared-workbench-build-v1",
-  "version": "1.3.43",
+  "version": "1.3.44",
   "sourceRoot": "clients/workbench",
   "contracts": {
     "snapshotSchemaVersion": 12,
@@ -16,14 +16,14 @@
       {
         "locale": "zh-CN",
         "keyCount": 540,
-        "keySetSha256": "7e7e69845670c6411bf5384b0cfdb4bdfb462184c513964090d24b4280da41f8",
-        "catalogSha256": "5242cfca9b64d796903b59f15ddd850da850c722e7204f6bdc5b1041ee12b216"
+        "keySetSha256": "1c4614d91cd0a6d9ce6cceb18b04b2e8563d06ebbdf5c4f1e7ac9d36fb0b404c",
+        "catalogSha256": "a704f96e3949172b72c172cfc04babe10bcb0c441addd1f5c237d66bc5ae7d71"
       },
       {
         "locale": "en",
         "keyCount": 540,
-        "keySetSha256": "7e7e69845670c6411bf5384b0cfdb4bdfb462184c513964090d24b4280da41f8",
-        "catalogSha256": "5dfa91cdbd985202bdca0e4ea62aa74ebf5979a1a5d4ed5b1a884670c209c16f"
+        "keySetSha256": "1c4614d91cd0a6d9ce6cceb18b04b2e8563d06ebbdf5c4f1e7ac9d36fb0b404c",
+        "catalogSha256": "811b386234faf114c8f140c4e15ea1a2edac73946cc460d35f3e8ae5c6a592ca"
       }
     ]
   },
@@ -76,8 +76,8 @@
     {
       "path": "i18n.mjs",
       "sourcePath": "clients/workbench/i18n.mjs",
-      "bytes": 74648,
-      "sha256": "272917746c06cabc1b87b94341f2deca5591f0bea2d7a0e07b2d959d8e1f8c74"
+      "bytes": 74944,
+      "sha256": "b1dfdd039f491db8aaac075bd955aaf9453afaeddbb81740e1cb70723b1cfcea"
     },
     {
       "path": "loopback-surface.mjs",
@@ -112,8 +112,8 @@
     {
       "path": "ui/app.mjs",
       "sourcePath": "clients/workbench/ui/app.mjs",
-      "bytes": 336483,
-      "sha256": "643a5ac8d303f936ee87dd7c0c851aa1988e99ea9a9a45c6c89da28bdc76e799"
+      "bytes": 336890,
+      "sha256": "ac149045b09e84ecc36f66886a5f161ca2cf89c3abf8dd17692f6742d4b406f0"
     },
     {
       "path": "ui/connection-form.mjs",
@@ -184,14 +184,14 @@
     {
       "path": "ui/index.html",
       "sourcePath": "clients/workbench/ui/index.html",
-      "bytes": 8245,
-      "sha256": "b24cd1f768d5132539722ac7ade3acfe5aa86a47ee16a2adacf3bbf18b70c989"
+      "bytes": 8252,
+      "sha256": "7964e576d9ab5f4a2ccbbfd186dff9b10eeb7ffa505777573f923f2b9e1a22ac"
     },
     {
       "path": "ui/loopback-entry.mjs",
       "sourcePath": "clients/workbench/ui/loopback-entry.mjs",
-      "bytes": 1355,
-      "sha256": "0e5e5d259ab6e2d8408c6d2e089551e6f279dcb1267e9db19f9d9dded0956fd4"
+      "bytes": 1353,
+      "sha256": "01f1064b24bca774050b01d0a1d69f96f256399e0027ab9e1a422af901f17d60"
     },
     {
       "path": "ui/mcp-app-client.mjs",
@@ -202,8 +202,8 @@
     {
       "path": "ui/mcp-app-entry.mjs",
       "sourcePath": "clients/workbench/ui/mcp-app-entry.mjs",
-      "bytes": 22843,
-      "sha256": "ba82ac55c4efcf7701bda33b6c6e0df4d59da542b1d6c33c96ba7f2391c4773a"
+      "bytes": 22841,
+      "sha256": "35952d7cda7bc71e6d347cec2fd9af0ecb88dc07580952455c151f088c390b38"
     },
     {
       "path": "ui/styles.css",

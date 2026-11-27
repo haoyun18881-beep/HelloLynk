@@ -2,18 +2,18 @@
   "contract": "hellolynk-client-npm-pack-manifest-v1",
   "client": "openclaw",
   "packageName": "@hellolynk-ai/openclaw-channel",
-  "version": "0.2.108",
+  "version": "0.2.110",
   "workbench": {
     "path": "runtime/workbench/hellolynk-workbench-build.json",
     "contract": "hellolynk-shared-workbench-build-v1",
-    "version": "1.3.43",
-    "manifestSha256": "e24d6fe83a562f069012e1a7181835f240cdfd706b406a1c92dae659cc6e22eb"
+    "version": "1.3.44",
+    "manifestSha256": "c9dfb8b65e712ea15a1b08baeaae1cedd58b6d4d6a32ed20fc82e679b4c56c4f"
   },
   "files": [
     {
       "path": "bin/hellolynk-client-setup.mjs",
-      "bytes": 145615,
-      "sha256": "044321ea6c5757a985b92a826ffc1fb3ffa4fb8355b732abecc64210d4ac3399"
+      "bytes": 146416,
+      "sha256": "3ac42344a090301b23f8af5c37a6dfbee030d6bfea9a24bf7af5b76d25521df8"
     },
     {
       "path": "bin/hellolynk-mcp-config-shape.mjs",
@@ -233,7 +233,7 @@
     {
       "path": "clients/core/hellolynk-neutral-host-process.mjs",
       "bytes": 229709,
-      "sha256": "146cac23328760ae5e71e52b297ea6a7990972d3181b65209f308e0c3b579a1a"
+      "sha256": "831702cc5a033973b5566d185ba0e6f87cb64879a95d904e6ecb4165a4cd06f0"
     },
     {
       "path": "clients/core/hellolynk-neutral-host-store-adapters.mjs",
@@ -333,7 +333,7 @@
     {
       "path": "integrations/openclaw-channel/package.json",
       "bytes": 2158,
-      "sha256": "88d81c1ccb9b025d151803e0666f34a9d28cbfdebdb9d5e66f5a4ba2f499b51b"
+      "sha256": "5397e34c44baac7ec7a3f252be0b980d5501fa8dad3f96eb4825a12adf33f661"
     },
     {
       "path": "integrations/openclaw-channel/setup-entry.mjs",
@@ -408,12 +408,12 @@
     {
       "path": "package.json",
       "bytes": 1985,
-      "sha256": "8d50b271d911cb33c1551c886c0a1abcf6c95c932b99556764ed81ace307d620"
+      "sha256": "ab01056ff8544853048410b49c5e278e0fcd0f36207b264a004a5a29297480a0"
     },
     {
       "path": "README.md",
-      "bytes": 4530,
-      "sha256": "b0fe82aaa426abf2b674b694e8686916c6c3816f45c3588c06c442186cb2ce86"
+      "bytes": 4775,
+      "sha256": "30649909fdd699d0277c390309439e56f3e8ea2eb1c0358490d10cec7d3e0b7c"
     },
     {
       "path": "runtime/connect-activate.mjs",
@@ -633,7 +633,7 @@
     {
       "path": "runtime/core/hellolynk-neutral-host-process.mjs",
       "bytes": 229709,
-      "sha256": "146cac23328760ae5e71e52b297ea6a7990972d3181b65209f308e0c3b579a1a"
+      "sha256": "831702cc5a033973b5566d185ba0e6f87cb64879a95d904e6ecb4165a4cd06f0"
     },
     {
       "path": "runtime/core/hellolynk-neutral-host-store-adapters.mjs",
@@ -693,12 +693,12 @@
     {
       "path": "runtime/neutral-host-release-manifest.json",
       "bytes": 11517,
-      "sha256": "ce21197fee88885e91cf7fc3c07cf1ad28690f42efcd48ccfb68314b4002afe1"
+      "sha256": "51a809e92d096a4cf6c01fd2e87134f0c5ba4f02493a1840ad2760efae764102"
     },
     {
       "path": "runtime/neutral-host-release-pin.json",
       "bytes": 146,
-      "sha256": "ce5c6b4f84dd29adbe22bfdce95dafd5b3e3ecdea67ee488a608c173a1b5549c"
+      "sha256": "84dc29312d8ad875c37aa321d27f281022796fc8dd06b36132fe7b24e27fea9d"
     },
     {
       "path": "runtime/platform/windows/configure-agent.ps1",
@@ -743,7 +743,7 @@
     {
       "path": "runtime/workbench/hellolynk-workbench-build.json",
       "bytes": 7191,
-      "sha256": "e24d6fe83a562f069012e1a7181835f240cdfd706b406a1c92dae659cc6e22eb"
+      "sha256": "c9dfb8b65e712ea15a1b08baeaae1cedd58b6d4d6a32ed20fc82e679b4c56c4f"
     },
     {
       "path": "runtime/workbench/host-capabilities.mjs",
@@ -752,8 +752,8 @@
     },
     {
       "path": "runtime/workbench/i18n.mjs",
-      "bytes": 74648,
-      "sha256": "272917746c06cabc1b87b94341f2deca5591f0bea2d7a0e07b2d959d8e1f8c74"
+      "bytes": 74944,
+      "sha256": "b1dfdd039f491db8aaac075bd955aaf9453afaeddbb81740e1cb70723b1cfcea"
     },
     {
       "path": "runtime/workbench/loopback-surface.mjs",
@@ -782,8 +782,8 @@
     },
     {
       "path": "runtime/workbench/ui/app.mjs",
-      "bytes": 336483,
-      "sha256": "643a5ac8d303f936ee87dd7c0c851aa1988e99ea9a9a45c6c89da28bdc76e799"
+      "bytes": 336890,
+      "sha256": "ac149045b09e84ecc36f66886a5f161ca2cf89c3abf8dd17692f6742d4b406f0"
     },
     {
       "path": "runtime/workbench/ui/connection-form.mjs",
@@ -842,13 +842,13 @@
     },
     {
       "path": "runtime/workbench/ui/index.html",
-      "bytes": 8245,
-      "sha256": "b24cd1f768d5132539722ac7ade3acfe5aa86a47ee16a2adacf3bbf18b70c989"
+      "bytes": 8252,
+      "sha256": "7964e576d9ab5f4a2ccbbfd186dff9b10eeb7ffa505777573f923f2b9e1a22ac"
     },
     {
       "path": "runtime/workbench/ui/loopback-entry.mjs",
-      "bytes": 1355,
-      "sha256": "0e5e5d259ab6e2d8408c6d2e089551e6f279dcb1267e9db19f9d9dded0956fd4"
+      "bytes": 1353,
+      "sha256": "01f1064b24bca774050b01d0a1d69f96f256399e0027ab9e1a422af901f17d60"
     },
     {
       "path": "runtime/workbench/ui/mcp-app-client.mjs",
@@ -857,8 +857,8 @@
     },
     {
       "path": "runtime/workbench/ui/mcp-app-entry.mjs",
-      "bytes": 22843,
-      "sha256": "ba82ac55c4efcf7701bda33b6c6e0df4d59da542b1d6c33c96ba7f2391c4773a"
+      "bytes": 22841,
+      "sha256": "35952d7cda7bc71e6d347cec2fd9af0ecb88dc07580952455c151f088c390b38"
     },
     {
       "path": "runtime/workbench/ui/styles.css",

@@ -2,7 +2,7 @@ import { mountWorkbench, publicError } from "/assets/app.mjs";
 import { createWorkbenchHttpTransport } from "/assets/http-transport.mjs";
 
 const PORTAL_URLS = Object.freeze({
-  keys: "https://hellolynk.com/account#keys",
+  account: "https://hellolynk.com/account",
   devices: "https://hellolynk.com/account#devices",
 });
 const transport = createWorkbenchHttpTransport();

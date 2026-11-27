@@ -1,4 +1,4 @@
-import { readCodexConversationDirectory } from "./native-conversation-directory.mjs";
+import { readCodexConversationDirectory, readCodexIndexedThread } from "./native-conversation-directory.mjs";
 import crypto from "node:crypto";
 import net from "node:net";
 
@@ -6,7 +6,8 @@ const MAX_FRAME_BYTES = 8 * 1024 * 1024;
 const ALLOWED = new Set(["create_thread", "send_message_to_thread", "read_thread", "list_threads", "list_projects", "list_archived_threads", "wait_threads", "open_in_codex"]);
 
 export function createNativeTaskClient({ env = process.env, connect = net.createConnection,
-  timeoutMs = 30_000, connectTimeoutMs = 10_000, executorMetadata = null, registeredCallerThreadId = null } = {}) {
+  timeoutMs = 30_000, connectTimeoutMs = 10_000, executorMetadata = null, registeredCallerThreadId = null,
+  readIndexedThread = readCodexIndexedThread } = {}) {
   const pipePath = env.CODEX_APP_TOOLS_PIPE_PATH?.trim();
   const environmentThreadId = env.CODEX_THREAD_ID?.trim();
   const metadataContext = inspectCodexExecutorMetadata(executorMetadata);
@@ -22,7 +23,7 @@ export function createNativeTaskClient({ env = process.env, connect = net.create
   let generation = 0;
   let nextId = 1;
   let catalog = null;
-  let archivedPages = null;
+  let threadListings = null;
   const pending = new Map();
   const isCurrentConnection = (connection) => !closed && connection?.socket === socket
     && socket && !socket.destroyed && connection.generation === generation;
@@ -35,7 +36,7 @@ export function createNativeTaskClient({ env = process.env, connect = net.create
     if (socket !== candidate) return; // A late close from an old pipe cannot cancel a new request.
     socket = null;
     catalog = null;
-    archivedPages?.clear();
+    threadListings = null;
     for (const [id, item] of pending) {
       if (item.generation !== generation) continue;
       pending.delete(id);
@@ -152,9 +153,43 @@ export function createNativeTaskClient({ env = process.env, connect = net.create
       .map((tool) => [tool.name, tool.namespace])) };
     return catalog;
   };
+
+  const findLocalHistoryThread = async (threadId, { archived, connection, listings }) => {
+    const tool = archived ? "list_archived_threads" : "list_threads";
+    const query = { hostId: "local", source: "codex", limit: 50, ...(archived ? {} : { mode: "history", archived: false }) };
+    const cachedPages = archived ? listings?.archivedPages : null;
+    const unarchivedIds = !archived && listings ? new Set() : null;
+    const seen = new Set();
+    let cursor = null;
+    for (let page = 0; page < 100; page += 1) {
+      const pageKey = cursor ?? "";
+      let reading = cachedPages?.get(pageKey);
+      if (!reading) {
+        reading = client.call(tool, cursor == null ? query : { ...query, cursor });
+        cachedPages?.set(pageKey, reading);
+      }
+      const result = await reading;
+      assertCurrentConnection(connection);
+      if (!Array.isArray(result?.threads) || !Object.hasOwn(result, "nextCursor")
+        || result.threads.some(row => row?.kind !== "codex" || row.hostId !== "local" || typeof row.id !== "string" || !row.id))
+        throw new Error("native_thread_lifecycle_unknown");
+      const thread = result.threads.find(row => row.id === threadId);
+      if (thread) return thread;
+      if (unarchivedIds) for (const row of result.threads) unarchivedIds.add(row.id);
+      if (result.nextCursor === null) {
+        if (unarchivedIds) listings.unarchivedIds = unarchivedIds;
+        return null;
+      }
+      if (typeof result.nextCursor !== "string" || !result.nextCursor || seen.has(result.nextCursor)) break;
+      cursor = result.nextCursor;
+      seen.add(cursor);
+    }
+    throw new Error("native_thread_lifecycle_unknown");
+  };
+
   const client = {
     callerThreadId,
-    beforeTick() { archivedPages = new Map(); },
+    beforeTick() { threadListings = { archivedPages: new Map(), unarchivedIds: null }; },
     async ensureTools(names) {
       const available = await list();
       assertCurrentConnection(available);
@@ -275,52 +310,34 @@ export function createNativeTaskClient({ env = process.env, connect = net.create
       return directory;
     },
     async inspectThread(threadId) {
-      // The read_thread projection omits archive state. Read the host's archive
-      // metadata first; never infer deletion from a truncated recent list.
-      let cursor;
-      const seen = new Set();
-      for (let page = 0; page < 100; page += 1) {
-        // All destinations in one receiver tick share the same archive pages.
-        // The next tick or a lost connection discards them; live status and
-        // exact-thread reads below remain fresh for each destination.
-        const pageKey = cursor || "";
-        let reading = archivedPages?.get(pageKey);
-        if (!reading) {
-          reading = client.call("list_archived_threads", { hostId: "local", limit: 50, ...(cursor ? { cursor } : {}) });
-          archivedPages?.set(pageKey, reading);
-        }
-        const result = await reading;
-        if (!Array.isArray(result?.threads)) throw new Error("native_thread_lifecycle_unknown");
-        if (result.threads.some((entry) => entry.id === threadId && entry.kind === "codex")) return { state: "archived" };
-        if (result.nextCursor == null) {
-          try {
-            // Availability is runtime metadata. Do not make notification depend
-            // on fetching conversation history (which can be separately limited).
-            const available = await list();
-            if (available.tools.has("list_threads")) {
-              // This immediate metadata call works on the app-tools pipe.
-              // wait_threads is advertised there but can end without a result.
-              const snapshot = await client.call("list_threads", { limit: 50 });
-              if (!Array.isArray(snapshot?.pinnedThreads) || !Array.isArray(snapshot?.threads))
-                throw new Error("native_thread_lifecycle_unknown");
-              const current = [...snapshot.pinnedThreads, ...snapshot.threads].find((entry) =>
-                entry.id === threadId && entry.hostId === "local" && entry.kind === "codex");
-              if (current) return { state: "present", thread: current };
-              // The list holds only pinned plus the 50 most recent threads and
-              // has no cursor, so absence proves nothing: ask for this thread.
-            }
-            const current = await client.call("read_thread", { threadId, hostId: "local", turnLimit: 1, includeOutputs: false });
-            if (current?.thread?.id !== threadId || (current.thread.hostId != null && current.thread.hostId !== "local"))
-              throw new Error("native_thread_lifecycle_unknown");
-            // This adapter owns the lifecycle label; unrelated host metadata
-            // named state must not replace the exact-thread lookup result.
-            return { ...current, state: "present" };
-          } catch (error) { if (error.message === "native_thread_deleted") return { state: "deleted" }; throw error; }
-        }
-        if (typeof result.nextCursor !== "string" || !result.nextCursor || seen.has(result.nextCursor)) break;
-        cursor = result.nextCursor; seen.add(cursor);
+      // Both listings are local Codex metadata. read_thread can fall through
+      // to ChatGPT history when the exact ID has no local match.
+      const connection = await list();
+      const listings = threadListings;
+      if (await findLocalHistoryThread(threadId, { archived: true, connection, listings })) return { state: "archived" };
+      assertCurrentConnection(connection);
+      // Share a completed membership check for misses within this tick. For
+      // a thread that exists, read its live status again before routing.
+      if (!listings?.unarchivedIds || listings.unarchivedIds.has(threadId)) {
+        const thread = await findLocalHistoryThread(threadId, { archived: false, connection, listings });
+        if (thread) return { state: "present", thread };
       }
-      throw new Error("native_thread_lifecycle_unknown");
+      // The app omits some local exec sessions from its history list. Check the
+      // exact local index row before asking the app for their live metadata.
+      const indexed = await readIndexedThread({ home: env.CODEX_HOME, threadId });
+      assertCurrentConnection(connection);
+      if (indexed === null) return { state: "deleted" };
+      if (indexed?.archived) return { state: "archived" };
+      try {
+        const current = await client.call("read_thread", { threadId, hostId: "local", includeTurns: false, includeOutputs: false });
+        assertCurrentConnection(connection);
+        if (current?.thread?.id !== threadId || current.thread.kind !== "codex" || current.thread.hostId !== "local")
+          throw new Error("native_thread_lifecycle_unknown");
+        return { state: "present", thread: current.thread };
+      } catch (error) {
+        if (error.message === "native_thread_deleted") return { state: "deleted" };
+        throw error;
+      }
     },
     close() {
       if (closed) return;
@@ -329,7 +346,7 @@ export function createNativeTaskClient({ env = process.env, connect = net.create
       connectingSocket?.destroy();
       const current = socket;
       socket = null;
-      archivedPages = null;
+      threadListings = null;
       current?.destroy();
       for (const item of pending.values()) item.reject(new Error("native_client_closed"));
       pending.clear();

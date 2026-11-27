@@ -30,7 +30,7 @@ function replaceLocationHash(hash) {
 const SECTIONS = new Set(["inbox", "messages", "contacts", "security", "settings"]);
 const SAFE_ROUTE_ID = /^[A-Za-z0-9][A-Za-z0-9_.:-]{1,198}$/;
 const HELLOLYNK_ID_PATTERN = /^hellolynk:(intl|cn):[a-z0-9][a-z0-9._-]{2,179}$/;
-const PORTAL_TARGETS = new Set(["keys", "devices"]);
+const PORTAL_TARGETS = new Set(["account", "devices"]);
 const LOCALE_STORAGE_KEY = "hellolynk.uiLocale";
 const MANUAL_RETRY_OUTBOX_STATES = new Set(["recipient_offline", "failed_retryable", "failed_permanent"]);
 const VISIBLE_OUTBOX_STATES = new Set([...MANUAL_RETRY_OUTBOX_STATES, "delivery_state_unknown", "delivery_state_unconfirmed", "unknown"]);
@@ -1126,7 +1126,7 @@ export function mountWorkbench(options = {}) {
       listAction.setAttribute("aria-label", copy("contacts.add", "添加联系人"));
     }
     $("account-link-devices").setAttribute("aria-label", copy("portal.devicesExternal", "在浏览器中打开设备与撤销"));
-    renderPortalTarget("keys");
+    renderPortalTarget("account");
     renderPortalTarget("devices");
     if (snapshot) {
       const synthetic = snapshot.source.mode === "synthetic-preview";
@@ -1198,9 +1198,9 @@ export function mountWorkbench(options = {}) {
     $("connection-welcome").hidden = !showConnection;
     $("connection-guide").hidden = !showConnection;
     $("connection-eyebrow").textContent = copy("connection.welcome", "欢迎使用 HelloLynk");
-    $("connection-hint").textContent = copy("connection.hint", "首次连接这台电脑时，我们会请你去官网确认。已确认过，就直接继续。");
+    $("connection-hint").textContent = copy("connection.hint", "从官网账号页复制完整灵信号，再回来连接。首次连接时要在官网确认这台电脑，已确认过就直接继续。");
     $("connection-start").hidden = !showConnection || !startConnection;
-    $("connection-key-link").hidden = !showConnection || !openPortal;
+    $("connection-account-link").hidden = !showConnection || !openPortal;
     $("connection-start").textContent = copy("connection.start", "连接 HelloLynk");
     $("connection-help").textContent = startConnection
       ? copy("connection.help", "确认只需一次，以后打开即可连接。")
@@ -2143,7 +2143,7 @@ export function mountWorkbench(options = {}) {
     const state = actionStateByKey.get(`authorization:${contact.contactId}:${instance.delegateId}`) || { phase: "idle", code: null };
     if (canManageAuthorization() && state.phase !== "unknown") row.append(renderAuthorizationButton(contact, state, instance));
     return node("div", "detail-authorization", [row,
-      ...(state.phase === "idle" ? [] : [renderContactActionStatus(state, localizedCopy("contacts.permissionsSaved", "权限已更新"))])]);
+      ...(state.phase === "idle" ? [] : [renderAuthorizationStatus(state, instance.autonomousSendAuthorized)])]);
   }
 
   function conversationRouteLabel(thread) {
@@ -3271,6 +3271,13 @@ export function mountWorkbench(options = {}) {
     return status;
   }
 
+  function renderAuthorizationStatus(state, enabled) {
+    const success = enabled
+      ? localizedCopy("authorization.ready", "权限已更新。以后直接在你的 AI 对话里请它联系这个 AI。想发给指定对话，就写出完整标题。")
+      : localizedCopy("contacts.permissionsSaved", "权限已更新");
+    return renderContactActionStatus(state, success);
+  }
+
   function renderContactInstancePermissions(contact, instance, authorizationState) {
     const sendRow = node("div", "instance-permission-row", [
       node("div", "instance-permission-copy", [
@@ -3280,7 +3287,7 @@ export function mountWorkbench(options = {}) {
       ]),
     ]);
     if (canManageAuthorization() && authorizationState.phase !== "unknown") sendRow.append(renderAuthorizationButton(contact, authorizationState, instance));
-    sendRow.append(renderContactActionStatus(authorizationState, localizedCopy("contacts.permissionsSaved", "权限已更新")));
+    sendRow.append(renderAuthorizationStatus(authorizationState, instance.autonomousSendAuthorized));
     const keepOpen = ["pending", "unknown", "failed"].includes(authorizationState.phase);
     return renderContactDisclosure("instance-permissions-" + contact.contactId + "-" + instance.delegateId, "instance-permissions",
       localizedCopy("instances.permissions", "AI 权限"), [node("div", "instance-permissions-body", [sendRow])], { keepOpen });
@@ -5366,12 +5373,12 @@ export function mountWorkbench(options = {}) {
   }
 
   function renderPortalTarget(target) {
-    const button = $(target === "keys" ? "connection-key-link" : `account-link-${target}`);
+    const button = $(target === "account" ? "connection-account-link" : `account-link-${target}`);
     const state = portalStateByTarget.get(target);
     button.disabled = !openPortal;
     button.textContent = state?.phase === "pending" ? copy("portal.opening", "正在打开…")
       : state?.phase === "failed" ? copy("portal.openFailed", "打开失败，点此重试")
-      : target === "keys" ? copy("connection.keyLink", "去官网获取 KEY ↗") : copy("portal.devices", "设备与撤销");
+      : target === "account" ? copy("connectionForm.account", "去官网复制我的灵信号 ↗") : copy("portal.devices", "设备与撤销");
     if (state?.phase === "pending") button.setAttribute("aria-busy", "true");
     else button.removeAttribute("aria-busy");
     if (state?.phase === "failed") button.setAttribute("title", `${button.textContent} (${state.code})`);

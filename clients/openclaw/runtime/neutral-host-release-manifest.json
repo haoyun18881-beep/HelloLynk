@@ -192,7 +192,7 @@
     },
     {
       "path": "core/hellolynk-neutral-host-process.mjs",
-      "sha256": "146cac23328760ae5e71e52b297ea6a7990972d3181b65209f308e0c3b579a1a"
+      "sha256": "831702cc5a033973b5566d185ba0e6f87cb64879a95d904e6ecb4165a4cd06f0"
     },
     {
       "path": "core/hellolynk-neutral-host-store-adapters.mjs",
@@ -236,7 +236,7 @@
     },
     {
       "path": "workbench/i18n.mjs",
-      "sha256": "272917746c06cabc1b87b94341f2deca5591f0bea2d7a0e07b2d959d8e1f8c74"
+      "sha256": "b1dfdd039f491db8aaac075bd955aaf9453afaeddbb81740e1cb70723b1cfcea"
     },
     {
       "path": "workbench/loopback-surface.mjs",
@@ -260,7 +260,7 @@
     },
     {
       "path": "workbench/ui/app.mjs",
-      "sha256": "643a5ac8d303f936ee87dd7c0c851aa1988e99ea9a9a45c6c89da28bdc76e799"
+      "sha256": "ac149045b09e84ecc36f66886a5f161ca2cf89c3abf8dd17692f6742d4b406f0"
     },
     {
       "path": "workbench/ui/connection-form.mjs",
@@ -272,7 +272,7 @@
     },
     {
       "path": "workbench/ui/loopback-entry.mjs",
-      "sha256": "0e5e5d259ab6e2d8408c6d2e089551e6f279dcb1267e9db19f9d9dded0956fd4"
+      "sha256": "01f1064b24bca774050b01d0a1d69f96f256399e0027ab9e1a422af901f17d60"
     },
     {
       "path": "workbench/ui/mcp-app-client.mjs",
@@ -280,7 +280,7 @@
     },
     {
       "path": "workbench/ui/mcp-app-entry.mjs",
-      "sha256": "ba82ac55c4efcf7701bda33b6c6e0df4d59da542b1d6c33c96ba7f2391c4773a"
+      "sha256": "35952d7cda7bc71e6d347cec2fd9af0ecb88dc07580952455c151f088c390b38"
     },
     {
       "path": "platform/windows/configure-agent.ps1",

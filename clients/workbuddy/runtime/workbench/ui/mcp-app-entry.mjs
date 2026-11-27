@@ -7,7 +7,7 @@ import { createStandardMcpAppClient } from "./mcp-app-client.mjs";
 // still allowing that verified cold-start path to finish.
 const DEFAULT_MCP_SNAPSHOT_TIMEOUT_MS = 60_000;
 const PORTAL_URLS = Object.freeze({
-  keys: "https://hellolynk.com/account#keys",
+  account: "https://hellolynk.com/account",
   devices: "https://hellolynk.com/account#devices",
 });
 

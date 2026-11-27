@@ -3,15 +3,11 @@ import os from "node:os";
 import path from "node:path";
 
 // The desktop's metadata index, read-only. Never read rollout bodies, previews,
-// first_user_message or model summaries. Native read_thread still decides
-// whether a selected conversation can actually receive a reminder.
+// first_user_message or model summaries. The native client's local lifecycle
+// check still decides whether a selected conversation can receive a reminder.
 export async function readCodexConversationDirectory({ home = process.env.CODEX_HOME || path.join(os.homedir(), ".codex"),
   callerThreadId, projects = [], openDatabase } = {}) {
-  const names = (await fs.readdir(home)).filter(name => /^state_\d+\.sqlite$/.test(name))
-    .sort((a, b) => Number(b.match(/\d+/)[0]) - Number(a.match(/\d+/)[0]));
-  if (!names.length) throw new Error("codex_native_directory_unavailable");
-  const Database = openDatabase || ((await import("node:sqlite")).DatabaseSync);
-  const db = new Database(path.join(home, names[0]), { readOnly: true });
+  const db = await openCodexThreadIndex(home, openDatabase);
   try {
     const columns = new Set(db.prepare("PRAGMA table_info(threads)").all().map(row => row.name));
     if (!["id", "title", "cwd", "source", "archived", "creator_account_id"].every(key => columns.has(key)))
@@ -30,4 +26,24 @@ export async function readCodexConversationDirectory({ home = process.env.CODEX_
       state: row.archived ? "archived" : "notLoaded",
     })) };
   } finally { db.close(); }
+}
+
+// The app's history list can omit older exec sessions. Only read the archive
+// flag for this exact local ID, and let the app verify the status of a match.
+export async function readCodexIndexedThread({ home = process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), threadId } = {}) {
+  const db = await openCodexThreadIndex(home);
+  try {
+    const row = db.prepare("SELECT archived FROM threads WHERE id = ?").get(threadId);
+    if (!row) return null;
+    if (row.archived !== 0 && row.archived !== 1) throw new Error("codex_native_directory_schema_unavailable");
+    return { archived: row.archived === 1 };
+  } finally { db.close(); }
+}
+
+async function openCodexThreadIndex(home, openDatabase) {
+  const names = (await fs.readdir(home)).filter(name => /^state_\d+\.sqlite$/.test(name))
+    .sort((a, b) => Number(b.match(/\d+/)[0]) - Number(a.match(/\d+/)[0]));
+  if (!names.length) throw new Error("codex_native_directory_unavailable");
+  const Database = openDatabase || ((await import("node:sqlite")).DatabaseSync);
+  return new Database(path.join(home, names[0]), { readOnly: true });
 }
